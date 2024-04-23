@@ -13,8 +13,7 @@ const userSchema = new Schema(
       unique: true,
     },
     phoneNumber: {
-      type: Number,
-      maxlength: 10,
+      type: String,  
     },
     password: {
       type: String,
@@ -24,6 +23,11 @@ const userSchema = new Schema(
       type: String,
       trim: true,
       default: "",
+    },
+    role:{
+      type:String,
+      enum:["user"],
+      default:"user"
     },
     isVerified:{
       type:Boolean,

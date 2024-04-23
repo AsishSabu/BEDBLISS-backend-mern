@@ -11,7 +11,7 @@ export interface UserInterface {
   password: string;
   profilePic?: string;
   phoneNumber: string;
-  role?: string;
+  role: string;
   wallet?: string;
   isVerified: boolean;
   isBlocked: boolean;
