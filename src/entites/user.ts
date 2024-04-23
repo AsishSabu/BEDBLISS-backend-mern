@@ -8,7 +8,7 @@ export default function userEntity(
     // getFirstName:():string=>firstName,
     getName:():string=>name,
     getEmail:():string=>email,
-    getPhoneNumber:():number=>parseInt(phoneNumber),
+    getPhoneNumber:():string=>phoneNumber,
     getPassword:():string=>password
 }
 }

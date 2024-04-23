@@ -13,11 +13,11 @@ const authRouter = () => {
     userDbRepository,
     userRepositoryMongoDb
   );
-  router.post("/signup", controller.registerUser);
+  router.post("/auth/register", controller.registerUser);
 
-  router.post("/login",controller.userLogin);
+  router.post("/auth/login",controller.userLogin);
 
-  router.post("/verify-otp",controller.verifyOtp)
+  router.post("/auth/verify-otp",controller.verifyOtp)
  
 
   return router;

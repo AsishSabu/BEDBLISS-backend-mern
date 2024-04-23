@@ -1,4 +1,5 @@
 import bcrypt, { compare }  from 'bcryptjs';
+import jwt from "jsonwebtoken"
 import configKeys from "../../config";
 
 
@@ -19,12 +20,28 @@ export const authService=()=>{
         return `${otp}`
     }
 
+    const createTokens=(id:string,name:string,role:string)=>{
+        const payload={
+            id,
+            name,
+            role
+        }
+        const accessToken=jwt.sign(payload,configKeys.ACCESS_SECRET,{
+            expiresIn:"5m"
+        });
+       
+        return accessToken
+    }
+
+
+
 
 
     return{
         encryptedPassword,
         comparePassword,
-        generateOtp
+        generateOtp,
+        createTokens,
     }
 }
 export type AuthService= typeof authService;

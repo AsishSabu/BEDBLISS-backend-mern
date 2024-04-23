@@ -10,7 +10,7 @@ import {
   userRegister,
   loginUser,
   verifyOtpUser,
-} from "../../app/use-cases/user/auth/userAuth";
+} from "../../app/use-cases/User/auth/userAuth";
 import { HttpStatus } from "../../types/httpStatus";
 
 const authController = (
@@ -49,16 +49,16 @@ const authController = (
   };
 
   const userLogin = asyncHandler(
-    async (req: Request, Res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const { email, password }: { email: string; password: string } =
-          req.body;
-        const isEmailExist = await loginUser(
+       
+        const {accessToken,userid} = await loginUser(
           req.body,
           dbRepositoryUser,
           authService
         );
-        Res.status(HttpStatus.OK).json({ message: "succesfully logined" });
+        res.json({status:"success",message:"user verified",accessToken,userid})
+        
       } catch (error) {
         next(error);
       }
