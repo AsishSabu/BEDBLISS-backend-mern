@@ -5,6 +5,8 @@ import {
   UserInterface,
 } from "../../../../types/userInterfaces";
 import AppError from "../../../../utils/appError";
+import sendMail from "../../../../utils/sendMail";
+import { otpEmail } from "../../../../utils/userEmail";
 import { userDbInterface } from "../../../interfaces/userDbRepositories";
 import { AuthServiceInterface } from "../../../service-interface/authServices";
 
@@ -39,6 +41,8 @@ export const userRegister = async (
 
   //adding otp to database
   await userRepository.addOtp(OTP, newUser.id);
+  const emailSubject = "Account verification";
+  sendMail(newUser.email,emailSubject,otpEmail(OTP,newUser.name))
 
   return newUser;
 };
@@ -80,9 +84,9 @@ export const loginUser = async (
     isEmailExist.name,
     isEmailExist.role  
   );
-  const userid=isEmailExist.id
 
-  return { accessToken,userid}
+
+  return { accessToken,isEmailExist}
 };
 
 export const verifyOtpUser = async (
