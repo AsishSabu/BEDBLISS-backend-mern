@@ -1,22 +1,22 @@
-import createUserEntity, { UserEntityType } from "../../../../entites/user";
+import createOwnerEntity, { UserEntityType } from "./../../../../entites/user";
 import { HttpStatus } from "../../../../types/httpStatus";
 import {
-  CreateUserInterface,
-  UserInterface,
-} from "../../../../types/userInterfaces";
+  CreateOwnerInterface,
+  OwnerInterface,
+} from "../../../../types/OwnerInterfaces";
 import AppError from "../../../../utils/appError";
 import sendMail from "../../../../utils/sendMail";
 import { otpEmail } from "../../../../utils/userEmail";
-import { userDbInterface } from "../../../interfaces/userDbRepositories";
+import { ownerDbInterface } from "../../../interfaces/ownerDbinterface";
 import { AuthServiceInterface } from "../../../service-interface/authServices";
 
-export const userRegister = async (
-  user: CreateUserInterface,
-  userRepository: ReturnType<userDbInterface>,
+export const ownerRegister = async (
+  owner: CreateOwnerInterface,
+  ownerRepository: ReturnType<ownerDbInterface>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const { name, email, password, phoneNumber } = user;
-  const existingEmailUser = await userRepository.getUserByEmail(email);
+  const { name, email, password, phoneNumber } = owner;
+  const existingEmailUser = await ownerRepository.getOwnerByEmail(email);
   if (existingEmailUser) {
     throw new AppError(
       "this email is already register with an account",
@@ -25,7 +25,7 @@ export const userRegister = async (
   }
   const hashedPassword: string = await authService.encryptPassword(password);
 
-  const userEntity: UserEntityType = createUserEntity(
+  const userEntity: UserEntityType = createOwnerEntity(
     name,
     email,
     phoneNumber,
@@ -33,29 +33,27 @@ export const userRegister = async (
   );
 
   // create a new user
-  const newUser: UserInterface = await userRepository.addUser(userEntity);
+  const newUser: OwnerInterface = await ownerRepository.addOwner(userEntity);
 
   const OTP = authService.generateOtp();
 
   console.log(OTP);
 
   //adding otp to database
-  await userRepository.addOtp(OTP, newUser.id);
+  await ownerRepository.addOtp(OTP, newUser.id);
   const emailSubject = "Account verification";
-  sendMail(newUser.email,emailSubject,otpEmail(OTP,newUser.name))
+  sendMail(newUser.email, emailSubject, otpEmail(OTP, newUser.name));
 
   return newUser;
 };
 
-//user login
-
-export const loginUser = async (
+export const loginOwner = async (
   user: { email: string; password: string },
-  userRepository: ReturnType<userDbInterface>,
+  userRepository: ReturnType<ownerDbInterface>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
   const { email, password } = user;
-  const isEmailExist = await userRepository.getUserByEmail(email);
+  const isEmailExist = await userRepository.getOwnerByEmail(email);
 
   if (!isEmailExist) {
     throw new AppError("Invalid Credantials", HttpStatus.UNAUTHORIZED);
@@ -82,27 +80,28 @@ export const loginUser = async (
   const accessToken = authService.createTokens(
     isEmailExist.id,
     isEmailExist.name,
-    isEmailExist.role  
+    isEmailExist.role
   );
 
-
-  return { accessToken,isEmailExist}
+  return { accessToken, isEmailExist };
 };
 
-export const verifyOtpUser = async (
+export const verifyOtpOwner = async (
   otp: string,
   userId: string,
-  userRepository: ReturnType<userDbInterface>
+  userRepository: ReturnType<ownerDbInterface>
 ) => {
+    console.log(otp);
+    
   if (!otp) {
     throw new AppError("please provide an OTP", HttpStatus.BAD_REQUEST);
   }
-  const otpUser = await userRepository.findOtpWithUser(userId);
+  const otpUser = await userRepository.findOtpWithOwner(userId);
   if (!otpUser) {
     throw new AppError("Invlaid OTP ", HttpStatus.BAD_REQUEST);
   }
   if (otpUser.otp === otp) {
-    await userRepository.updateUserverification(userId);
+    await userRepository.updateOwnerverification(userId);
     return true;
   } else {
     throw new AppError("Invalid OTP,try again", HttpStatus.BAD_REQUEST);

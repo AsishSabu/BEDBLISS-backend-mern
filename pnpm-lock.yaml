@@ -32,6 +32,9 @@ importers:
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
+      nodemailer:
+        specifier: ^6.9.13
+        version: 6.9.13
       nodemon:
         specifier: ^3.1.0
         version: 3.1.0
@@ -656,6 +659,10 @@ packages:
     peerDependenciesMeta:
       encoding:
         optional: true
+
+  nodemailer@6.9.13:
+    resolution: {integrity: sha512-7o38Yogx6krdoBf3jCAqnIN4oSQFx+fMa0I7dK1D+me9kBxx12D+/33wSb+fhOCtIxvYJ+4x4IMEhmhCKfAiOA==}
+    engines: {node: '>=6.0.0'}
 
   nodemon@3.1.0:
     resolution: {integrity: sha512-xqlktYlDMCepBJd43ZQhjWwMw2obW/JRvkrLxq5RCNcuDDX1DbcPT+qT1IlIIdf+DhnWs90JpTMe+Y5KxOchvA==}
@@ -1527,6 +1534,8 @@ snapshots:
   node-fetch@2.7.0:
     dependencies:
       whatwg-url: 5.0.0
+
+  nodemailer@6.9.13: {}
 
   nodemon@3.1.0:
     dependencies:

@@ -52,12 +52,12 @@ const authController = (
     async (req: Request, res: Response, next: NextFunction) => {
       try {
        
-        const {accessToken,userid} = await loginUser(
+        const {accessToken,isEmailExist} = await loginUser(
           req.body,
           dbRepositoryUser,
           authService
         );
-        res.json({status:"success",message:"user verified",accessToken,userid})
+        res.json({status:"success",message:"user logined",accessToken,user:isEmailExist})
         
       } catch (error) {
         next(error);
