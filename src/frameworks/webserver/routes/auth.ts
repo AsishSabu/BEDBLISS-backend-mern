@@ -17,7 +17,7 @@ const authRouter = () => {
 
   router.post("/auth/login",controller.userLogin);
 
-  router.post("/auth/verify-otp",controller.verifyOtp)
+  router.post("/auth/verifyOtp",controller.verifyOtp)
  
 
   return router;

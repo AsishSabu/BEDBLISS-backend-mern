@@ -1,4 +1,3 @@
-import { ObjectId } from "mongoose";
 import { UserEntityType } from "../../../entites/user";
 import otpModel from "../models/otpModel";
 import User from "../models/userModel";
