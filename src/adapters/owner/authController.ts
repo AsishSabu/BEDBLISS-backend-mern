@@ -7,7 +7,8 @@ import { OwnerInterface } from "../../types/OwnerInterfaces";
 import {Request,Response,NextFunction}from "express";
 import { AuthServiceInterface } from "../../app/service-interface/authServices";
 import { AuthService } from "../../frameworks/services/authservice";
-import { ownerRegister,loginOwner,verifyOtpOwner} from "../../app/use-cases/Owner/auth/ownerAuth";
+import { ownerRegister,loginOwner,verifyOtpOwner,authenticateGoogleandFacebookOwner} from "../../app/use-cases/Owner/auth/ownerAuth";
+import { GoogleAndFacebookResponseType } from '../../types/GoogleandFacebookResponseTypes';
 
 const authController=(
     authServiceInterface:AuthServiceInterface,
@@ -60,11 +61,32 @@ const authController=(
         }
       );
 
+      const GoogleAndFacebbokSignIn=async(
+        req:Request,
+        res:Response,
+        next:NextFunction
+      )=>{
+        try {
+          const ownerData:GoogleAndFacebookResponseType=req.body
+          const {accessToken,isEmailExist,newOwner}=await authenticateGoogleandFacebookOwner(
+            ownerData,
+            dbRepositoryOwner,
+            authService
+          );
+          const owner=isEmailExist?isEmailExist:newOwner;
+          res.status(HttpStatus.OK)
+          .json({message:"login success",owner,accessToken})
+          
+        } catch (error) {
+          next(error)
+        }
+      }
 
       return{
         registerUser,
         ownerLogin,
-        verifyOtp
+        verifyOtp,
+        GoogleAndFacebbokSignIn
       }
     
 

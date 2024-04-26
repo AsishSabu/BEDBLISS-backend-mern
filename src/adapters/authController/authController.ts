@@ -87,6 +87,7 @@ const authController = (
       next(error)
     }
   }
+  
   return {
     registerUser,
     userLogin,

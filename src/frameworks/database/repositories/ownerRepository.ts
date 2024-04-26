@@ -1,7 +1,7 @@
 import otpModel from "../models/otpModel";
 import Owner from "../models/ownerMOdel";
 import { OwnerInterface } from "../../../types/OwnerInterfaces";
-import { UserEntityType } from "../../../entites/user";
+import { GoogleandFaceebookUserEntityType, UserEntityType } from "../../../entites/user";
 
 export const ownerRepositoryMongoDb = () => {
   //get owner by email
@@ -32,6 +32,13 @@ export const ownerRepositoryMongoDb = () => {
   const updateUserVerified = async (userId: string) => {
     await Owner.findOneAndUpdate({ _id: userId }, { isVerified: true });
   };
+  const registerGoogleFacebookSignedOwner=async(user:GoogleandFaceebookUserEntityType)=>
+    await  Owner.create({
+       name:user.name(),
+       email:user.email(),
+       profilePic:user.picture(),
+       isVerified:user.email_verified(),
+     })
   return{
     getOwnerEmail,
     addOwner,
@@ -39,6 +46,7 @@ export const ownerRepositoryMongoDb = () => {
     findUserOtp,
     deleteUserOtp,
     updateUserVerified,
+    registerGoogleFacebookSignedOwner
   }
 };
 export type ownerRepositoryMongoDb=typeof ownerRepositoryMongoDb;
