@@ -1,4 +1,4 @@
-import { UserEntityType } from "../../entites/user";
+import { GoogleandFaceebookUserEntityType, UserEntityType } from "../../entites/user";
 import { ownerRepositoryMongoDb } from "../../frameworks/database/repositories/ownerRepository";
 
 export const ownerDbRepository = (
@@ -21,6 +21,8 @@ export const ownerDbRepository = (
 
   const updateOwnerverification = async (userId: string) =>
     await repository.updateUserVerified(userId);
+  const registerGooglefacebookoOwner=async(owner:GoogleandFaceebookUserEntityType)=>
+    await repository.registerGoogleFacebookSignedOwner(owner)
 
   return{
     getOwnerByEmail,
@@ -28,7 +30,8 @@ export const ownerDbRepository = (
     addOtp,
     findOtpWithOwner,
     deleteOtpWithOwner,
-    updateOwnerverification
+    updateOwnerverification,
+    registerGooglefacebookoOwner
   }
 };
 

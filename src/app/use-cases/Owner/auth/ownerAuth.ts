@@ -1,4 +1,4 @@
-import createOwnerEntity, { UserEntityType } from "./../../../../entites/user";
+import createOwnerEntity, { GoogleandFaceebookSignInUserEntity, GoogleandFaceebookUserEntityType, UserEntityType } from "./../../../../entites/user";
 import { HttpStatus } from "../../../../types/httpStatus";
 import {
   CreateOwnerInterface,
@@ -9,6 +9,8 @@ import sendMail from "../../../../utils/sendMail";
 import { otpEmail } from "../../../../utils/userEmail";
 import { ownerDbInterface } from "../../../interfaces/ownerDbinterface";
 import { AuthServiceInterface } from "../../../service-interface/authServices";
+import { GoogleAndFacebookResponseType } from "../../../../types/GoogleandFacebookResponseTypes";
+
 
 export const ownerRegister = async (
   owner: CreateOwnerInterface,
@@ -107,3 +109,41 @@ export const verifyOtpOwner = async (
     throw new AppError("Invalid OTP,try again", HttpStatus.BAD_REQUEST);
   }
 };
+export const authenticateGoogleandFacebookOwner=async(
+  ownerData:GoogleAndFacebookResponseType,
+  ownerRepository: ReturnType<ownerDbInterface>,
+  authService: ReturnType<AuthServiceInterface>
+)=>{
+  const {name,email,picture,email_verified}=ownerData;
+  const isEmailExist = await ownerRepository.getOwnerByEmail(email);
+  if(isEmailExist?.isBlocked){
+    throw new AppError( "Your account is blocked by administrator",
+    HttpStatus.FORBIDDEN)
+  }
+  if(isEmailExist){
+    const accessToken=authService.createTokens(
+      isEmailExist.id,
+      isEmailExist.name,
+      isEmailExist.role
+    )
+    return{isEmailExist,accessToken}
+  }else{
+    const googleFacebookOwner:GoogleandFaceebookUserEntityType=GoogleandFaceebookSignInUserEntity(
+      name,
+      email,
+      picture,
+      email_verified
+    );
+    const newOwner=await ownerRepository.registerGooglefacebookoOwner(googleFacebookOwner);
+    const ownerId = newOwner._id as unknown as string;
+    const Name = newOwner.name as unknown as string;
+    const accessToken=authService.createTokens(
+      ownerId,
+      Name,
+      newOwner.role
+    )
+    return {accessToken,newOwner}
+  }
+ 
+  
+}

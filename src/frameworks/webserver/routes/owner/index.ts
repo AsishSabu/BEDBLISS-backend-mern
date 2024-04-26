@@ -16,6 +16,8 @@ const ownerRouter = () => {
     router.post("/auth/register",controller.registerUser);
     router.post("/auth/login",controller.ownerLogin)
     router.post("/auth/verifyOtp",controller.verifyOtp)
+    router.post("/auth/googleSignIn",controller.GoogleAndFacebbokSignIn)
+    router.post("/auth/facebookSignIn",controller.GoogleAndFacebbokSignIn)
     return router
 };
 export default ownerRouter;
