@@ -18,6 +18,10 @@ const authRouter = () => {
   router.post("/auth/login",controller.userLogin);
 
   router.post("/auth/verifyOtp",controller.verifyOtp)
+
+  router.post("/auth/googleSignIn",controller.GoogleAndFacebbokSignIn);
+
+  router.post("/auth/facebookSignIn",controller.GoogleAndFacebbokSignIn)
  
 
   return router;

@@ -1,5 +1,4 @@
-import { ObjectId } from "mongoose";
-import { UserEntityType } from "../../entites/user";
+import { GoogleandFaceebookUserEntityType, UserEntityType } from "../../entites/user";
 import { userRepositoryMongoDb } from "./../../frameworks/database/repositories/userRepostoryMongoDB";
 
 export const userDbRepository = (
@@ -22,6 +21,9 @@ export const userDbRepository = (
 
   const updateUserverification = async (userId: string) =>
     await repository.updateUserVerified(userId);
+
+  const registerGooglefacebookoUser=async(user:GoogleandFaceebookUserEntityType)=>
+    await repository.registerGoogleFacebookSignedUser(user)
   return {
     getUserByEmail,
     addUser,
@@ -29,6 +31,7 @@ export const userDbRepository = (
     findOtpWithUser,
     deleteOtpWithUser,
     updateUserverification,
+    registerGooglefacebookoUser
   };
 };
 
