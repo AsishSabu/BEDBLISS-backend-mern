@@ -14,3 +14,18 @@ export default function userEntity(
 }
 
 export type UserEntityType=ReturnType<typeof userEntity>
+
+export function GoogleandFaceebookSignInUserEntity(
+  name:string,
+  email:string,
+  picture:string,
+  email_verified:boolean
+){
+  return{
+    name:():string=>name,
+    email:():string=>email,
+    picture:():string=>picture,
+    email_verified:():boolean=>email_verified
+  };
+}
+export type GoogleandFaceebookUserEntityType=ReturnType<typeof GoogleandFaceebookSignInUserEntity>;

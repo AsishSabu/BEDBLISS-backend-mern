@@ -10,8 +10,10 @@ import {
   userRegister,
   loginUser,
   verifyOtpUser,
+  authenticateGoogleandFacebookUser
 } from "../../app/use-cases/User/auth/userAuth";
 import { HttpStatus } from "../../types/httpStatus";
+import { GoogleAndFacebookResponseType } from "../../types/GoogleandFacebookResponseTypes";
 
 const authController = (
   authServiceInterface: AuthServiceInterface,
@@ -64,10 +66,32 @@ const authController = (
       }
     }
   );
+
+  const GoogleAndFacebbokSignIn=async(
+    req:Request,
+    res:Response,
+    next:NextFunction
+  )=>{
+    try {
+      const userData:GoogleAndFacebookResponseType=req.body
+      const {accessToken,isEmailExist,newUser}=await authenticateGoogleandFacebookUser(
+        userData,
+        dbRepositoryUser,
+        authService
+      );
+      const user=isEmailExist?isEmailExist:newUser;
+      res.status(HttpStatus.OK)
+      .json({message:"login success",user,accessToken})
+      
+    } catch (error) {
+      next(error)
+    }
+  }
   return {
     registerUser,
     userLogin,
     verifyOtp,
+    GoogleAndFacebbokSignIn
   };
 };
 

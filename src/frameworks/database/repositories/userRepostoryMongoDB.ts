@@ -1,4 +1,4 @@
-import { UserEntityType } from "../../../entites/user";
+import { UserEntityType,GoogleandFaceebookUserEntityType } from "../../../entites/user";
 import otpModel from "../models/otpModel";
 import User from "../models/userModel";
 import { UserInterface } from "./../../../types/userInterfaces";
@@ -36,6 +36,15 @@ export const userRepositoryMongoDb = () => {
     await User.findOneAndUpdate({ _id: userId }, { isVerified: true });
   };
 
+  const registerGoogleFacebookSignedUser=async(user:GoogleandFaceebookUserEntityType)=>
+   await  User.create({
+      name:user.name(),
+      email:user.email(),
+      profilePic:user.picture(),
+      isVerified:user.email_verified(),
+    })
+  
+
   return {
     getUserEmail,
     addUser,
@@ -43,6 +52,7 @@ export const userRepositoryMongoDb = () => {
     findUserOtp,
     deleteUserOtp,
     updateUserVerified,
+    registerGoogleFacebookSignedUser
   };
 };
 

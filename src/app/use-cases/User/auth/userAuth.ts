@@ -1,4 +1,5 @@
-import createUserEntity, { UserEntityType } from "../../../../entites/user";
+import createUserEntity, { UserEntityType,GoogleandFaceebookSignInUserEntity,GoogleandFaceebookUserEntityType} from "../../../../entites/user";
+import { GoogleAndFacebookResponseType } from "../../../../types/GoogleandFacebookResponseTypes";
 import { HttpStatus } from "../../../../types/httpStatus";
 import {
   CreateUserInterface,
@@ -108,3 +109,42 @@ export const verifyOtpUser = async (
     throw new AppError("Invalid OTP,try again", HttpStatus.BAD_REQUEST);
   }
 };
+
+export const authenticateGoogleandFacebookUser=async(
+  userData:GoogleAndFacebookResponseType,
+  userRepository: ReturnType<userDbInterface>,
+  authService: ReturnType<AuthServiceInterface>
+)=>{
+  const {name,email,picture,email_verified}=userData;
+  const isEmailExist = await userRepository.getUserByEmail(email);
+  if(isEmailExist?.isBlocked){
+    throw new AppError( "Your account is blocked by administrator",
+    HttpStatus.FORBIDDEN)
+  }
+  if(isEmailExist){
+    const accessToken=authService.createTokens(
+      isEmailExist.id,
+      isEmailExist.name,
+      isEmailExist.role
+    )
+    return{isEmailExist,accessToken}
+  }else{
+    const googleFacebookUser:GoogleandFaceebookUserEntityType=GoogleandFaceebookSignInUserEntity(
+      name,
+      email,
+      picture,
+      email_verified
+    );
+    const newUser=await userRepository.registerGooglefacebookoUser(googleFacebookUser);
+    const userId = newUser._id as unknown as string;
+    const Name = newUser.name as unknown as string;
+    const accessToken=authService.createTokens(
+      userId,
+      Name,
+      newUser.role
+    )
+    return {accessToken,newUser}
+  }
+ 
+  
+}
