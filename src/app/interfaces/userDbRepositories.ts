@@ -24,6 +24,14 @@ export const userDbRepository = (
 
   const registerGooglefacebookoUser=async(user:GoogleandFaceebookUserEntityType)=>
     await repository.registerGoogleFacebookSignedUser(user)
+
+  const verifyAndResetPassword = async (verificationCode: string,password: string) =>
+    await repository.findVerificationCodeAndUpdate(verificationCode, password);
+
+  const updateVerificationCode = async (
+    email: string,
+    verificationCode: string
+  ) => await repository.updateVerificationCode(email, verificationCode);
   return {
     getUserByEmail,
     addUser,
@@ -31,7 +39,9 @@ export const userDbRepository = (
     findOtpWithUser,
     deleteOtpWithUser,
     updateUserverification,
-    registerGooglefacebookoUser
+    registerGooglefacebookoUser,
+    verifyAndResetPassword,
+    updateVerificationCode
   };
 };
 

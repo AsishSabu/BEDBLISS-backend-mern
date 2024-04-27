@@ -10,7 +10,9 @@ import {
   userRegister,
   loginUser,
   verifyOtpUser,
-  authenticateGoogleandFacebookUser
+  authenticateGoogleandFacebookUser,
+  sendResetVerificationCode,
+  verifyTokenResetPassword
 } from "../../app/use-cases/User/auth/userAuth";
 import { HttpStatus } from "../../types/httpStatus";
 import { GoogleAndFacebookResponseType } from "../../types/GoogleandFacebookResponseTypes";
@@ -87,12 +89,58 @@ const authController = (
       next(error)
     }
   }
+
+  const forgotPassword=async(
+    req:Request,
+    res:Response,
+    next:NextFunction
+  )=>{
+    try {
+      const {email}=req.body
+      await sendResetVerificationCode(email,dbRepositoryUser,authService)
+      return res.status(HttpStatus.OK)
+      .json({
+        success:true,
+        message:"Reset password code sent to your mail"
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  const resetPassword=async(
+    req:Request,
+    res:Response,
+    next:NextFunction
+  )=>{
+    try {
+      const {password}=req.body;
+      const {token}=req.params;
+      console.log(token);
+      console.log(password)
+      
+      await verifyTokenResetPassword(
+        token,
+        password,
+        dbRepositoryUser,
+        authService
+      );
+      return res.status(HttpStatus.OK).json({
+        success:true,
+        message:"Reset password success,you can login with your new password"
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
   
   return {
     registerUser,
     userLogin,
     verifyOtp,
-    GoogleAndFacebbokSignIn
+    GoogleAndFacebbokSignIn,
+    forgotPassword,
+    resetPassword
   };
 };
 

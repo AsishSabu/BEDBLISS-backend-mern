@@ -7,7 +7,7 @@ import {
 } from "../../../../types/userInterfaces";
 import AppError from "../../../../utils/appError";
 import sendMail from "../../../../utils/sendMail";
-import { otpEmail } from "../../../../utils/userEmail";
+import { forgotPasswordEmail, otpEmail } from "../../../../utils/userEmail";
 import { userDbInterface } from "../../../interfaces/userDbRepositories";
 import { AuthServiceInterface } from "../../../service-interface/authServices";
 
@@ -147,4 +147,54 @@ export const authenticateGoogleandFacebookUser=async(
   }
  
   
+}
+export const sendResetVerificationCode = async (
+  email: string,
+  userRepository: ReturnType<userDbInterface>,
+  authService: ReturnType<AuthServiceInterface>
+) => {
+  const isEmailExist = await userRepository.getUserByEmail(email);
+
+  if (!isEmailExist)
+    throw new AppError(`${email} does not exist`, HttpStatus.BAD_REQUEST);
+
+  const verificationCode = authService.getRandomString();
+
+  const isUpdated = await userRepository.updateVerificationCode(
+    email,
+    verificationCode
+  );
+  console.log(verificationCode);
+  
+  sendMail(
+    email,
+    "Reset password",
+    forgotPasswordEmail(isEmailExist.name, verificationCode)
+  );
+};
+
+export const verifyTokenResetPassword=async(
+  verificationCode:string,
+  password:string,
+  userRepository: ReturnType<userDbInterface>,
+  authService: ReturnType<AuthServiceInterface>
+)=>{
+  console.log("mdlkmklsdmflsmdlfmlsdkmfgklsdmglmsdlgmsdlmg");
+  
+  if (!verificationCode)
+    throw new AppError(
+      "Please provide a verification code",
+      HttpStatus.BAD_REQUEST
+    );
+    const hashedPassword=await authService.encryptPassword(password);
+    const isPasswordUpdated=await userRepository.verifyAndResetPassword(
+      verificationCode,
+      hashedPassword
+    );
+    if(!isPasswordUpdated){
+      throw new AppError(
+        "Invalid token or token expired",
+        HttpStatus.BAD_REQUEST
+      );
+    };
 }
