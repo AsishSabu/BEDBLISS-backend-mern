@@ -1,4 +1,7 @@
-import { UserEntityType,GoogleandFaceebookUserEntityType } from "../../../entites/user";
+import {
+  UserEntityType,
+  GoogleandFaceebookUserEntityType,
+} from "../../../entites/user";
 import otpModel from "../models/otpModel";
 import User from "../models/userModel";
 import { UserInterface } from "./../../../types/userInterfaces";
@@ -36,15 +39,26 @@ export const userRepositoryMongoDb = () => {
     await User.findOneAndUpdate({ _id: userId }, { isVerified: true });
   };
 
-  const registerGoogleFacebookSignedUser=async(user:GoogleandFaceebookUserEntityType)=>
-   await  User.create({
-      name:user.name(),
-      email:user.email(),
-      profilePic:user.picture(),
-      isVerified:user.email_verified(),
-    })
-  
-
+  const registerGoogleFacebookSignedUser = async (
+    user: GoogleandFaceebookUserEntityType
+  ) =>
+    await User.create({
+      name: user.name(),
+      email: user.email(),
+      profilePic: user.picture(),
+      isVerified: user.email_verified(),
+    });
+  const findVerificationCodeAndUpdate = async (
+    code: string,
+    newPassword: string
+  ) =>
+    await User.findOneAndUpdate(
+      { verificationCode: code },
+      { password: newPassword, verificationCode: null },
+      { upsert: true }
+    );
+  const updateVerificationCode = async (email: string, code: string) =>
+    await User.findOneAndUpdate({ email }, { verificationCode: code });
   return {
     getUserEmail,
     addUser,
@@ -52,7 +66,9 @@ export const userRepositoryMongoDb = () => {
     findUserOtp,
     deleteUserOtp,
     updateUserVerified,
-    registerGoogleFacebookSignedUser
+    registerGoogleFacebookSignedUser,
+    findVerificationCodeAndUpdate,
+    updateVerificationCode,
   };
 };
 

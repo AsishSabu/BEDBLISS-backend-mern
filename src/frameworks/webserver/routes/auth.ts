@@ -23,6 +23,9 @@ const authRouter = () => {
 
   router.post("/auth/facebookSignIn",controller.GoogleAndFacebbokSignIn)
  
+  router.post("/auth/forgot-password",controller.forgotPassword)
+
+  router.post("/auth/reset_password/:token",controller.resetPassword)
 
   return router;
 };

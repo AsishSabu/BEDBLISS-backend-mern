@@ -10,11 +10,14 @@ export const authServiceInterface = (service: AuthServiceReturn) => {
 
   const createTokens=(id:string,name:string,role:string)=>service.createTokens(id,name,role)
 
+  const getRandomString=()=>service.getRandomString()
+
   return {
     encryptPassword,
     comparePassword,
     generateOtp,
-    createTokens
+    createTokens,
+    getRandomString
   };
 };
 export type AuthServiceInterface = typeof authServiceInterface;

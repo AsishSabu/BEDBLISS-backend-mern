@@ -36,7 +36,8 @@ const userSchema = new Schema(
     isBlocked:{
       type:Boolean,
       default:false,
-    }
+    },
+    verificationCode: String,
   },
   { timestamps: true }
 );
