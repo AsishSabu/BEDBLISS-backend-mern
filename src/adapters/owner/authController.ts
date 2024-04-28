@@ -7,7 +7,7 @@ import { OwnerInterface } from "../../types/OwnerInterfaces";
 import {Request,Response,NextFunction}from "express";
 import { AuthServiceInterface } from "../../app/service-interface/authServices";
 import { AuthService } from "../../frameworks/services/authservice";
-import { ownerRegister,loginOwner,verifyOtpOwner,authenticateGoogleandFacebookOwner} from "../../app/use-cases/Owner/auth/ownerAuth";
+import { ownerRegister,loginOwner,verifyOtpOwner,authenticateGoogleandFacebookOwner, deleteOtp} from "../../app/use-cases/Owner/auth/ownerAuth";
 import { GoogleAndFacebookResponseType } from '../../types/GoogleandFacebookResponseTypes';
 
 const authController=(
@@ -43,6 +43,18 @@ const authController=(
           next(error);
         }
       };
+
+      const resendOtp=async(req:Request,res:Response,next:NextFunction)=>{
+        try {
+          const {ownerId}=req.body;
+          console.log(ownerId);
+          
+          await deleteOtp(ownerId,dbRepositoryOwner,authService)
+           res.json({message:"New otp sent to mail"});
+        } catch (error) {
+          next(error)
+        }
+      }
     
       const ownerLogin = asyncHandler(
         async (req: Request, res: Response, next: NextFunction) => {
@@ -86,7 +98,8 @@ const authController=(
         registerUser,
         ownerLogin,
         verifyOtp,
-        GoogleAndFacebbokSignIn
+        GoogleAndFacebbokSignIn,
+        resendOtp
       }
     
 

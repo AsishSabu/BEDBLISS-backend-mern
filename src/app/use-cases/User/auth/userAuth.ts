@@ -1,4 +1,5 @@
 import createUserEntity, { UserEntityType,GoogleandFaceebookSignInUserEntity,GoogleandFaceebookUserEntityType} from "../../../../entites/user";
+import { authService } from "../../../../frameworks/services/authservice";
 import { GoogleAndFacebookResponseType } from "../../../../types/GoogleandFacebookResponseTypes";
 import { HttpStatus } from "../../../../types/httpStatus";
 import {
@@ -197,4 +198,29 @@ export const verifyTokenResetPassword=async(
         HttpStatus.BAD_REQUEST
       );
     };
+}
+
+export const deleteOtp=async(
+  userId:string,
+  userRepository: ReturnType<userDbInterface>,
+  authService: ReturnType<AuthServiceInterface>
+)=>{
+  const newOtp:string=authService.generateOtp();
+  const deleted=await userRepository.deleteOtpWithUser(userId);
+  if(deleted){
+    await userRepository.addOtp(newOtp,userId);
+
+  }
+  const User=await userRepository.getUserById(userId);
+  if(User!==null){
+    const user=User as UserInterface
+    if(user){
+      const emailSubject="Account verification ,New Otp"
+      sendMail(user.email,emailSubject,otpEmail(newOtp,user.name))
+    }
+  }
+  console.log(newOtp);
+  
+
+ 
 }

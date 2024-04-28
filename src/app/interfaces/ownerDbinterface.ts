@@ -7,6 +7,9 @@ export const ownerDbRepository = (
   const getOwnerByEmail = async (email: string) =>
     await repository.getOwnerEmail(email);
 
+  const getOwnerById = async (id: string) =>
+    await repository.getOwnerbyId(id);
+
   const addOwner = async (user: UserEntityType) =>
     await repository.addOwner(user);
 
@@ -21,6 +24,7 @@ export const ownerDbRepository = (
 
   const updateOwnerverification = async (userId: string) =>
     await repository.updateUserVerified(userId);
+
   const registerGooglefacebookoOwner=async(owner:GoogleandFaceebookUserEntityType)=>
     await repository.registerGoogleFacebookSignedOwner(owner)
 
@@ -31,7 +35,8 @@ export const ownerDbRepository = (
     findOtpWithOwner,
     deleteOtpWithOwner,
     updateOwnerverification,
-    registerGooglefacebookoOwner
+    registerGooglefacebookoOwner,
+    getOwnerById
   }
 };
 

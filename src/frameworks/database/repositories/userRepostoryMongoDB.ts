@@ -12,6 +12,7 @@ export const userRepositoryMongoDb = () => {
     const user: UserInterface | null = await User.findOne({ email });
     return user;
   };
+  const getUserbyId = async (id: string) => await User.findById(id);
   //add user
   const addUser = async (user: UserEntityType) => {
     const newUser: any = new User({
@@ -69,6 +70,7 @@ export const userRepositoryMongoDb = () => {
     registerGoogleFacebookSignedUser,
     findVerificationCodeAndUpdate,
     updateVerificationCode,
+    getUserbyId
   };
 };
 

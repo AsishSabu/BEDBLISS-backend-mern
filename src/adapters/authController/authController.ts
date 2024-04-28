@@ -12,7 +12,8 @@ import {
   verifyOtpUser,
   authenticateGoogleandFacebookUser,
   sendResetVerificationCode,
-  verifyTokenResetPassword
+  verifyTokenResetPassword,
+  deleteOtp
 } from "../../app/use-cases/User/auth/userAuth";
 import { HttpStatus } from "../../types/httpStatus";
 import { GoogleAndFacebookResponseType } from "../../types/GoogleandFacebookResponseTypes";
@@ -33,7 +34,7 @@ const authController = (
     const newUser = await userRegister(user, dbRepositoryUser, authService);
     res.json({
       status: "success",
-      message: "user has been registerd successfully",
+      message: "otp is sended to the email",
       newUser,
     });
   });
@@ -51,6 +52,16 @@ const authController = (
       next(error);
     }
   };
+
+  const resendOtp=async(req:Request,res:Response,next:NextFunction)=>{
+    try {  
+      const {userId}=req.body;
+     await deleteOtp(userId,dbRepositoryUser,authService)
+      res.json({message:"New otp sent to mail"});
+    } catch (error) {
+      next(error)
+    }
+  }
 
   const userLogin = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -140,7 +151,8 @@ const authController = (
     verifyOtp,
     GoogleAndFacebbokSignIn,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    resendOtp
   };
 };
 
