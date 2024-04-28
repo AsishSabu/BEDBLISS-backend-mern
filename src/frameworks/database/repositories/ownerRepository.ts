@@ -9,6 +9,8 @@ export const ownerRepositoryMongoDb = () => {
     const owner: OwnerInterface | null = await Owner.findOne({ email });
     return owner;
   };
+  const getOwnerbyId=async(id:string)=>
+    await Owner.findById(id)
   //add user
   const addOwner = async (owner: UserEntityType) => {
     const newOwner: any = new Owner({
@@ -29,6 +31,7 @@ export const ownerRepositoryMongoDb = () => {
 
   const deleteUserOtp = async (userId: string) =>
     await otpModel.deleteOne({ userId });
+
   const updateUserVerified = async (userId: string) => {
     await Owner.findOneAndUpdate({ _id: userId }, { isVerified: true });
   };
@@ -46,7 +49,8 @@ export const ownerRepositoryMongoDb = () => {
     findUserOtp,
     deleteUserOtp,
     updateUserVerified,
-    registerGoogleFacebookSignedOwner
+    registerGoogleFacebookSignedOwner,
+    getOwnerbyId
   }
 };
 export type ownerRepositoryMongoDb=typeof ownerRepositoryMongoDb;

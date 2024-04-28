@@ -15,17 +15,19 @@ const authRouter = () => {
   );
   router.post("/auth/register", controller.registerUser);
 
-  router.post("/auth/login",controller.userLogin);
+  router.post("/auth/login", controller.userLogin);
 
-  router.post("/auth/verifyOtp",controller.verifyOtp)
+  router.post("/auth/verifyOtp", controller.verifyOtp);
 
-  router.post("/auth/googleSignIn",controller.GoogleAndFacebbokSignIn);
+  router.post("/auth/resendOtp", controller.resendOtp);
 
-  router.post("/auth/facebookSignIn",controller.GoogleAndFacebbokSignIn)
- 
-  router.post("/auth/forgot-password",controller.forgotPassword)
+  router.post("/auth/googleSignIn", controller.GoogleAndFacebbokSignIn);
 
-  router.post("/auth/reset_password/:token",controller.resetPassword)
+  router.post("/auth/facebookSignIn", controller.GoogleAndFacebbokSignIn);
+
+  router.post("/auth/forgot-password", controller.forgotPassword);
+
+  router.post("/auth/reset_password/:token", controller.resetPassword);
 
   return router;
 };

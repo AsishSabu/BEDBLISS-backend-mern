@@ -88,6 +88,32 @@ export const loginOwner = async (
   return { accessToken, isEmailExist };
 };
 
+export const deleteOtp=async(
+  OwnerId:string,
+  ownerRepository: ReturnType<ownerDbInterface>,
+  authService: ReturnType<AuthServiceInterface>
+)=>{
+  const newOtp:string=authService.generateOtp();
+  const deleted=await ownerRepository.deleteOtpWithOwner(OwnerId);
+  if(deleted){
+    await ownerRepository.addOtp(newOtp,OwnerId);
+
+  }
+  const Owner=await ownerRepository.getOwnerById(OwnerId);
+  if(Owner!==null){
+    const owner=Owner as OwnerInterface
+    if(owner){
+      const emailSubject="Account verification ,New Otp"
+      sendMail(owner.email,emailSubject,otpEmail(newOtp,owner.name))
+    }
+  }
+  console.log(newOtp);
+  
+
+ 
+}
+
+
 export const verifyOtpOwner = async (
   otp: string,
   userId: string,
