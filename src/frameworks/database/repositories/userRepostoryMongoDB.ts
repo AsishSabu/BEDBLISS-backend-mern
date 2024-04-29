@@ -60,6 +60,9 @@ export const userRepositoryMongoDb = () => {
     );
   const updateVerificationCode = async (email: string, code: string) =>
     await User.findOneAndUpdate({ email }, { verificationCode: code });
+
+  const updateUserInfo = async (id: string, updateData: Record<string, any>) =>
+    await User.findByIdAndUpdate(id, updateData, { new: true });
   return {
     getUserEmail,
     addUser,
@@ -70,7 +73,8 @@ export const userRepositoryMongoDb = () => {
     registerGoogleFacebookSignedUser,
     findVerificationCodeAndUpdate,
     updateVerificationCode,
-    getUserbyId
+    getUserbyId,
+    updateUserInfo
   };
 };
 

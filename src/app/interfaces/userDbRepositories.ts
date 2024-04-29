@@ -42,6 +42,8 @@ export const userDbRepository = (
     email: string,
     verificationCode: string
   ) => await repository.updateVerificationCode(email, verificationCode);
+
+  const updateProfile=async(userId:string,userData:Record<string,any>)=>await repository.updateUserInfo(userId,userData)
   return {
     getUserByEmail,
     addUser,
@@ -52,7 +54,8 @@ export const userDbRepository = (
     registerGooglefacebookoUser,
     verifyAndResetPassword,
     updateVerificationCode,
-    getUserById
+    getUserById,
+    updateProfile
   };
 };
 

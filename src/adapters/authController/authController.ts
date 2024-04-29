@@ -13,10 +13,11 @@ import {
   authenticateGoogleandFacebookUser,
   sendResetVerificationCode,
   verifyTokenResetPassword,
-  deleteOtp
+  deleteOtp,
 } from "../../app/use-cases/User/auth/userAuth";
 import { HttpStatus } from "../../types/httpStatus";
 import { GoogleAndFacebookResponseType } from "../../types/GoogleandFacebookResponseTypes";
+import { getUserProfile } from "../../app/use-cases/User/read&write/profile";
 
 const authController = (
   authServiceInterface: AuthServiceInterface,
@@ -53,83 +54,86 @@ const authController = (
     }
   };
 
-  const resendOtp=async(req:Request,res:Response,next:NextFunction)=>{
-    try {  
-      const {userId}=req.body;
-     await deleteOtp(userId,dbRepositoryUser,authService)
-      res.json({message:"New otp sent to mail"});
+  const resendOtp = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { userId } = req.body;
+      await deleteOtp(userId, dbRepositoryUser, authService);
+      res.json({ message: "New otp sent to mail" });
     } catch (error) {
-      next(error)
+      next(error);
     }
-  }
+  };
 
   const userLogin = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-       
-        const {accessToken,isEmailExist} = await loginUser(
+        const { accessToken, isEmailExist } = await loginUser(
           req.body,
           dbRepositoryUser,
           authService
         );
-        res.json({status:"success",message:"user logined",accessToken,user:isEmailExist})
-        
+        res.json({
+          status: "success",
+          message: "user logined",
+          accessToken,
+          user: isEmailExist,
+        });
       } catch (error) {
         next(error);
       }
     }
   );
 
-  const GoogleAndFacebbokSignIn=async(
-    req:Request,
-    res:Response,
-    next:NextFunction
-  )=>{
+  const GoogleAndFacebbokSignIn = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const userData:GoogleAndFacebookResponseType=req.body
-      const {accessToken,isEmailExist,newUser}=await authenticateGoogleandFacebookUser(
-        userData,
-        dbRepositoryUser,
-        authService
-      );
-      const user=isEmailExist?isEmailExist:newUser;
-      res.status(HttpStatus.OK)
-      .json({message:"login success",user,accessToken})
-      
+      const userData: GoogleAndFacebookResponseType = req.body;
+      const { accessToken, isEmailExist, newUser } =
+        await authenticateGoogleandFacebookUser(
+          userData,
+          dbRepositoryUser,
+          authService
+        );
+      const user = isEmailExist ? isEmailExist : newUser;
+      res
+        .status(HttpStatus.OK)
+        .json({ message: "login success", user, accessToken });
     } catch (error) {
-      next(error)
+      next(error);
     }
-  }
+  };
 
-  const forgotPassword=async(
-    req:Request,
-    res:Response,
-    next:NextFunction
-  )=>{
+  const forgotPassword = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const {email}=req.body
-      await sendResetVerificationCode(email,dbRepositoryUser,authService)
-      return res.status(HttpStatus.OK)
-      .json({
-        success:true,
-        message:"Reset password code sent to your mail"
-      })
+      const { email } = req.body;
+      await sendResetVerificationCode(email, dbRepositoryUser, authService);
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Reset password code sent to your mail",
+      });
     } catch (error) {
-      next(error)
+      next(error);
     }
-  }
+  };
 
-  const resetPassword=async(
-    req:Request,
-    res:Response,
-    next:NextFunction
-  )=>{
+  const resetPassword = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const {password}=req.body;
-      const {token}=req.params;
+      const { password } = req.body;
+      const { token } = req.params;
       console.log(token);
-      console.log(password)
-      
+      console.log(password);
+
       await verifyTokenResetPassword(
         token,
         password,
@@ -137,14 +141,36 @@ const authController = (
         authService
       );
       return res.status(HttpStatus.OK).json({
-        success:true,
-        message:"Reset password success,you can login with your new password"
-      })
+        success: true,
+        message: "Reset password success,you can login with your new password",
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  const userProfile = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      console.log(req.body,"body............");
+      const userId=req.body
+      
+      
+      console.log(userId,'userid')
+      const user  = await getUserProfile(
+        userId,
+        dbRepositoryUser
+      );
+      
+      res.status(200).json({ success: true, user});
     } catch (error) {
       next(error)
     }
-  }
-  
+  };
+
   return {
     registerUser,
     userLogin,
@@ -152,7 +178,8 @@ const authController = (
     GoogleAndFacebbokSignIn,
     forgotPassword,
     resetPassword,
-    resendOtp
+    resendOtp,
+    userProfile
   };
 };
 

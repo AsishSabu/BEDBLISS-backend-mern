@@ -4,6 +4,7 @@ import { authServiceInterface } from "../../../app/service-interface/authService
 import { authService } from "../../services/authservice";
 import { userDbRepository } from "../../../app/interfaces/userDbRepositories";
 import { userRepositoryMongoDb } from "../../database/repositories/userRepostoryMongoDB";
+import authenticateUser from "../middlewares/authMiddleware";
 
 const authRouter = () => {
   const router = express.Router();
@@ -28,6 +29,8 @@ const authRouter = () => {
   router.post("/auth/forgot-password", controller.forgotPassword);
 
   router.post("/auth/reset_password/:token", controller.resetPassword);
+
+  router.get("/profile",authenticateUser,controller.userProfile)
 
   return router;
 };
