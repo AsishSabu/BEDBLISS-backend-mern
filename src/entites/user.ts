@@ -1,14 +1,14 @@
 export default function userEntity(
   name: string,
   email: string,
-  phoneNumber: string,
+  phone: string,
   password: string
 ){
     return{
     // getFirstName:():string=>firstName,
     getName:():string=>name,
     getEmail:():string=>email,
-    getPhoneNumber:():string=>phoneNumber,
+    getPhoneNumber:():string=>phone,
     getPassword:():string=>password
 }
 }

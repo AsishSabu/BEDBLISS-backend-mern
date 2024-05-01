@@ -2,16 +2,15 @@ import {
   GoogleandFaceebookUserEntityType,
   UserEntityType,
 } from "../../entites/user";
-import { userRepositoryMongoDb } from "./../../frameworks/database/repositories/userRepostoryMongoDB";
+import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB";
 
-export const userDbRepository = (
-  repository: ReturnType<userRepositoryMongoDb>
+export const userDbInterface = (
+  repository: ReturnType<userDbRepositoryType>
 ) => {
   const getUserByEmail = async (email: string) =>
     await repository.getUserEmail(email);
 
-  const getUserById = async (id: string) =>
-     await repository.getUserbyId(id);
+  const getUserById = async (id: string) => await repository.getUserbyId(id);
 
   const addUser = async (user: UserEntityType) =>
     await repository.addUser(user);
@@ -43,7 +42,8 @@ export const userDbRepository = (
     verificationCode: string
   ) => await repository.updateVerificationCode(email, verificationCode);
 
-  const updateProfile=async(userId:string,userData:Record<string,any>)=>await repository.updateUserInfo(userId,userData)
+  const updateProfile = async (userId: string, userData: Record<string, any>) =>
+    await repository.updateUserInfo(userId, userData);
   return {
     getUserByEmail,
     addUser,
@@ -55,8 +55,8 @@ export const userDbRepository = (
     verifyAndResetPassword,
     updateVerificationCode,
     getUserById,
-    updateProfile
+    updateProfile,
   };
 };
 
-export type userDbInterface = typeof userDbRepository;
+export type userDbInterfaceType = typeof userDbInterface;

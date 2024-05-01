@@ -1,7 +1,7 @@
 export interface CreateUserInterface {
   name: string;
   email: string;
-  phoneNumber:string;
+  phone:string;
   password: string;
 }
 export interface UserInterface {
@@ -10,7 +10,7 @@ export interface UserInterface {
   email: string;
   password: string;
   profilePic?: string;
-  phoneNumber: string;
+  phone: string;
   role: string;
   wallet?: string;
   isVerified: boolean;

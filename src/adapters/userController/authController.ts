@@ -1,44 +1,48 @@
+import { NextFunction, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import { userRepositoryMongoDb } from "./../../frameworks/database/repositories/userRepostoryMongoDB";
-import { userDbInterface } from "./../../app/interfaces/userDbRepositories";
-import { Request, Response, NextFunction } from "express";
-import { CreateUserInterface, UserInterface } from "../../types/userInterfaces";
+import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces";
 import { AuthServiceInterface } from "../../app/service-interface/authServices";
-import { AuthService } from "../../frameworks/services/authservice";
+import { getUserProfile } from "../../app/use-cases/User/read&write/profile";
+import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB";
+import { AuthServiceType } from "../../frameworks/services/authService";
+import { GoogleAndFacebookResponseType } from "../../types/GoogleandFacebookResponseTypes";
+import { HttpStatus } from "../../types/httpStatus";
+import { CreateUserInterface, UserInterface } from "../../types/userInterfaces";
 
 import {
-  userRegister,
-  loginUser,
-  verifyOtpUser,
   authenticateGoogleandFacebookUser,
-  sendResetVerificationCode,
-  verifyTokenResetPassword,
   deleteOtp,
+  loginUser,
+  sendResetVerificationCode,
+  userRegister,
+  verifyOtpUser,
+  verifyTokenResetPassword,
 } from "../../app/use-cases/User/auth/userAuth";
-import { HttpStatus } from "../../types/httpStatus";
-import { GoogleAndFacebookResponseType } from "../../types/GoogleandFacebookResponseTypes";
-import { getUserProfile } from "../../app/use-cases/User/read&write/profile";
 
 const authController = (
   authServiceInterface: AuthServiceInterface,
-  authServiceImpl: AuthService,
-  userDbRepository: userDbInterface,
-  userDbRepositoryImpl: userRepositoryMongoDb
+  authServiceImpl: AuthServiceType,
+  userDbRepository: userDbInterfaceType,
+  userDbRepositoryImpl: userDbRepositoryType
 ) => {
   const dbRepositoryUser = userDbRepository(userDbRepositoryImpl());
   const authService = authServiceInterface(authServiceImpl());
 
-  const registerUser = asyncHandler(async (req: Request, res: Response) => {
-    console.log(req.body);
-
-    const user: UserInterface = req.body;
-    const newUser = await userRegister(user, dbRepositoryUser, authService);
-    res.json({
-      status: "success",
-      message: "otp is sended to the email",
-      newUser,
-    });
-  });
+  const registerUser = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const user: CreateUserInterface = req.body;
+        const newUser = await userRegister(user, dbRepositoryUser, authService);
+        res.json({
+          status: "success",
+          message: "otp is sended to the email",
+          newUser,
+        });
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
 
   const verifyOtp = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -131,9 +135,6 @@ const authController = (
     try {
       const { password } = req.body;
       const { token } = req.params;
-      console.log(token);
-      console.log(password);
-
       await verifyTokenResetPassword(
         token,
         password,
@@ -149,27 +150,7 @@ const authController = (
     }
   };
 
-  const userProfile = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      console.log(req.body,"body............");
-      const userId=req.body
-      
-      
-      console.log(userId,'userid')
-      const user  = await getUserProfile(
-        userId,
-        dbRepositoryUser
-      );
-      
-      res.status(200).json({ success: true, user});
-    } catch (error) {
-      next(error)
-    }
-  };
+
 
   return {
     registerUser,
@@ -178,8 +159,7 @@ const authController = (
     GoogleAndFacebbokSignIn,
     forgotPassword,
     resetPassword,
-    resendOtp,
-    userProfile
+    resendOtp
   };
 };
 
