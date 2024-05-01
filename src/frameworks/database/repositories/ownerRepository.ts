@@ -3,7 +3,7 @@ import Owner from "../models/ownerMOdel";
 import { OwnerInterface } from "../../../types/OwnerInterfaces";
 import { GoogleandFaceebookUserEntityType, UserEntityType } from "../../../entites/user";
 
-export const ownerRepositoryMongoDb = () => {
+export const ownerDbRepository = () => {
   //get owner by email
   const getOwnerEmail = async (email: string) => {
     const owner: OwnerInterface | null = await Owner.findOne({ email });
@@ -53,4 +53,4 @@ export const ownerRepositoryMongoDb = () => {
     getOwnerbyId
   }
 };
-export type ownerRepositoryMongoDb=typeof ownerRepositoryMongoDb;
+export type ownerDbRepositoryType=typeof ownerDbRepository;

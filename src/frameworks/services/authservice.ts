@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import configKeys from "../../config";
 
 export const authService = () => {
+
+
   const encryptedPassword = async (password: string) => {
     console.log(password, "in hashing");
     const salt = await bcrypt.genSalt(10);
@@ -27,7 +29,6 @@ export const authService = () => {
       role,
     };
     const accessToken = jwt.sign(payload, configKeys.ACCESS_SECRET);
-
     return accessToken;
   };
 
@@ -41,5 +42,5 @@ export const authService = () => {
     getRandomString
   };
 };
-export type AuthService = typeof authService;
-export type AuthServiceReturn = ReturnType<AuthService>;
+export type AuthServiceType = typeof authService;
+export type AuthServiceReturnType = ReturnType<AuthServiceType>;

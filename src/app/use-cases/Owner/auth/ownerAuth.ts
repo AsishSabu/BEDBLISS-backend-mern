@@ -1,20 +1,23 @@
-import createOwnerEntity, { GoogleandFaceebookSignInUserEntity, GoogleandFaceebookUserEntityType, UserEntityType } from "./../../../../entites/user";
-import { HttpStatus } from "../../../../types/httpStatus";
+import { GoogleAndFacebookResponseType } from "../../../../types/GoogleandFacebookResponseTypes";
 import {
   CreateOwnerInterface,
   OwnerInterface,
 } from "../../../../types/OwnerInterfaces";
+import { HttpStatus } from "../../../../types/httpStatus";
 import AppError from "../../../../utils/appError";
 import sendMail from "../../../../utils/sendMail";
 import { otpEmail } from "../../../../utils/userEmail";
-import { ownerDbInterface } from "../../../interfaces/ownerDbinterface";
+import { ownerDbInterfaceType } from "../../../interfaces/ownerDbInterface";
 import { AuthServiceInterface } from "../../../service-interface/authServices";
-import { GoogleAndFacebookResponseType } from "../../../../types/GoogleandFacebookResponseTypes";
-
+import createOwnerEntity, {
+  GoogleandFaceebookSignInUserEntity,
+  GoogleandFaceebookUserEntityType,
+  UserEntityType,
+} from "./../../../../entites/user";
 
 export const ownerRegister = async (
   owner: CreateOwnerInterface,
-  ownerRepository: ReturnType<ownerDbInterface>,
+  ownerRepository: ReturnType<ownerDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
   const { name, email, password, phoneNumber } = owner;
@@ -51,7 +54,7 @@ export const ownerRegister = async (
 
 export const loginOwner = async (
   user: { email: string; password: string },
-  userRepository: ReturnType<ownerDbInterface>,
+  userRepository: ReturnType<ownerDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
   const { email, password } = user;
@@ -88,39 +91,34 @@ export const loginOwner = async (
   return { accessToken, isEmailExist };
 };
 
-export const deleteOtp=async(
-  OwnerId:string,
-  ownerRepository: ReturnType<ownerDbInterface>,
+export const deleteOtp = async (
+  OwnerId: string,
+  ownerRepository: ReturnType<ownerDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
-)=>{
-  const newOtp:string=authService.generateOtp();
-  const deleted=await ownerRepository.deleteOtpWithOwner(OwnerId);
-  if(deleted){
-    await ownerRepository.addOtp(newOtp,OwnerId);
-
+) => {
+  const newOtp: string = authService.generateOtp();
+  const deleted = await ownerRepository.deleteOtpWithOwner(OwnerId);
+  if (deleted) {
+    await ownerRepository.addOtp(newOtp, OwnerId);
   }
-  const Owner=await ownerRepository.getOwnerById(OwnerId);
-  if(Owner!==null){
-    const owner=Owner as OwnerInterface
-    if(owner){
-      const emailSubject="Account verification ,New Otp"
-      sendMail(owner.email,emailSubject,otpEmail(newOtp,owner.name))
+  const Owner = await ownerRepository.getOwnerById(OwnerId);
+  if (Owner !== null) {
+    const owner = Owner as OwnerInterface;
+    if (owner) {
+      const emailSubject = "Account verification ,New Otp";
+      sendMail(owner.email, emailSubject, otpEmail(newOtp, owner.name));
     }
   }
   console.log(newOtp);
-  
-
- 
-}
-
+};
 
 export const verifyOtpOwner = async (
   otp: string,
   userId: string,
-  userRepository: ReturnType<ownerDbInterface>
+  userRepository: ReturnType<ownerDbInterfaceType>
 ) => {
-    console.log(otp);
-    
+  console.log(otp);
+
   if (!otp) {
     throw new AppError("please provide an OTP", HttpStatus.BAD_REQUEST);
   }
@@ -135,41 +133,35 @@ export const verifyOtpOwner = async (
     throw new AppError("Invalid OTP,try again", HttpStatus.BAD_REQUEST);
   }
 };
-export const authenticateGoogleandFacebookOwner=async(
-  ownerData:GoogleAndFacebookResponseType,
-  ownerRepository: ReturnType<ownerDbInterface>,
+export const authenticateGoogleandFacebookOwner = async (
+  ownerData: GoogleAndFacebookResponseType,
+  ownerRepository: ReturnType<ownerDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
-)=>{
-  const {name,email,picture,email_verified}=ownerData;
+) => {
+  const { name, email, picture, email_verified } = ownerData;
   const isEmailExist = await ownerRepository.getOwnerByEmail(email);
-  if(isEmailExist?.isBlocked){
-    throw new AppError( "Your account is blocked by administrator",
-    HttpStatus.FORBIDDEN)
+  if (isEmailExist?.isBlocked) {
+    throw new AppError(
+      "Your account is blocked by administrator",
+      HttpStatus.FORBIDDEN
+    );
   }
-  if(isEmailExist){
-    const accessToken=authService.createTokens(
+  if (isEmailExist) {
+    const accessToken = authService.createTokens(
       isEmailExist.id,
       isEmailExist.name,
       isEmailExist.role
-    )
-    return{isEmailExist,accessToken}
-  }else{
-    const googleFacebookOwner:GoogleandFaceebookUserEntityType=GoogleandFaceebookSignInUserEntity(
-      name,
-      email,
-      picture,
-      email_verified
     );
-    const newOwner=await ownerRepository.registerGooglefacebookoOwner(googleFacebookOwner);
+    return { isEmailExist, accessToken };
+  } else {
+    const googleFacebookOwner: GoogleandFaceebookUserEntityType =
+      GoogleandFaceebookSignInUserEntity(name, email, picture, email_verified);
+    const newOwner = await ownerRepository.registerGooglefacebookoOwner(
+      googleFacebookOwner
+    );
     const ownerId = newOwner._id as unknown as string;
     const Name = newOwner.name as unknown as string;
-    const accessToken=authService.createTokens(
-      ownerId,
-      Name,
-      newOwner.role
-    )
-    return {accessToken,newOwner}
+    const accessToken = authService.createTokens(ownerId, Name, newOwner.role);
+    return { accessToken, newOwner };
   }
- 
-  
-}
+};

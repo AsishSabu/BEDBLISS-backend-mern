@@ -1,8 +1,8 @@
 import { GoogleandFaceebookUserEntityType, UserEntityType } from "../../entites/user";
-import { ownerRepositoryMongoDb } from "../../frameworks/database/repositories/ownerRepository";
+import { ownerDbRepositoryType } from "../../frameworks/database/repositories/ownerRepository";
 
-export const ownerDbRepository = (
-  repository: ReturnType<ownerRepositoryMongoDb>
+export const ownerDbInterface = (
+  repository: ReturnType<ownerDbRepositoryType>
 ) => {
   const getOwnerByEmail = async (email: string) =>
     await repository.getOwnerEmail(email);
@@ -40,4 +40,4 @@ export const ownerDbRepository = (
   }
 };
 
-export type ownerDbInterface=typeof ownerDbRepository
+export type ownerDbInterfaceType=typeof ownerDbInterface

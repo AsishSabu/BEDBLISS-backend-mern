@@ -6,21 +6,32 @@ import otpModel from "../models/otpModel";
 import User from "../models/userModel";
 import { UserInterface } from "./../../../types/userInterfaces";
 
-export const userRepositoryMongoDb = () => {
+export const userDbRepository= () => {
+
   //get user by email
   const getUserEmail = async (email: string) => {
     const user: UserInterface | null = await User.findOne({ email });
     return user;
   };
-  const getUserbyId = async (id: string) => await User.findById(id);
+
+  const getUserbyId = async (id: string) =>{
+    const user: UserInterface | null = await User.findById(id);
+    return user
+  } 
+
   //add user
   const addUser = async (user: UserEntityType) => {
+    console.log(user.getPhoneNumber(),"jshdfjsdhjkhbjsdf");
+    console.log(user.getEmail(),"jshdfjsdhjkhbjsdf");
+    
     const newUser: any = new User({
       name: user.getName(),
       email: user.getEmail(),
       phoneNumber: user.getPhoneNumber(),
       password: user.getPassword(),
     });
+    console.log(newUser,"sfbhsdghfhjsdgjfsdjkfjk");
+    
     newUser.save();
     return newUser;
   };
@@ -49,6 +60,7 @@ export const userRepositoryMongoDb = () => {
       profilePic: user.picture(),
       isVerified: user.email_verified(),
     });
+
   const findVerificationCodeAndUpdate = async (
     code: string,
     newPassword: string
@@ -58,6 +70,7 @@ export const userRepositoryMongoDb = () => {
       { password: newPassword, verificationCode: null },
       { upsert: true }
     );
+
   const updateVerificationCode = async (email: string, code: string) =>
     await User.findOneAndUpdate({ email }, { verificationCode: code });
 
@@ -74,8 +87,8 @@ export const userRepositoryMongoDb = () => {
     findVerificationCodeAndUpdate,
     updateVerificationCode,
     getUserbyId,
-    updateUserInfo
+    updateUserInfo,
   };
 };
 
-export type userRepositoryMongoDb = typeof userRepositoryMongoDb;
+export type userDbRepositoryType = typeof userDbRepository;

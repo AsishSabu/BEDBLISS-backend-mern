@@ -1,6 +1,6 @@
 import {Router} from "express";
 import { authServiceInterface } from "../../../../app/service-interface/authServices";
-import { authService } from "../../../services/authservice";
+import { authService } from "../../../services/authService";
 import adminController from '../../../../adapters/adminController/adminController';
 const adminRouter=()=>{
     const router=Router();

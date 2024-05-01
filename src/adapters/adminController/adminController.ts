@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { AuthServiceInterface } from "../../app/service-interface/authServices";
-import { AuthService } from "../../frameworks/services/authservice";
 import { loginAdmin } from "../../app/use-cases/Admin/auth/adminAuth";
+import { AuthServiceType } from "../../frameworks/services/authService";
 import { HttpStatus } from "../../types/httpStatus";
 
 const adminController = (
   authServiceInterface: AuthServiceInterface,
-  authServiceImpl: AuthService
+  authServiceImpl: AuthServiceType
 ) => {
   const authService = authServiceInterface(authServiceImpl());
 
