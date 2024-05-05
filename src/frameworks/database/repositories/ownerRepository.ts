@@ -1,5 +1,5 @@
 import otpModel from "../models/otpModel";
-import Owner from "../models/ownerMOdel";
+import Owner from "../models/ownerModel";
 import { OwnerInterface } from "../../../types/OwnerInterfaces";
 import { GoogleandFaceebookUserEntityType, UserEntityType } from "../../../entites/user";
 

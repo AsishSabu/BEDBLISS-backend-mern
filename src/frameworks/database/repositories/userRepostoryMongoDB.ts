@@ -21,16 +21,12 @@ export const userDbRepository= () => {
 
   //add user
   const addUser = async (user: UserEntityType) => {
-    console.log(user.getPhoneNumber(),"jshdfjsdhjkhbjsdf");
-    console.log(user.getEmail(),"jshdfjsdhjkhbjsdf");
-    
-    const newUser: any = new User({
+        const newUser: any = new User({
       name: user.getName(),
       email: user.getEmail(),
       phoneNumber: user.getPhoneNumber(),
       password: user.getPassword(),
     });
-    console.log(newUser,"sfbhsdghfhjsdgjfsdjkfjk");
     
     newUser.save();
     return newUser;
@@ -76,6 +72,11 @@ export const userDbRepository= () => {
 
   const updateUserInfo = async (id: string, updateData: Record<string, any>) =>
     await User.findByIdAndUpdate(id, updateData, { new: true });
+
+  const getUserByNumber=async(phoneNumber:string)=> {
+    const user: UserInterface | null = await User.findOne({ phoneNumber });
+    return user;
+  };
   return {
     getUserEmail,
     addUser,
@@ -88,6 +89,7 @@ export const userDbRepository= () => {
     updateVerificationCode,
     getUserbyId,
     updateUserInfo,
+    getUserByNumber
   };
 };
 

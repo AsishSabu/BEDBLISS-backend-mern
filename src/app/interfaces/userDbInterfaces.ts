@@ -44,6 +44,9 @@ export const userDbInterface = (
 
   const updateProfile = async (userId: string, userData: Record<string, any>) =>
     await repository.updateUserInfo(userId, userData);
+
+  const getUserByNumber=async(phoneNumber:string)=>
+    await repository.getUserByNumber(phoneNumber)
   return {
     getUserByEmail,
     addUser,
@@ -56,6 +59,7 @@ export const userDbInterface = (
     updateVerificationCode,
     getUserById,
     updateProfile,
+    getUserByNumber
   };
 };
 

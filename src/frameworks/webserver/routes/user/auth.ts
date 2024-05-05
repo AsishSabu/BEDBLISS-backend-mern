@@ -33,6 +33,7 @@ const authRouter = () => {
 
 
 
+
   const userProfileController=profileController(
     authServiceInterface,
     authService,
@@ -41,6 +42,10 @@ const authRouter = () => {
   )
 
   router.get("/profile", authenticateUser, userProfileController.userProfile);
+
+  router.patch("/profile/edit", authenticateUser, userProfileController.updateProfile);
+  router.post("/auth/verify", userProfileController.verifyPhoneNumber);
+
 
   return router;
 };

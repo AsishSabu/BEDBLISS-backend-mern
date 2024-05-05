@@ -1,6 +1,7 @@
+import { loginAdmin } from './../../app/use-cases/Admin/auth/adminAuth';
 import { NextFunction, Request, Response } from "express";
 import { AuthServiceInterface } from "../../app/service-interface/authServices";
-import { loginAdmin } from "../../app/use-cases/Admin/auth/adminAuth";
+
 import { AuthServiceType } from "../../frameworks/services/authService";
 import { HttpStatus } from "../../types/httpStatus";
 
