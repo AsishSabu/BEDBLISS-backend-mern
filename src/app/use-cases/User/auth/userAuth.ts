@@ -20,7 +20,7 @@ export const userRegister = async (
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const { name, email, password, phone } = user;
+  const { name, email, password, phone,role } = user;
   const existingEmailUser = await userRepository.getUserByEmail(email);
   if (existingEmailUser) {
     throw new AppError(
@@ -34,7 +34,8 @@ export const userRegister = async (
     name,
     email,
     phone,
-    hashedPassword
+    hashedPassword,
+    role
   );
 
   // create a new user
@@ -118,13 +119,13 @@ export const authenticateGoogleandFacebookUser = async (
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const { name, email, picture, email_verified } = userData;
+  const { name, email, picture, email_verified,role } = userData;
   const isEmailExist = await userRepository.getUserByEmail(email);
   if (isEmailExist?.isBlocked) {
-    throw new AppError(
-      "Your account is blocked by administrator",
-      HttpStatus.FORBIDDEN
-    );
+    throw new AppError("Your account is blocked by administrator",HttpStatus.FORBIDDEN);
+  }
+  if(isEmailExist&&role!==isEmailExist?.role){
+    throw new AppError(`you already register as ${isEmailExist?.role}`, HttpStatus.FORBIDDEN);
   }
   if (isEmailExist) {
     const accessToken = authService.createTokens(
@@ -135,13 +136,13 @@ export const authenticateGoogleandFacebookUser = async (
     return { isEmailExist, accessToken };
   } else {
     const googleFacebookUser: GoogleandFaceebookUserEntityType =
-      GoogleandFaceebookSignInUserEntity(name, email, picture, email_verified);
+      GoogleandFaceebookSignInUserEntity(name, email, picture, email_verified,role);
     const newUser = await userRepository.registerGooglefacebookoUser(
       googleFacebookUser
     );
     const userId = newUser._id as unknown as string;
     const Name = newUser.name as unknown as string;
-    const accessToken = authService.createTokens(userId, Name, newUser.role);
+    const accessToken = authService.createTokens(userId, Name, role);
     return { accessToken, newUser };
   }
 };

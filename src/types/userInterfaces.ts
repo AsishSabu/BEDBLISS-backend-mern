@@ -3,6 +3,7 @@ export interface CreateUserInterface {
   email: string;
   phone:string;
   password: string;
+  role:string;
 }
 export interface UserInterface {
   id: string;

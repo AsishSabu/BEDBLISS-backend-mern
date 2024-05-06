@@ -94,7 +94,7 @@ const authController = (
     next: NextFunction
   ) => {
     try {
-      const userData: GoogleAndFacebookResponseType = req.body;
+      const userData: GoogleAndFacebookResponseType = req.body;     
       const { accessToken, isEmailExist, newUser } =
         await authenticateGoogleandFacebookUser(
           userData,

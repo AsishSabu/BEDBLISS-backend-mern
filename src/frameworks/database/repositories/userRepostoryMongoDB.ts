@@ -26,6 +26,7 @@ export const userDbRepository= () => {
       email: user.getEmail(),
       phoneNumber: user.getPhoneNumber(),
       password: user.getPassword(),
+      role:user.getUserRole()
     });
     
     newUser.save();
@@ -55,6 +56,7 @@ export const userDbRepository= () => {
       email: user.email(),
       profilePic: user.picture(),
       isVerified: user.email_verified(),
+      role:user.getUserRole()
     });
 
   const findVerificationCodeAndUpdate = async (
