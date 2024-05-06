@@ -3,11 +3,6 @@ export type GoogleAndFacebookResponseType = {
     picture: string;
     email: string;
     email_verified: boolean;
+    role:string
   };
 
-  export type GoogleAndFacebookOwnerResponseType  = {
-    name: string;
-    picture: string;
-    email: string;
-    email_verified: boolean;
-  };  

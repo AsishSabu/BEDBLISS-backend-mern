@@ -14,3 +14,12 @@ export const updateUser = async (
   updateData: UserInterface,
   userRepository: ReturnType<userDbInterfaceType>
 ) => await userRepository.updateProfile(userID, updateData);
+
+export const verifyNumber=async(
+  phoneNumber:string,
+  userRepository:ReturnType<userDbInterfaceType>
+)=>{
+  const user=await userRepository.getUserByNumber(phoneNumber)
+  console.log(user);
+  
+}

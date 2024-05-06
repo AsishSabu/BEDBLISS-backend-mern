@@ -7,7 +7,6 @@ export const authService = () => {
 
 
   const encryptedPassword = async (password: string) => {
-    console.log(password, "in hashing");
     const salt = await bcrypt.genSalt(10);
     password = await bcrypt.hash(password, salt);
     return password;

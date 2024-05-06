@@ -9,6 +9,9 @@ const configKeys = {
   APP_EMAIL:process.env.APP_EMAIL as string,
   APP_PASSWORD:process.env.APP_PASSWORD as string,
   ADMIN_EMAIL:process.env.ADMIN_EMAIL as string,
-  ADMIN_PASSWORD:process.env.ADMIN_PASSWORD as string
+  ADMIN_PASSWORD:process.env.ADMIN_PASSWORD as string,
+  TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID as string,
+  TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN as string,
+  TWILIO_SERVICE_SID: process.env.TWILIO_SERVICE_SID as string,
 };
 export default configKeys;
