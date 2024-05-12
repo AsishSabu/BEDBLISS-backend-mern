@@ -14,6 +14,9 @@ export const userDbInterface = (
 
   const addUser = async (user: UserEntityType) =>
     await repository.addUser(user);
+ 
+  const updateUserBlock=async(id:string,status:boolean)=>
+    await repository.updateUserBlock(id,status)
 
   const addOtp = async (otp: string, id: string) =>
     await repository.addOtp(otp, id);
@@ -47,6 +50,10 @@ export const userDbInterface = (
 
   const getUserByNumber=async(phoneNumber:string)=>
     await repository.getUserByNumber(phoneNumber)
+
+  const getAllUsers=async()=>
+    await repository.getAllUsers()
+
   return {
     getUserByEmail,
     addUser,
@@ -59,7 +66,9 @@ export const userDbInterface = (
     updateVerificationCode,
     getUserById,
     updateProfile,
-    getUserByNumber
+    getUserByNumber,
+    getAllUsers,
+    updateUserBlock
   };
 };
 
