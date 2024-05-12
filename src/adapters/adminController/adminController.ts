@@ -1,11 +1,10 @@
 import { loginAdmin } from "./../../app/use-cases/Admin/auth/adminAuth";
 import { NextFunction, Request, Response } from "express";
 import { AuthServiceInterface } from "../../app/service-interface/authServices";
-
 import { AuthServiceType } from "../../frameworks/services/authService";
 import { HttpStatus } from "../../types/httpStatus";
 import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces";
-import { getUsers} from "../../app/use-cases/Admin/read&write/adminRead";
+import { getUsers } from "../../app/use-cases/Admin/read&write/adminRead";
 import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB";
 import { blockUser } from "../../app/use-cases/Admin/read&write/adminUpdate";
 
@@ -46,7 +45,8 @@ const adminController = (
     next: NextFunction
   ) => {
     try {
-      const users = await getUsers(dbRepositoryUser);
+      let role = "user";
+      const users = await getUsers(dbRepositoryUser, role);
       return res.status(HttpStatus.OK).json({ success: true, users });
     } catch (error) {
       next(error);
@@ -64,10 +64,25 @@ const adminController = (
       next(error);
     }
   };
+
+  const getAllOwners = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      let role = "owner";
+      const users = await getUsers(dbRepositoryUser, role);
+      return res.status(HttpStatus.OK).json({ success: true, users });
+    } catch (error) {
+      next(error);
+    }
+  };
   return {
     adminLogin,
     getAllUser,
-    userBlock
+    userBlock,
+    getAllOwners,
   };
 };
 

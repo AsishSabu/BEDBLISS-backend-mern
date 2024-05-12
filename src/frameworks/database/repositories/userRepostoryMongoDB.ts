@@ -80,8 +80,8 @@ export const userDbRepository= () => {
     return user;
   };
 
-  const getAllUsers=async()=>{
-    const users=await User.find({isVerified:true,role:"user"})
+  const getAllUsers=async(role:string)=>{
+    const users=await User.find({isVerified:true,role})
     return users
   } 
 
