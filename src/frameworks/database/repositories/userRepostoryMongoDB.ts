@@ -79,6 +79,16 @@ export const userDbRepository= () => {
     const user: UserInterface | null = await User.findOne({ phoneNumber });
     return user;
   };
+
+  const getAllUsers=async()=>{
+    const users=await User.find({isVerified:true,role:"user"})
+    return users
+  } 
+
+  const updateUserBlock=async(id:string,status:boolean)=>
+    await User.findByIdAndUpdate(id,{isBlocked:status})
+
+  
   return {
     getUserEmail,
     addUser,
@@ -91,7 +101,9 @@ export const userDbRepository= () => {
     updateVerificationCode,
     getUserbyId,
     updateUserInfo,
-    getUserByNumber
+    getUserByNumber,
+    getAllUsers,
+    updateUserBlock
   };
 };
 
