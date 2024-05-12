@@ -1,6 +1,7 @@
 import { userDbInterfaceType } from "../../../interfaces/userDbInterfaces";
 
 export const getUsers=async(
-    userDbRepository:ReturnType<userDbInterfaceType>
-)=>await userDbRepository.getAllUsers();
+    userDbRepository:ReturnType<userDbInterfaceType>,
+    role:string
+)=>await userDbRepository.getAllUsers(role);
 

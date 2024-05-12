@@ -51,8 +51,8 @@ export const userDbInterface = (
   const getUserByNumber=async(phoneNumber:string)=>
     await repository.getUserByNumber(phoneNumber)
 
-  const getAllUsers=async()=>
-    await repository.getAllUsers()
+  const getAllUsers=async(role:string)=>
+    await repository.getAllUsers(role)
 
   return {
     getUserByEmail,
