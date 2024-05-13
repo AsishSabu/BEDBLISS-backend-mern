@@ -20,7 +20,7 @@ export const userRegister = async (
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const { name, email, password, phone,role } = user;
+  const { name, email, password, phone, role } = user;
   const existingEmailUser = await userRepository.getUserByEmail(email);
   if (existingEmailUser) {
     throw new AppError(
@@ -43,7 +43,7 @@ export const userRegister = async (
 
   const OTP = authService.generateOtp();
 
-  console.log(OTP,"---otp");
+  console.log(OTP, "---otp");
 
   //adding otp to database
   await userRepository.addOtp(OTP, newUser.id);
@@ -119,13 +119,19 @@ export const authenticateGoogleandFacebookUser = async (
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const { name, email, picture, email_verified,role } = userData;
+  const { name, email, picture, email_verified, role } = userData;
   const isEmailExist = await userRepository.getUserByEmail(email);
   if (isEmailExist?.isBlocked) {
-    throw new AppError("Your account is blocked by administrator",HttpStatus.FORBIDDEN);
+    throw new AppError(
+      "Your account is blocked by administrator",
+      HttpStatus.FORBIDDEN
+    );
   }
-  if(isEmailExist&&role!==isEmailExist?.role){
-    throw new AppError(`you already register as ${isEmailExist?.role}`, HttpStatus.FORBIDDEN);
+  if (isEmailExist && role !== isEmailExist?.role) {
+    throw new AppError(
+      `you already register as ${isEmailExist?.role}`,
+      HttpStatus.FORBIDDEN
+    );
   }
   if (isEmailExist) {
     const accessToken = authService.createTokens(
@@ -136,7 +142,13 @@ export const authenticateGoogleandFacebookUser = async (
     return { isEmailExist, accessToken };
   } else {
     const googleFacebookUser: GoogleandFaceebookUserEntityType =
-      GoogleandFaceebookSignInUserEntity(name, email, picture, email_verified,role);
+      GoogleandFaceebookSignInUserEntity(
+        name,
+        email,
+        picture,
+        email_verified,
+        role
+      );
     const newUser = await userRepository.registerGooglefacebookoUser(
       googleFacebookUser
     );
@@ -162,7 +174,7 @@ export const sendResetVerificationCode = async (
     email,
     verificationCode
   );
-  console.log(verificationCode,"----verification code");
+  console.log(verificationCode, "----verification code");
 
   sendMail(
     email,
@@ -177,7 +189,6 @@ export const verifyTokenResetPassword = async (
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-
   if (!verificationCode)
     throw new AppError(
       "Please provide a verification code",
@@ -214,5 +225,5 @@ export const deleteOtp = async (
   const emailSubject = "Account verification ,New Otp";
   sendMail(user.email, emailSubject, otpEmail(newOtp, user.name));
 
-  console.log(newOtp,"----otp");
+  console.log(newOtp, "----otp");
 };
