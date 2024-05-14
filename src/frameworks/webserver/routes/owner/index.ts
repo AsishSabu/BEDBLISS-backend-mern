@@ -1,12 +1,15 @@
-import express from "express";
-// import authController from "../../../../adapters/ownerController/authController";
-// import { ownerDbInterface } from "../../../../app/interfaces/ownerDbInterface";
-import { authServiceInterface } from "../../../../app/service-interface/authServices";
-import { ownerDbRepository } from "../../../database/repositories/ownerRepository";
-import { authService } from "../../../services/authService";
+import { hotelDbInterface } from "./../../../../app/interfaces/hotelDbInterface";
+import { Router } from "express";
+import { hotelDbRepository } from "../../../database/repositories/hotelRepositoryMongoDB";
+import hotelController from "../../../../adapters/hotelController/hotelController";
+import authenticateUser from "../../middlewares/authMiddleware";
 
 const ownerRouter = () => {
-  const router = express.Router();
+  const router = Router();
 
+  const controller = hotelController(hotelDbInterface, hotelDbRepository);
+
+  router.post("/addhotel",authenticateUser, controller.registerHotel);
+  return router;
 };
 export default ownerRouter;
