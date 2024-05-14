@@ -7,15 +7,21 @@ import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces";
 import { getUsers } from "../../app/use-cases/Admin/read&write/adminRead";
 import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB";
 import { blockUser } from "../../app/use-cases/Admin/read&write/adminUpdate";
+import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface";
+import { hotelDbRepositoryType } from "../../frameworks/database/repositories/hotelRepositoryMongoDB";
+import { getHotels } from "../../app/use-cases/Owner/hotel";
 
 const adminController = (
   authServiceInterface: AuthServiceInterface,
   authServiceImpl: AuthServiceType,
   userDbRepository: userDbInterfaceType,
-  userDbRepositoryImpl: userDbRepositoryType
+  userDbRepositoryImpl: userDbRepositoryType,
+  hotelDbRepository: hotelDbInterfaceType,
+  hotelDbRepositoryImpl: hotelDbRepositoryType
 ) => {
   const dbRepositoryUser = userDbRepository(userDbRepositoryImpl());
   const authService = authServiceInterface(authServiceImpl());
+  const dbRepositoryHotel = hotelDbRepository(hotelDbRepositoryImpl());
 
   const adminLogin = async (
     req: Request,
@@ -78,11 +84,25 @@ const adminController = (
       next(error);
     }
   };
+
+  const getAllHotels = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const Hotels = await getHotels(dbRepositoryHotel);
+      return res.status(HttpStatus.OK).json({ success: true, Hotels });
+    } catch (error) {
+      next(error);
+    }
+  };
   return {
     adminLogin,
     getAllUser,
     userBlock,
     getAllOwners,
+    getAllHotels,
   };
 };
 

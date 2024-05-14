@@ -26,10 +26,16 @@ export const hotelDbRepository=()=>{
         const user: HotelInterface| null = await Hotel.findOne({ email });
         return user;
       };
+      const getAllHotels=async()=>{
+        const Hotels=await Hotel.find({})
+        return Hotels
+      } 
+    
     return{
         addHotel,
         getHotelByName,
-        getHotelEmail
+        getHotelEmail,
+        getAllHotels,
     }
 }
 export type hotelDbRepositoryType=typeof hotelDbRepository;
