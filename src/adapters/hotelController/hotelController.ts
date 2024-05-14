@@ -1,7 +1,8 @@
 import { hotelDbRepositoryType } from "./../../frameworks/database/repositories/hotelRepositoryMongoDB";
-import { hotelDbInterfaceType } from "./../../app/interfaces/hotelDbInterface";
 import { Request, Response, NextFunction } from "express";
 import { addHotel } from "../../app/use-cases/Owner/hotel";
+import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface";
+
 
 const hotelController = (
   hotelDbRepository: hotelDbInterfaceType,

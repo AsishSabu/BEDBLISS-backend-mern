@@ -1,9 +1,10 @@
-import createHotelEntity, { HotelEntityType } from "../../../entites/hotel";
+import createHotelEntity,{ HotelEntityType } from "../../../entites/hotel";
 import Hotel from "../../../frameworks/database/models/hotelModel";
+import { HotelInterface } from "../../../types/HotelInterface";
 import { HttpStatus } from "../../../types/httpStatus";
 import AppError from "../../../utils/appError";
 import { hotelDbInterfaceType } from "../../interfaces/hotelDbInterface";
-import { HotelInterface } from "./../../../types/HotelInterface";
+
 
 export const addHotel = async (
   ownerId:string,
@@ -50,3 +51,6 @@ export const addHotel = async (
 
   return newHotel;
 };
+export const getHotels=async(
+  hotelRepository:ReturnType<hotelDbInterfaceType>,
+)=>await  hotelRepository.getAllHotels();
