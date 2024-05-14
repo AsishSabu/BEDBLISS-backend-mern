@@ -9,7 +9,6 @@ export interface HotelInterface {
   rooms: {
     type: "single" | "double" | "duplex";
     price: string;
-    guests: string;
     number: string;
   }[];
   amenities: string[];

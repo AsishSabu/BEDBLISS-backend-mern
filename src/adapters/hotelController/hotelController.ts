@@ -13,9 +13,10 @@ const hotelController = (
     next: NextFunction
   ) => {
     try {
+      const ownerId=req.user
       const dbRepositoryHotel = hotelDbRepository(hotelDbRepositoryImpl());
       const hotelData = req.body;
-      const registeredHotel = await addHotel(hotelData, dbRepositoryHotel);
+      const registeredHotel = await addHotel(ownerId,hotelData, dbRepositoryHotel);
       res.json({
         status: "success",
         message: "hotel added suuccessfully",

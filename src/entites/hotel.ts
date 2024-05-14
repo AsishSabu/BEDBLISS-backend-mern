@@ -9,7 +9,6 @@ export default function hotelEntity(
   rooms: {
     type: 'single' | 'double' | 'duplex';
     price: string;
-    guests: string;
     number: string;
   }[],
   amenities: string[],
@@ -25,7 +24,6 @@ export default function hotelEntity(
     getRooms: (): {
       type: 'single' | 'double' | 'duplex';
       price: string;
-      guests: string;
       number: string;
     }[] => rooms,
     getAmenities: (): string[] => amenities,

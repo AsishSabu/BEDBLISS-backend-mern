@@ -6,6 +6,7 @@ import { hotelDbInterfaceType } from "../../interfaces/hotelDbInterface";
 import { HotelInterface } from "./../../../types/HotelInterface";
 
 export const addHotel = async (
+  ownerId:string,
   hotel: HotelInterface,
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => {
@@ -13,7 +14,6 @@ export const addHotel = async (
     name,
     email,
     place,
-    ownerId,
     description,
     propertyRules,
     aboutProperty,
