@@ -166,7 +166,7 @@ export const sendResetVerificationCode = async (
   const isEmailExist = await userRepository.getUserByEmail(email);
 
   if (!isEmailExist)
-    throw new AppError(`${email} does not exist`, HttpStatus.BAD_REQUEST);
+    throw new AppError(`${email} does not exist`, HttpStatus.UNAUTHORIZED);
 
   const verificationCode = authService.getRandomString();
 
