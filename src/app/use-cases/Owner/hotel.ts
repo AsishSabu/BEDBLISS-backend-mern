@@ -20,6 +20,7 @@ export const addHotel = async (
     aboutProperty,
     rooms,
     amenities,
+    image
   } = hotel;
   const existingHotel = await hotelRepository.getHotelByName(name);
   const existingEmail = await hotelRepository.getHotelByEmail(email);
@@ -44,7 +45,8 @@ export const addHotel = async (
     propertyRules,
     aboutProperty,
     rooms,
-    amenities
+    amenities,
+    image
   );
 
   const newHotel = await hotelRepository.addHotel(hotelEntity);
@@ -54,3 +56,9 @@ export const addHotel = async (
 export const getHotels=async(
   hotelRepository:ReturnType<hotelDbInterfaceType>,
 )=>await  hotelRepository.getAllHotels();
+
+export const getMyHotels=async(
+  ownerId:string,
+  hotelRepository:ReturnType<hotelDbInterfaceType>,
+)=>
+  await hotelRepository.getMyHotels(ownerId)

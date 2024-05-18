@@ -1,23 +1,29 @@
 import { hotelDbRepositoryType } from "./../../frameworks/database/repositories/hotelRepositoryMongoDB";
 import { Request, Response, NextFunction } from "express";
-import { addHotel } from "../../app/use-cases/Owner/hotel";
+import { addHotel, getMyHotels } from "../../app/use-cases/Owner/hotel";
 import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface";
-
+import { HttpStatus } from "../../types/httpStatus";
 
 const hotelController = (
   hotelDbRepository: hotelDbInterfaceType,
   hotelDbRepositoryImpl: hotelDbRepositoryType
 ) => {
+  const dbRepositoryHotel = hotelDbRepository(hotelDbRepositoryImpl());
   const registerHotel = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const ownerId=req.user
-      const dbRepositoryHotel = hotelDbRepository(hotelDbRepositoryImpl());
+      const ownerId = req.user;
+      console.log(req.body);
+
       const hotelData = req.body;
-      const registeredHotel = await addHotel(ownerId,hotelData, dbRepositoryHotel);
+      const registeredHotel = await addHotel(
+        ownerId,
+        hotelData,
+        dbRepositoryHotel
+      );
       res.json({
         status: "success",
         message: "hotel added suuccessfully",
@@ -27,8 +33,24 @@ const hotelController = (
       next(error);
     }
   };
+
+  const registeredHotels = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const ownerId = req.user;
+      const Hotels = await getMyHotels(ownerId,dbRepositoryHotel);
+      return res.status(HttpStatus.OK).json({ success: true, Hotels });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   return {
     registerHotel,
+    registeredHotels,
   };
 };
 export default hotelController;
