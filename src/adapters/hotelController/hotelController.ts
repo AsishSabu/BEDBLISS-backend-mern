@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { addHotel, getMyHotels } from "../../app/use-cases/Owner/hotel";
 import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface";
 import { HttpStatus } from "../../types/httpStatus";
+import { getUserHotels } from "../../app/use-cases/User/read&write/hotels";
 
 const hotelController = (
   hotelDbRepository: hotelDbInterfaceType,
@@ -48,9 +49,25 @@ const hotelController = (
     }
   };
 
+  const getHotelsUserSide=async(
+    req:Request,
+    res:Response,
+    next:NextFunction,
+  )=>{
+    try {
+      if(req.user){
+        const Hotels=await getUserHotels(dbRepositoryHotel)
+        return res.status(HttpStatus.OK).json({ success: true, Hotels });
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+
   return {
     registerHotel,
     registeredHotels,
+    getHotelsUserSide
   };
 };
 export default hotelController;

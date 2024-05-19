@@ -31,7 +31,10 @@ export const hotelDbRepository = () => {
     const Hotels = await Hotel.find({});
     return Hotels;
   };
-
+  const getUserHotels = async () => {
+    const Hotels = await Hotel.find({});
+    return Hotels;
+  };
   const getMyHotels = async (ownerId: string) => {
     const Hotels = await Hotel.find({ ownerId });
     return Hotels;
@@ -43,6 +46,7 @@ export const hotelDbRepository = () => {
     getHotelEmail,
     getAllHotels,
     getMyHotels,
+    getUserHotels
   };
 };
 export type hotelDbRepositoryType = typeof hotelDbRepository;

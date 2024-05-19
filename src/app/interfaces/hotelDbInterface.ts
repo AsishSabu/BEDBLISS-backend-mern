@@ -15,6 +15,8 @@ export const hotelDbInterface = (
 
   const getAllHotels = async () => await repository.getAllHotels();
 
+  const getUserHotels = async () => await repository.getUserHotels();
+
   const getMyHotels = async (ownerId: string) =>
     await repository.getMyHotels(ownerId);
 
@@ -24,6 +26,7 @@ export const hotelDbInterface = (
     getHotelByEmail,
     getAllHotels,
     getMyHotels,
+    getUserHotels
   };
 };
 
