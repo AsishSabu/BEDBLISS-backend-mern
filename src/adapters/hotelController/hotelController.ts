@@ -1,39 +1,43 @@
-import { hotelDbRepositoryType } from "./../../frameworks/database/repositories/hotelRepositoryMongoDB";
-import { Request, Response, NextFunction } from "express";
-import { addHotel, getMyHotels } from "../../app/use-cases/Owner/hotel";
-import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface";
-import { HttpStatus } from "../../types/httpStatus";
-import { getUserHotels } from "../../app/use-cases/User/read&write/hotels";
+import { hotelDbRepositoryType } from "./../../frameworks/database/repositories/hotelRepositoryMongoDB"
+import { Request, Response, NextFunction } from "express"
+import { addHotel, getMyHotels } from "../../app/use-cases/Owner/hotel"
+import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
+import { HttpStatus } from "../../types/httpStatus"
+import {
+  getHotelDetails,
+  getUserHotels,
+} from "../../app/use-cases/User/read&write/hotels"
+
 
 const hotelController = (
   hotelDbRepository: hotelDbInterfaceType,
   hotelDbRepositoryImpl: hotelDbRepositoryType
 ) => {
-  const dbRepositoryHotel = hotelDbRepository(hotelDbRepositoryImpl());
+  const dbRepositoryHotel = hotelDbRepository(hotelDbRepositoryImpl())
   const registerHotel = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const ownerId = req.user;
-      console.log(req.body);
+      const ownerId = req.user
+      console.log(req.body)
 
-      const hotelData = req.body;
+      const hotelData = req.body
       const registeredHotel = await addHotel(
         ownerId,
         hotelData,
         dbRepositoryHotel
-      );
+      )
       res.json({
         status: "success",
         message: "hotel added suuccessfully",
         registeredHotel,
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
-  };
+  }
 
   const registeredHotels = async (
     req: Request,
@@ -41,33 +45,50 @@ const hotelController = (
     next: NextFunction
   ) => {
     try {
-      const ownerId = req.user;
-      const Hotels = await getMyHotels(ownerId,dbRepositoryHotel);
-      return res.status(HttpStatus.OK).json({ success: true, Hotels });
+      const ownerId = req.user
+      const Hotels = await getMyHotels(ownerId, dbRepositoryHotel)
+      return res.status(HttpStatus.OK).json({ success: true, Hotels })
     } catch (error) {
-      next(error);
+      next(error)
     }
-  };
+  }
 
-  const getHotelsUserSide=async(
-    req:Request,
-    res:Response,
-    next:NextFunction,
-  )=>{
+  const getHotelsUserSide = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      if(req.user){
-        const Hotels=await getUserHotels(dbRepositoryHotel)
-        return res.status(HttpStatus.OK).json({ success: true, Hotels });
+      if (req.user) {
+        const Hotels = await getUserHotels(dbRepositoryHotel)
+        return res.status(HttpStatus.OK).json({ success: true, Hotels })
       }
     } catch (error) {
       next(error)
     }
   }
 
+  const hotelDetails = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {      
+      const id = req.params.id
+      console.log(id);
+      
+      const Hotel = await getHotelDetails(id, dbRepositoryHotel)
+      console.log(Hotel);
+      return res.status(HttpStatus.OK).json({ success: true, Hotel })
+    } catch (error) {
+      next(error)
+    }
+  }
   return {
     registerHotel,
     registeredHotels,
-    getHotelsUserSide
-  };
-};
-export default hotelController;
+    getHotelsUserSide,
+    hotelDetails
+  }
+}
+export default hotelController

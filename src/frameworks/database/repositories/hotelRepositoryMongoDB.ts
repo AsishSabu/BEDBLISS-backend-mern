@@ -40,13 +40,19 @@ export const hotelDbRepository = () => {
     return Hotels;
   };
 
+  const getHotelDetails=async(id:string)=>{
+    const Hotels = await Hotel.findById(id);
+    return Hotels;
+  }
+
   return {
     addHotel,
     getHotelByName,
     getHotelEmail,
     getAllHotels,
     getMyHotels,
-    getUserHotels
+    getUserHotels,
+    getHotelDetails,
   };
 };
 export type hotelDbRepositoryType = typeof hotelDbRepository;

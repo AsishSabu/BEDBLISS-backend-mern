@@ -59,6 +59,7 @@ const authRouter = () => {
     hotelDbRepository
   );
   router.get("/hotels", authenticateUser, userHotelController.getHotelsUserSide);
+  router.get("/hotelDetails/:id", userHotelController.hotelDetails);
 
   return router;
 };
