@@ -15,4 +15,5 @@ export interface HotelInterface {
   isBlocked: boolean;
   createdAt: Date;
   updatedAt: Date;
+  image:string;
 }

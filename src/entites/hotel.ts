@@ -12,6 +12,7 @@ export default function hotelEntity(
     number: string;
   }[],
   amenities: string[],
+  image:string,
 ) {
   return {
     getName: (): string => name,
@@ -27,6 +28,7 @@ export default function hotelEntity(
       number: string;
     }[] => rooms,
     getAmenities: (): string[] => amenities,
+    getImage:():string=>image
   };
 }
 

@@ -16,7 +16,7 @@ export default function authenticateUser(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+) {  
   const access_token = req.headers.authorization;
   if (!access_token) {
     return res.status(HttpStatus.FORBIDDEN).json("Your are not authenticated");

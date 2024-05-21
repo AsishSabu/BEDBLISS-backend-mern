@@ -97,6 +97,7 @@ const adminController = (
       next(error);
     }
   };
+
   return {
     adminLogin,
     getAllUser,
