@@ -32,6 +32,11 @@ export default function authenticateUser(
       res
         .status(HttpStatus.FORBIDDEN)
         .json({ success: false, message: "Token is not valid" });
+    }
+    else if(user.isBlocked){
+      res
+        .status(HttpStatus.FORBIDDEN)
+        .json({ success: false, message: "user is Blocked" });
     } else {
       req.user = user.id;
       next();

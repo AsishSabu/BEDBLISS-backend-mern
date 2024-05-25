@@ -41,6 +41,10 @@ const hotelSchema = new Schema(
         price: String,
         guests: String,
         number: String,
+        sold: {
+          type: Number,
+          default: 0,
+        }
       },
     ],
     amenities: [String],

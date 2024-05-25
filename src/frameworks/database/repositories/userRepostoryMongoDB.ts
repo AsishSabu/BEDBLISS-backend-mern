@@ -24,9 +24,7 @@ export const userDbRepository= () => {
         const newUser: any = new User({
       name: user.getName(),
       email: user.getEmail(),
-      phoneNumber: user.getPhoneNumber(),
       password: user.getPassword(),
-      role:user.getUserRole()
     });
     
     newUser.save();
@@ -56,7 +54,6 @@ export const userDbRepository= () => {
       email: user.email(),
       profilePic: user.picture(),
       isVerified: user.email_verified(),
-      role:user.getUserRole()
     });
 
   const findVerificationCodeAndUpdate = async (
@@ -82,12 +79,15 @@ export const userDbRepository= () => {
 
   const getAllUsers=async(role:string)=>{
     const users=await User.find({isVerified:true,role})
-    return users
+    const allUsers=await User.find({role})
+    const count=allUsers.length
+    return {users,count}
   } 
 
   const updateUserBlock=async(id:string,status:boolean)=>
     await User.findByIdAndUpdate(id,{isBlocked:status})
 
+  
   
   return {
     getUserEmail,
