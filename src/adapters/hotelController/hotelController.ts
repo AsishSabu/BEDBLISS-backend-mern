@@ -6,8 +6,8 @@ import { HttpStatus } from "../../types/httpStatus"
 import {
   getHotelDetails,
   getUserHotels,
+  viewByDestination,
 } from "../../app/use-cases/User/read&write/hotels"
-
 
 const hotelController = (
   hotelDbRepository: hotelDbInterfaceType,
@@ -59,10 +59,10 @@ const hotelController = (
     next: NextFunction
   ) => {
     try {
-      if (req.user) {
-        const Hotels = await getUserHotels(dbRepositoryHotel)
-        return res.status(HttpStatus.OK).json({ success: true, Hotels })
-      }
+      const { Hotels } = await getUserHotels(dbRepositoryHotel)
+      console.log(Hotels)
+
+      return res.status(HttpStatus.OK).json({ success: true, Hotels })
     } catch (error) {
       next(error)
     }
@@ -73,13 +73,43 @@ const hotelController = (
     res: Response,
     next: NextFunction
   ) => {
-    try {      
+    try {
       const id = req.params.id
-      console.log(id);
-      
+      console.log(id)
+
       const Hotel = await getHotelDetails(id, dbRepositoryHotel)
-      console.log(Hotel);
+      console.log(Hotel)
       return res.status(HttpStatus.OK).json({ success: true, Hotel })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  const destinationSearch = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { destination} = req.query
+      console.log(destination,'/////////////////////////////////////////////////////////////////////////////////////////////////');
+      if (typeof destination !== 'string') {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          status: 'fail',
+          message: 'Invalid destination parameter',
+        });
+      }
+
+      
+      const data = await viewByDestination(destination, dbRepositoryHotel)
+      console.log(data);
+      
+
+      res.status(HttpStatus.OK).json({
+        status: "success",
+        message: "search result has been fetched",
+        data: data,
+      })
     } catch (error) {
       next(error)
     }
@@ -88,7 +118,8 @@ const hotelController = (
     registerHotel,
     registeredHotels,
     getHotelsUserSide,
-    hotelDetails
+    hotelDetails,
+    destinationSearch,
   }
 }
 export default hotelController

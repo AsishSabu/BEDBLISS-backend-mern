@@ -30,6 +30,25 @@ const profileController = (
       next(error);
     }
   };
+  const getUser=async(
+    req:Request,
+    res:Response,
+    next:NextFunction
+  )=>{
+    try {
+      const userId=req.params.id;
+      const updatedData=req.body;
+      const user=await updateUser(userId,updatedData,dbRepositoryUser);
+      res
+      .status(200)
+      .json({ success: true, user, message: "Profile updated successfully" });
+      
+    } catch (error) {
+      console.log(error);
+      
+      next(error)
+    }
+  }
 
   const updateProfile=async(
     req:Request,
@@ -66,7 +85,8 @@ const profileController = (
   return {
     userProfile,
     updateProfile,
-    verifyPhoneNumber
+    verifyPhoneNumber,
+    getUser,
   };
 };
 export default profileController;

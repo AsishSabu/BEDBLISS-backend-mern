@@ -18,6 +18,7 @@ const authRouter = () => {
     userDbInterface,
     userDbRepository
   );
+ 
   router.post("/auth/register", authenticationController.registerUser);
 
   router.post("/auth/login", authenticationController.userLogin);
@@ -44,7 +45,7 @@ const authRouter = () => {
     userDbInterface,
     userDbRepository
   );
-
+  router.get("/user/:id",userProfileController.getUser)
   router.get("/profile", authenticateUser, userProfileController.userProfile);
 
   router.patch(
@@ -58,7 +59,8 @@ const authRouter = () => {
     hotelDbInterface,
     hotelDbRepository
   );
-  router.get("/hotels", authenticateUser, userHotelController.getHotelsUserSide);
+  router.get("/hotels",  userHotelController.getHotelsUserSide);
+  router.get("/searchedHotels", userHotelController.destinationSearch)
   router.get("/hotelDetails/:id", userHotelController.hotelDetails);
 
   return router;
