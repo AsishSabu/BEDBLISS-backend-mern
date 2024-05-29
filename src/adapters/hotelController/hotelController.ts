@@ -8,6 +8,7 @@ import {
   getUserHotels,
   viewByDestination,
 } from "../../app/use-cases/User/read&write/hotels"
+import mongoose from "mongoose"
 
 const hotelController = (
   hotelDbRepository: hotelDbInterfaceType,
@@ -20,10 +21,13 @@ const hotelController = (
     next: NextFunction
   ) => {
     try {
-      const ownerId = req.user
+      const ownerId =  new mongoose.Types.ObjectId(req.user)
+      console.log(ownerId);
+      
       console.log(req.body)
 
       const hotelData = req.body
+      console.log(hotelData)
       const registeredHotel = await addHotel(
         ownerId,
         hotelData,

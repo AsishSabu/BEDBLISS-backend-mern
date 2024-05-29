@@ -1,23 +1,47 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from "mongoose"
 
 const hotelSchema = new Schema(
   {
     name: {
       type: String,
-      trim: true,
-      maxLength: 32,
-      required: true,
-    },
-    email: {
-      type: String,
-      trim: true,
       required: true,
     },
     ownerId: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required:true
     },
-    place: {
+    destination: {
+      type: String,
+      required: true,
+    },
+    address: {
+      streetAddress: {
+        type: String,
+        required: true,
+      },
+      landMark: {
+        type: String,
+        required: true,
+      },
+      district: {
+        type: String,
+        required: true,
+      },
+      city: {
+        type: String,
+        required: true,
+      },
+      pincode: {
+        type: String,
+        required: true,
+      },
+      country: {
+        type: String,
+        required: true,
+      },
+    },
+    stayType: {
       type: String,
       required: true,
     },
@@ -26,42 +50,49 @@ const hotelSchema = new Schema(
       required: true,
     },
     propertyRules: [String],
-    aboutProperty: {
+
+    room: {
       type: String,
-      trim: true,
-      default: "",
+      required: true,
     },
-    rooms: [
-      {
-        type: {
-          type: String,
-          required: true,
-          enum: ["single", "double", "duplex"],
-        },
-        price: String,
-        guests: String,
-        number: String,
-        sold: {
-          type: Number,
-          default: 0,
-        }
-      },
-    ],
+    bed: {
+      type: String,
+      required: true,
+    },
+    bathroom: {
+      type: String,
+      required: true,
+    },
+    guests: {
+      type: String,
+      required: true,
+    },
     amenities: [String],
     isBlocked: {
       type: Boolean,
       default: false,
     },
-    listed: {
+    isListed: {
       type: Boolean,
       default: true,
     },
-    image:{
-      type:String
-    }
+    imageUrls: [String],
+    reservationType: {
+      type: String,
+      required: true,
+    },
+    unavailbleDates: [{ type: Date }],
   },
   { timestamps: true }
-);
+)
 
-const Hotel = model("Hotel", hotelSchema);
-export default Hotel;
+hotelSchema.pre("save", async function (next) {
+  const currentDate = new Date()
+  this.unavailbleDates = this.unavailbleDates.filter(
+    (date: Date) => date >= currentDate
+  )
+  next()
+})
+
+const Hotel = model("Hotel", hotelSchema)
+export default Hotel

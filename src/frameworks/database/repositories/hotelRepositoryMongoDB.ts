@@ -6,15 +6,19 @@ export const hotelDbRepository = () => {
   const addHotel = async (hotel: HotelEntityType) => {
     const newHotel: any = new Hotel({
       name: hotel.getName(),
-      email: hotel.getEmail(),
-      place: hotel.getPlace(),
-      ownerId: hotel.getOwnerId(),
+      address:hotel.getAddress(),
+      ownerId:hotel.getOwnerId(),
+      destination:hotel.getDestination(),
+      stayType:hotel.getStayType(),
+      propertyRules:hotel.getPropertyRules(),
       description: hotel.getDescription(),
-      propertyRules: hotel.getPropertyRules(),
-      aboutProperty: hotel.getAboutProperty(),
-      rooms: hotel.getRooms(),
+      room: hotel.getRoom(),
+      bed:hotel.getBed(),
+      bathroom:hotel.getBathroom(),
+      guests:hotel.getGuests(),
       amenities: hotel.getAmenities(),
-      image: hotel.getImage(),
+      imageUrls: hotel.getImageUrls(),
+      reservationType:hotel.getReservationType()
     })
     newHotel.save()
     return newHotel

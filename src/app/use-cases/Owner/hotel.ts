@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import createHotelEntity,{ HotelEntityType } from "../../../entites/hotel";
 import Hotel from "../../../frameworks/database/models/hotelModel";
 import { HotelInterface } from "../../../types/HotelInterface";
@@ -7,46 +8,48 @@ import { hotelDbInterfaceType } from "../../interfaces/hotelDbInterface";
 
 
 export const addHotel = async (
-  ownerId:string,
+  ownerId:mongoose.Types.ObjectId,
   hotel: HotelInterface,
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => {
   const {
     name,
-    email,
-    place,
+    destination,
+    stayType,
     description,
     propertyRules,
-    aboutProperty,
-    rooms,
+    room,
+    bed,
+    bathroom,
+    guests,
     amenities,
-    image
+    imageUrls,
+    reservationType,
+    address
   } = hotel;
   const existingHotel = await hotelRepository.getHotelByName(name);
-  const existingEmail = await hotelRepository.getHotelByEmail(email);
   if (existingHotel) {
     throw new AppError(
       "Hotel with this name already exists",
       HttpStatus.UNAUTHORIZED
     );
   }
-  if (existingEmail) {
-    throw new AppError(
-      "Email with this email already exists",
-      HttpStatus.UNAUTHORIZED
-    );
-  }
+
   const hotelEntity: HotelEntityType = createHotelEntity(
-    name,
-    email,
     ownerId,
-    place,
+    name,
+    destination,
+    stayType,
     description,
     propertyRules,
-    aboutProperty,
-    rooms,
+    room,
+    bed,
+    bathroom,
+    guests,
     amenities,
-    image
+    imageUrls,
+    reservationType,
+    address
   );
 
   const newHotel = await hotelRepository.addHotel(hotelEntity);

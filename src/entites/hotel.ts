@@ -1,35 +1,44 @@
+import mongoose from "mongoose";
+
 export default function hotelEntity(
+  ownerId: mongoose.Types.ObjectId,
   name: string,
-  email: string,
-  ownerId:string,
-  place: string,
+  destination: string,
+  stayType: string,
   description: string,
   propertyRules: string[],
-  aboutProperty: string,
-  rooms: {
-    type: 'single' | 'double' | 'duplex';
-    price: string;
-    number: string;
-  }[],
+  room: string,
+  bed: string,
+  bathroom: string,
+  guests: string,
   amenities: string[],
-  image:string,
+  imageUrls: string[],
+  reservationType: string,
+  address: {
+    streetAddress: string;
+    landMark: string;
+    district: string;
+    city: string;
+    pincode: string;
+    country: string,
+  }
 ) {
   return {
     getName: (): string => name,
-    getEmail: (): string => email,
-    getOwnerId: (): string => ownerId,
-    getPlace: (): string => place,
+    getOwnerId: (): mongoose.Types.ObjectId => ownerId,
+    getDestination: (): string => destination,
+    getStayType: (): string => stayType,
     getDescription: (): string => description,
     getPropertyRules: (): string[] => propertyRules,
-    getAboutProperty: (): string => aboutProperty,
-    getRooms: (): {
-      type: 'single' | 'double' | 'duplex';
-      price: string;
-      number: string;
-    }[] => rooms,
+    getRoom: (): string => room,
+    getBed: (): string => bed,
+    getBathroom: (): string => bathroom,
+    getGuests: (): string => guests,
+    getReservationType: (): string => reservationType,
     getAmenities: (): string[] => amenities,
-    getImage:():string=>image
+    getImageUrls: (): string[] => imageUrls,
+    getAddress: () => address,
   };
 }
 
-  export type HotelEntityType=ReturnType<typeof hotelEntity>
+export type HotelEntityType = ReturnType<typeof hotelEntity>;
