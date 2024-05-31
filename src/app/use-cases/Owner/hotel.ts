@@ -1,14 +1,13 @@
-import mongoose from "mongoose";
-import createHotelEntity,{ HotelEntityType } from "../../../entites/hotel";
-import Hotel from "../../../frameworks/database/models/hotelModel";
-import { HotelInterface } from "../../../types/HotelInterface";
-import { HttpStatus } from "../../../types/httpStatus";
-import AppError from "../../../utils/appError";
-import { hotelDbInterfaceType } from "../../interfaces/hotelDbInterface";
-
+import mongoose from "mongoose"
+import createHotelEntity, { HotelEntityType } from "../../../entites/hotel"
+import Hotel from "../../../frameworks/database/models/hotelModel"
+import { HotelInterface } from "../../../types/HotelInterface"
+import { HttpStatus } from "../../../types/httpStatus"
+import AppError from "../../../utils/appError"
+import { hotelDbInterfaceType } from "../../interfaces/hotelDbInterface"
 
 export const addHotel = async (
-  ownerId:mongoose.Types.ObjectId,
+  ownerId: mongoose.Types.ObjectId,
   hotel: HotelInterface,
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => {
@@ -25,15 +24,18 @@ export const addHotel = async (
     amenities,
     imageUrls,
     reservationType,
-    address
-  } = hotel;
-  const existingHotel = await hotelRepository.getHotelByName(name);
+    address,
+    hotelDocument,
+    ownerPhoto,
+  } = hotel
+  const existingHotel = await hotelRepository.getHotelByName(name)
   if (existingHotel) {
     throw new AppError(
       "Hotel with this name already exists",
       HttpStatus.UNAUTHORIZED
-    );
+    )
   }
+  const ownerDocument = ""
 
   const hotelEntity: HotelEntityType = createHotelEntity(
     ownerId,
@@ -49,19 +51,21 @@ export const addHotel = async (
     amenities,
     imageUrls,
     reservationType,
-    address
-  );
+    address,
+    ownerDocument,
+    hotelDocument,
+    ownerPhoto
+  )
 
-  const newHotel = await hotelRepository.addHotel(hotelEntity);
+  const newHotel = await hotelRepository.addHotel(hotelEntity)
 
-  return newHotel;
-};
-export const getHotels=async(
-  hotelRepository:ReturnType<hotelDbInterfaceType>,
-)=>await  hotelRepository.getAllHotels();
+  return newHotel
+}
+export const getHotels = async (
+  hotelRepository: ReturnType<hotelDbInterfaceType>
+) => await hotelRepository.getAllHotels()
 
-export const getMyHotels=async(
-  ownerId:string,
-  hotelRepository:ReturnType<hotelDbInterfaceType>,
-)=>
-  await hotelRepository.getMyHotels(ownerId)
+export const getMyHotels = async (
+  ownerId: string,
+  hotelRepository: ReturnType<hotelDbInterfaceType>
+) => await hotelRepository.getMyHotels(ownerId)

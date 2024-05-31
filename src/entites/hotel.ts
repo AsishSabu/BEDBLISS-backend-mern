@@ -7,10 +7,10 @@ export default function hotelEntity(
   stayType: string,
   description: string,
   propertyRules: string[],
-  room: string,
-  bed: string,
-  bathroom: string,
-  guests: string,
+  room: number,
+  bed: number,
+  bathroom: number,
+  guests: number,
   amenities: string[],
   imageUrls: string[],
   reservationType: string,
@@ -21,7 +21,10 @@ export default function hotelEntity(
     city: string;
     pincode: string;
     country: string,
-  }
+  },
+  ownerDocument:string,
+  hotelDocument:string,
+  ownerPhoto:string
 ) {
   return {
     getName: (): string => name,
@@ -30,14 +33,17 @@ export default function hotelEntity(
     getStayType: (): string => stayType,
     getDescription: (): string => description,
     getPropertyRules: (): string[] => propertyRules,
-    getRoom: (): string => room,
-    getBed: (): string => bed,
-    getBathroom: (): string => bathroom,
-    getGuests: (): string => guests,
+    getRoom: (): number => room,
+    getBed: (): number => bed,
+    getBathroom: (): number => bathroom,
+    getGuests: (): number => guests,
     getReservationType: (): string => reservationType,
     getAmenities: (): string[] => amenities,
     getImageUrls: (): string[] => imageUrls,
     getAddress: () => address,
+    getOwnerDocument:():string=>ownerDocument,
+    getHotelDocument:():string=>hotelDocument,
+    getOwnerPhoto:():string=>ownerPhoto
   };
 }
 

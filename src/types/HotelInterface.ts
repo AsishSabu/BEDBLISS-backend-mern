@@ -6,10 +6,10 @@ export interface HotelInterface {
   destination: string;
   description: string;
   propertyRules: string[];
-  room: string;
-  bed: string;
-  bathroom: string;
-  guests: string;
+  room: number;
+  bed: number;
+  bathroom: number;
+  guests: number;
   reservationType: string;
   stayType: string;
   amenities: string[];
@@ -26,5 +26,8 @@ export interface HotelInterface {
     pincode: string;
     country: string;
   };
+  ownerDocument:string;
+  hotelDocument:string;
+  ownerPhoto:string;
   unavailbleDates: Date[];
 }

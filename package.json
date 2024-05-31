@@ -11,14 +11,14 @@
 		"bcryptjs": "^2.4.3",
 		"express-async-handler": "^1.2.0",
 		"gitignore": "^0.7.0",
-		"mongoose": "^8.3.2",
+		"mongoose": "^8.4.0",
 		"morgan": "^1.10.0",
 		"ts-node": "^10.9.2"
 	},
 	"dependencies": {
 		"@types/cookie-parser": "^1.4.7",
 		"@types/morgan": "^1.9.9",
-		"@types/nodemailer": "^6.4.14",
+		"@types/nodemailer": "^6.4.15",
 		"cors": "^2.8.5",
 		"crypto": "^1.0.1",
 		"dotenv": "^16.4.5",
@@ -27,8 +27,8 @@
 		"jwt-decode": "^4.0.0",
 		"nanoid": "^5.0.7",
 		"nodemailer": "^6.9.13",
-		"nodemon": "^3.1.0",
-		"twilio": "^5.0.4",
+		"nodemon": "^3.1.2",
+		"twilio": "^5.1.0",
 		"typescript": "^5.4.5"
 	}
 }

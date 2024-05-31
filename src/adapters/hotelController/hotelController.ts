@@ -24,7 +24,7 @@ const hotelController = (
       const ownerId =  new mongoose.Types.ObjectId(req.user)
       console.log(ownerId);
       
-      console.log(req.body)
+      console.log(req.body,"data")
 
       const hotelData = req.body
       console.log(hotelData)
@@ -96,7 +96,7 @@ const hotelController = (
   ) => {
     try {
       const { destination} = req.query
-      console.log(destination,'/////////////////////////////////////////////////////////////////////////////////////////////////');
+      console.log(destination);
       if (typeof destination !== 'string') {
         return res.status(HttpStatus.BAD_REQUEST).json({
           status: 'fail',

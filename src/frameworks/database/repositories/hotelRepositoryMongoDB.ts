@@ -18,7 +18,10 @@ export const hotelDbRepository = () => {
       guests:hotel.getGuests(),
       amenities: hotel.getAmenities(),
       imageUrls: hotel.getImageUrls(),
-      reservationType:hotel.getReservationType()
+      reservationType:hotel.getReservationType(),
+      ownerDocument:hotel.getOwnerDocument(),
+      hotelDocument:hotel.getHotelDocument(),
+      ownerPhoto:hotel.getOwnerPhoto()
     })
     newHotel.save()
     return newHotel
