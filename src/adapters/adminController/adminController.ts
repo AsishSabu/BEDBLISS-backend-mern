@@ -6,7 +6,7 @@ import { HttpStatus } from "../../types/httpStatus"
 import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces"
 import { getUsers } from "../../app/use-cases/Admin/read&write/adminRead"
 import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB"
-import { blockHotel, blockUser } from "../../app/use-cases/Admin/read&write/adminUpdate"
+import { blockHotel, blockUser, verifyHotel } from "../../app/use-cases/Admin/read&write/adminUpdate"
 import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
 import { hotelDbRepositoryType } from "../../frameworks/database/repositories/hotelRepositoryMongoDB"
 import { getHotels } from "../../app/use-cases/Owner/hotel"
@@ -125,6 +125,21 @@ const adminController = (
       next(error)
     }
   }
+  const hotelVerify= async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { id } = req.params
+      await verifyHotel(id, dbRepositoryHotel)
+      return res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: " veified Successfully" })
+    } catch (error) {
+      next(error)
+    }
+  }
 
   return {
     adminLogin,
@@ -133,7 +148,8 @@ const adminController = (
     getAllOwners,
     getAllHotels,
     CardCount,
-    hotelBlock
+    hotelBlock,
+    hotelVerify
   }
 }
 

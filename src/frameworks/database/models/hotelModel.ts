@@ -72,6 +72,10 @@ const hotelSchema = new Schema({
     type: Number,
     required: true,
   },
+  price: {
+    type: String,
+    required: true,
+  },
   amenities: [String],
   isBlocked: {
     type: Boolean,

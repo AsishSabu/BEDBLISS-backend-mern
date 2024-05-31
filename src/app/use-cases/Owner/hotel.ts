@@ -27,6 +27,7 @@ export const addHotel = async (
     address,
     hotelDocument,
     ownerPhoto,
+    price
   } = hotel
   const existingHotel = await hotelRepository.getHotelByName(name)
   if (existingHotel) {
@@ -40,6 +41,7 @@ export const addHotel = async (
   const hotelEntity: HotelEntityType = createHotelEntity(
     ownerId,
     name,
+    price,
     destination,
     stayType,
     description,

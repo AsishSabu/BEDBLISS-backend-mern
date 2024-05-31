@@ -25,6 +25,7 @@ const adminRouter=()=>{
     router.get("/hotels",controller.getAllHotels)
     router.patch("/block_user/:id",controller.userBlock);
     router.patch("/block_hotel/:id",controller.hotelBlock);
+    router.patch("/verify_hotel/:id",controller.hotelVerify);
     return router
 }
 export default adminRouter

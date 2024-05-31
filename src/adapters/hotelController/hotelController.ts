@@ -118,6 +118,8 @@ const hotelController = (
       next(error)
     }
   }
+
+
   return {
     registerHotel,
     registeredHotels,

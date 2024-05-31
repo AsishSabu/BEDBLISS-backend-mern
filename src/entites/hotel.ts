@@ -4,6 +4,7 @@ export default function hotelEntity(
   ownerId: mongoose.Types.ObjectId,
   name: string,
   destination: string,
+  price:string,
   stayType: string,
   description: string,
   propertyRules: string[],
@@ -43,7 +44,8 @@ export default function hotelEntity(
     getAddress: () => address,
     getOwnerDocument:():string=>ownerDocument,
     getHotelDocument:():string=>hotelDocument,
-    getOwnerPhoto:():string=>ownerPhoto
+    getOwnerPhoto:():string=>ownerPhoto,
+    getPrice:():string=>price
   };
 }
 

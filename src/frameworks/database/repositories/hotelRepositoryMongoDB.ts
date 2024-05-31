@@ -13,6 +13,7 @@ export const hotelDbRepository = () => {
       propertyRules:hotel.getPropertyRules(),
       description: hotel.getDescription(),
       room: hotel.getRoom(),
+      price:hotel.getPrice(),
       bed:hotel.getBed(),
       bathroom:hotel.getBathroom(),
       guests:hotel.getGuests(),
@@ -79,6 +80,11 @@ export const hotelDbRepository = () => {
       ]
     });
   };
+
+  const updateHotelVerified = async (id: string) => {
+    await Hotel.findOneAndUpdate({ _id: id }, { isVerified: true });
+  };
+
   
 
   return {
@@ -94,6 +100,7 @@ export const hotelDbRepository = () => {
     update,
     remove,
     findByDestination,
+    updateHotelVerified  
   }
 }
 export type hotelDbRepositoryType = typeof hotelDbRepository

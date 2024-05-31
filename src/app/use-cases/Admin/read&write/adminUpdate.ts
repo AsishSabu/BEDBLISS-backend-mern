@@ -15,3 +15,11 @@ export const blockHotel = async (
   const hotel = await hotelDbRepository.getHotelById(id)
   await hotelDbRepository.updateHotelBlock(id, !hotel?.isBlocked)
 }
+
+export const verifyHotel = async (
+  id: string,
+  hotelDbRepository: ReturnType<hotelDbInterfaceType>
+) => {
+  const verifyHotel = await hotelDbRepository.updateHotelVerified(id)
+
+}

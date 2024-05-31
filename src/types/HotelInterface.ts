@@ -10,6 +10,7 @@ export interface HotelInterface {
   bed: number;
   bathroom: number;
   guests: number;
+  price:string;
   reservationType: string;
   stayType: string;
   amenities: string[];

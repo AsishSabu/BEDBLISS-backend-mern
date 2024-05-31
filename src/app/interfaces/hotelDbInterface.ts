@@ -35,7 +35,9 @@ export const hotelDbInterface = (
 
   const findByDestination = async (destination: string) =>
     await repository.findByDestination(destination)
-
+  
+  const updateHotelVerified= async (id: string) =>
+    await repository.updateHotelVerified(id)
   return {
     addHotel,
     getHotelByName,
@@ -49,6 +51,7 @@ export const hotelDbInterface = (
     updateHotel,
     removeHotel,
     findByDestination,
+    updateHotelVerified
   }
 }
 
