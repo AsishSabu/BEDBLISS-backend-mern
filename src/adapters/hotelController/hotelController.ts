@@ -9,6 +9,7 @@ import {
   viewByDestination,
 } from "../../app/use-cases/User/read&write/hotels"
 import mongoose from "mongoose"
+import { checkAvailability } from "../../app/use-cases/Booking/booking"
 
 const hotelController = (
   hotelDbRepository: hotelDbInterfaceType,
@@ -21,10 +22,10 @@ const hotelController = (
     next: NextFunction
   ) => {
     try {
-      const ownerId =  new mongoose.Types.ObjectId(req.user)
-      console.log(ownerId);
-      
-      console.log(req.body,"data")
+      const ownerId = new mongoose.Types.ObjectId(req.user)
+      console.log(ownerId)
+
+      console.log(req.body, "data")
 
       const hotelData = req.body
       console.log(hotelData)
@@ -95,19 +96,17 @@ const hotelController = (
     next: NextFunction
   ) => {
     try {
-      const { destination} = req.query
-      console.log(destination);
-      if (typeof destination !== 'string') {
+      const { destination } = req.query
+      console.log(destination)
+      if (typeof destination !== "string") {
         return res.status(HttpStatus.BAD_REQUEST).json({
-          status: 'fail',
-          message: 'Invalid destination parameter',
-        });
+          status: "fail",
+          message: "Invalid destination parameter",
+        })
       }
 
-      
       const data = await viewByDestination(destination, dbRepositoryHotel)
-      console.log(data);
-      
+      console.log(data)
 
       res.status(HttpStatus.OK).json({
         status: "success",
@@ -118,7 +117,36 @@ const hotelController = (
       next(error)
     }
   }
-
+  const checkAvilabitiy = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const dates = req.body
+      const id = req.params.id
+      const isDateExisted=await checkAvailability( id,dates,dbRepositoryHotel)
+      console.log(isDateExisted);
+      
+      if(!isDateExisted){
+        console.log("hloooo");
+        
+        res.status(HttpStatus.OK).json({
+          status: "success",
+          message: "date is availble"
+        })
+      }else{
+        res.status(HttpStatus.OK).json({
+          status: "fail",
+          message: "date is unavailble"
+        })
+      }
+      
+    } catch (error) {
+      next(error)
+      
+    }
+  }
 
   return {
     registerHotel,
@@ -126,6 +154,7 @@ const hotelController = (
     getHotelsUserSide,
     hotelDetails,
     destinationSearch,
+    checkAvilabitiy
   }
 }
 export default hotelController

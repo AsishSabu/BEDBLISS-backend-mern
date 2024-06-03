@@ -1,6 +1,5 @@
 import mongoose from "mongoose"
 import createHotelEntity, { HotelEntityType } from "../../../entites/hotel"
-import Hotel from "../../../frameworks/database/models/hotelModel"
 import { HotelInterface } from "../../../types/HotelInterface"
 import { HttpStatus } from "../../../types/httpStatus"
 import AppError from "../../../utils/appError"

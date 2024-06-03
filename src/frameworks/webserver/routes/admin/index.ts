@@ -1,11 +1,11 @@
 import {Router} from "express";
 import { authServiceInterface } from "../../../../app/service-interface/authServices";
-import { authService } from "../../../services/authService";
 import adminController from '../../../../adapters/adminController/adminController';
 import { userDbInterface } from "../../../../app/interfaces/userDbInterfaces";
 import { userDbRepository } from "../../../database/repositories/userRepostoryMongoDB";
 import { hotelDbInterface } from "../../../../app/interfaces/hotelDbInterface";
 import { hotelDbRepository } from "../../../database/repositories/hotelRepositoryMongoDB";
+import { authService } from "../../../services/authservice";
 const adminRouter=()=>{
     const router=Router();
     const controller=adminController(

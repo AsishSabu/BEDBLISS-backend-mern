@@ -1,7 +1,6 @@
 import { loginAdmin } from "./../../app/use-cases/Admin/auth/adminAuth"
 import { NextFunction, Request, Response } from "express"
 import { AuthServiceInterface } from "../../app/service-interface/authServices"
-import { AuthServiceType } from "../../frameworks/services/authService"
 import { HttpStatus } from "../../types/httpStatus"
 import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces"
 import { getUsers } from "../../app/use-cases/Admin/read&write/adminRead"
@@ -10,6 +9,7 @@ import { blockHotel, blockUser, verifyHotel } from "../../app/use-cases/Admin/re
 import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
 import { hotelDbRepositoryType } from "../../frameworks/database/repositories/hotelRepositoryMongoDB"
 import { getHotels } from "../../app/use-cases/Owner/hotel"
+import { AuthServiceType } from "../../frameworks/services/authservice"
 
 const adminController = (
   authServiceInterface: AuthServiceInterface,

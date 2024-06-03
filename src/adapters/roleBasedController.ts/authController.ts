@@ -4,7 +4,6 @@ import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces";
 import { AuthServiceInterface } from "../../app/service-interface/authServices";
 import { getUserProfile } from "../../app/use-cases/User/read&write/profile";
 import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB";
-import { AuthServiceType } from "../../frameworks/services/authService";
 import { GoogleAndFacebookResponseType } from "../../types/GoogleandFacebookResponseTypes";
 import { HttpStatus } from "../../types/httpStatus";
 import { CreateUserInterface, UserInterface } from "../../types/userInterfaces";
@@ -18,6 +17,7 @@ import {
   verifyOtpUser,
   verifyTokenResetPassword,
 } from "../../app/use-cases/User/auth/userAuth";
+import { AuthServiceType } from "../../frameworks/services/authservice";
 
 const authController = (
   authServiceInterface: AuthServiceInterface,

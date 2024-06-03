@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { AuthServiceInterface } from "../../app/service-interface/authServices";
-import { AuthServiceType } from "../../frameworks/services/authService";
 import { getUserProfile, updateUser,verifyNumber} from "../../app/use-cases/User/read&write/profile";
 import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces";
 import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB";
 import { HttpStatus } from "../../types/httpStatus";
+import { AuthServiceType } from "../../frameworks/services/authservice";
 
 const profileController = (
   authServiceInterface: AuthServiceInterface,

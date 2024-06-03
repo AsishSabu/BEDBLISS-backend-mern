@@ -35,9 +35,16 @@ export const hotelDbInterface = (
 
   const findByDestination = async (destination: string) =>
     await repository.findByDestination(destination)
-  
-  const updateHotelVerified= async (id: string) =>
+
+  const updateHotelVerified = async (id: string) =>
     await repository.updateHotelVerified(id)
+
+  const updateUnavailableDates = async (id: string, dates: any) =>
+    await repository.updateUnavailableDates(id, dates)
+
+  const checkAvailability= async (id: string, checkInDate:string,checkOutDate:string) =>
+    await repository.checkAvailability(id,checkInDate,checkOutDate)
+
   return {
     addHotel,
     getHotelByName,
@@ -51,7 +58,9 @@ export const hotelDbInterface = (
     updateHotel,
     removeHotel,
     findByDestination,
-    updateHotelVerified
+    updateHotelVerified,
+    updateUnavailableDates,
+    checkAvailability,
   }
 }
 

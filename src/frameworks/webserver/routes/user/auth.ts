@@ -2,13 +2,18 @@ import express from "express";
 import { userDbInterface } from "../../../../app/interfaces/userDbInterfaces";
 import { authServiceInterface } from "../../../../app/service-interface/authServices";
 import { userDbRepository } from "../../../database/repositories/userRepostoryMongoDB";
-import { authService } from "../../../services/authService";
 import profileController from "../../../../adapters/userController/profileController";
 import authController from "../../../../adapters/roleBasedController.ts/authController";
 import { hotelDbInterface } from "../../../../app/interfaces/hotelDbInterface";
 import { hotelDbRepository } from "../../../database/repositories/hotelRepositoryMongoDB";
 import hotelController from "../../../../adapters/hotelController/hotelController";
 import authenticateUser from "./../../middlewares/authMiddleware";
+import { authService } from "../../../services/authservice";
+import bookingController from "../../../../adapters/bookingController/bookingController";
+import bookingDbInterface from "../../../../app/interfaces/bookingDbInterface";
+import bookingDbRepository from "../../../database/repositories/bookingRepositoryMongoDB";
+import { hotelServiceInterface } from "../../../../app/service-interface/hotelServices";
+import { hotelService } from "../../../services/hotelServices";
 
 const authRouter = () => {
   const router = express.Router();
@@ -62,6 +67,20 @@ const authRouter = () => {
   router.get("/hotels",  userHotelController.getHotelsUserSide);
   router.get("/searchedHotels", userHotelController.destinationSearch)
   router.get("/hotelDetails/:id", userHotelController.hotelDetails);
+  router.get("/checkAvailability/:id", userHotelController.checkAvilabitiy);
+
+  const userBookingController = bookingController(
+   bookingDbInterface,
+   bookingDbRepository,
+   hotelDbInterface,
+   hotelDbRepository,
+   hotelServiceInterface,
+   hotelService,
+   userDbInterface,
+   userDbRepository
+  );
+
+  router.post("/bookNow",authenticateUser,userBookingController.handleBooking)
 
   return router;
 };

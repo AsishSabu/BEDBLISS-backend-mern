@@ -1,4 +1,4 @@
-import { AuthServiceReturnType } from "../../frameworks/services/authService";
+import { AuthServiceReturnType } from "../../frameworks/services/authservice";
 
 export const authServiceInterface = (service: AuthServiceReturnType) => {
   const encryptPassword = async (password: string) =>

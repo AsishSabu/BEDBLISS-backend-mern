@@ -103,12 +103,12 @@ const hotelSchema = new Schema({
      
   },
 
-  unavailbleDates: [{ type: Date }],
+  unavailableDates: [{ type: Date }],
 }, { timestamps: true });
 
 hotelSchema.pre("save", async function (next) {
   const currentDate = new Date();
-  this.unavailbleDates = this.unavailbleDates.filter(
+  this.unavailableDates = this.unavailableDates.filter(
     (date: Date) => date >= currentDate
   );
   next();

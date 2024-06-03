@@ -21,6 +21,7 @@
 		"@types/nodemailer": "^6.4.15",
 		"cors": "^2.8.5",
 		"crypto": "^1.0.1",
+		"date-fns": "^3.6.0",
 		"dotenv": "^16.4.5",
 		"express": "^4.19.2",
 		"jsonwebtoken": "^9.0.2",
@@ -28,6 +29,7 @@
 		"nanoid": "^5.0.7",
 		"nodemailer": "^6.9.13",
 		"nodemon": "^3.1.2",
+		"stripe": "^15.8.0",
 		"twilio": "^5.1.0",
 		"typescript": "^5.4.5"
 	}
