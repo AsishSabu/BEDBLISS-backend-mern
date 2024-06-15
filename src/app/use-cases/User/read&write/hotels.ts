@@ -11,8 +11,20 @@ export const getHotelDetails = async (
 
 export const viewByDestination = async (
   destination: string,
+  adults: string,
+  children: string,
+  room: string,
+  startDate: string,
+  endDate: string,
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => {
-  const data = await hotelRepository.findByDestination(destination)
+  const data = await hotelRepository.findByDestination(
+    destination,
+    adults,
+    children,
+    room,
+    startDate,
+    endDate
+  )
   return data
 }

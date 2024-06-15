@@ -1,38 +1,49 @@
 import mongoose from "mongoose"
-import {bookingEntityType} from "../../../entites/booking"
+import { bookingEntityType } from "../../../entites/booking"
 import Booking from "../models/bookingModel"
 
 export default function bookingDbRepository() {
   const createBooking = async (bookingEntity: bookingEntityType) => {
-    const newBooking = new Booking({
-      firstName: bookingEntity.getfirstName(),
-      lastName:bookingEntity.getlastName(),
+    const rooms=bookingEntity.getRooms()
+    console.log(rooms,"rooms........................");
+    
+    
+    const data = new Booking({
+      firstName: bookingEntity.getFirstName(),
+      lastName: bookingEntity.getLastName(),
       phoneNumber: bookingEntity.getPhoneNumber(),
       email: bookingEntity.getEmail(),
       hotelId: bookingEntity.getHotelId(),
       userId: bookingEntity.getUserId(),
-      maxPeople: bookingEntity.getMaxPeople(),
-      checkInDate: bookingEntity.checkInDate(),
-      checkOutDate: bookingEntity.checkOutDate(),
-      totalDays:bookingEntity.getTotalDays(),
+      maxAdults: bookingEntity.getMaxAdults(),
+      checkInDate: bookingEntity.getCheckInDate(),
+      checkOutDate: bookingEntity.getCheckOutDate(),
+      totalDays: bookingEntity.getTotalDays(),
       price: bookingEntity.getPrice(),
-      paymentMethod:bookingEntity.getPaymentMethod(),
+      paymentMethod: bookingEntity.getPaymentMethod(),
     })
-    console.log("hlooooo");
-    
+    console.log("hlooooo")
 
-    newBooking.save()
+    data.save()
 
-    return newBooking
+    return {data,rooms}
   }
 
   const getAllBooking = async () => {
     const bookings = await Booking.find()
-
     return bookings
   }
+  const getBookingById = async (id: string) =>
+    await Booking.findById(id).populate("userId").populate("hotelId")
 
-  const getBooking = async (id: string) => await Booking.findById(id)
+  const getBookingBybookingId = async (id: string) =>
+    await Booking.find({ bookingId: id }).populate("userId").populate("hotelId")
+
+  const getBookingByuser = async (id: string) =>
+    await Booking.find({ userId: id }).populate("userId").populate("hotelId")
+
+  const getBookingByHotel = async (id: string) =>
+    await Booking.find({ hotelId: id }).populate("userId").populate("hotelId")
 
   const deleteBooking = async (id: string) =>
     await Booking.findByIdAndUpdate(
@@ -41,23 +52,24 @@ export default function bookingDbRepository() {
       { new: true }
     )
 
-  const updateBooking = async (id: string, updates: any) =>
-    await Booking.updateOne(
-      { _id: id },
-      {
-        $set: updates,
-      }
-    )
+  const updateBooking = async (
+    bookingId: string,
+    updatingData: Record<any, any>
+  ) =>
+    await Booking.findOneAndUpdate({ bookingId }, updatingData, {
+      new: true,
+      upsert: true,
+    })
 
-
-
-
-    return {
-        createBooking,
-        getAllBooking,
-        getBooking,
-        deleteBooking,
-        updateBooking,
-      };
+  return {
+    createBooking,
+    getAllBooking,
+    getBookingByuser,
+    deleteBooking,
+    updateBooking,
+    getBookingById,
+    getBookingByHotel,
+    getBookingBybookingId
+  }
 }
 export type bookingDbRepositoryType = typeof bookingDbRepository

@@ -75,7 +75,6 @@ const bookingSchema = new mongoose.Schema(
       trim: true,
       require: true,
     },
-    wallet: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
     paymentMethod: {
       type: String,
       enum: ["Online", "Wallet","pay_on_checkout"],
@@ -85,10 +84,10 @@ const bookingSchema = new mongoose.Schema(
       enum: ["Pending", "Paid", "Failed", "Refunded"],
       default: "Pending",
     },
-    status: {
+    bookingStatus: {
       type: String,
-      enum:["booked","rejected","cancelled"],
-      default: "booked",
+      enum:["booked","rejected","cancelled","pending"],
+      default: "pending",
     },
   },
   { timestamps: true }

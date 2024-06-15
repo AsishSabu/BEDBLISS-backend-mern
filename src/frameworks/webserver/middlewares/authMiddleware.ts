@@ -17,28 +17,41 @@ export default function authenticateUser(
   res: Response,
   next: NextFunction
 ) {  
+  console.log("in middleware");
+  
   const access_token = req.headers.authorization;
   if (!access_token) {
+    console.log("no access token")
     return res.status(HttpStatus.FORBIDDEN).json("Your are not authenticated");
   }
   const tokenParts = access_token.split(" ");
   const token = tokenParts.length === 2 ? tokenParts[1] : null;
 
   if (!token) {
+    console.log("not token");
+    
     return res.status(HttpStatus.FORBIDDEN).json("Invalid access token format");
   }
   jwt.verify(token, configKeys.ACCESS_SECRET, (err: any, user: any) => {
     if (err) {
+         console.log("token is not valid");
+         
       res
         .status(HttpStatus.FORBIDDEN)
         .json({ success: false, message: "Token is not valid" });
     }
     else if(user.isBlocked){
+      console.log("user is blocked");
+      
       res
         .status(HttpStatus.FORBIDDEN)
         .json({ success: false, message: "user is Blocked" });
     } else {
+      console.log("no problem in middleware");
+      
       req.user = user.id;
+      console.log(req.user,".................................");
+      
       next();
     }
   });

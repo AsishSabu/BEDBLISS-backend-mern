@@ -1,16 +1,30 @@
 import mongoose from 'mongoose';
 
+interface Address {
+  streetAddress: string;
+  landMark: string;
+  district: string;
+  city: string;
+  pincode: string;
+  country: string;
+}
+
+export interface RoomInterface {
+  title: string;
+  price: number;
+  maxAdults: number;
+  maxChildren: number;
+  desc: string;
+  roomNumbers: { number: number; unavailableDates: Date[] }[];
+}
+
+// Hotel interface
 export interface HotelInterface {
   name: string;
   ownerId: mongoose.Types.ObjectId;
   destination: string;
   description: string;
   propertyRules: string[];
-  room: number;
-  bed: number;
-  bathroom: number;
-  guests: number;
-  price:string;
   reservationType: string;
   stayType: string;
   amenities: string[];
@@ -19,16 +33,27 @@ export interface HotelInterface {
   createdAt: Date;
   updatedAt: Date;
   imageUrls: string[];
-  address: {
-    streetAddress: string;
-    landMark: string;
-    district: string;
-    city: string;
-    pincode: string;
-    country: string;
-  };
-  ownerDocument:string;
-  hotelDocument:string;
-  ownerPhoto:string;
+  address: Address;
+  ownerDocument: string;
+  hotelDocument: string;
+  ownerPhoto: string;
   unavailbleDates: Date[];
+  rooms: mongoose.Types.ObjectId[] | RoomInterface[];
+}
+
+export interface Options {
+  adult: number;
+  children: number;
+  room: number;
+}
+export interface Dates {
+  startDate: string;
+  endDate: string;
+  
+};
+
+export interface optionType {
+  adult: number
+  children: number
+  room: number
 }

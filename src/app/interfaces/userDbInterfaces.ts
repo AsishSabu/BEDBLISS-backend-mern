@@ -1,58 +1,67 @@
+import { TransactionEntityType } from "../../entites/transactionEntity"
 import {
   GoogleandFaceebookUserEntityType,
   UserEntityType,
-} from "../../entites/user";
-import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB";
+} from "../../entites/user"
+import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB"
 
 export const userDbInterface = (
   repository: ReturnType<userDbRepositoryType>
 ) => {
   const getUserByEmail = async (email: string) =>
-    await repository.getUserEmail(email);
+    await repository.getUserEmail(email)
 
-  const getUserById = async (id: string) => await repository.getUserbyId(id);
+  const getUserById = async (id: string) => await repository.getUserbyId(id)
 
-  const addUser = async (user: UserEntityType) =>
-    await repository.addUser(user);
- 
-  const updateUserBlock=async(id:string,status:boolean)=>
-    await repository.updateUserBlock(id,status)
+  const addUser = async (user: UserEntityType) => await repository.addUser(user)
+
+  const updateUserBlock = async (id: string, status: boolean) =>
+    await repository.updateUserBlock(id, status)
 
   const addOtp = async (otp: string, id: string) =>
-    await repository.addOtp(otp, id);
+    await repository.addOtp(otp, id)
 
   const findOtpWithUser = async (userId: string) =>
-    await repository.findUserOtp(userId);
+    await repository.findUserOtp(userId)
 
   const deleteOtpWithUser = async (userId: string) =>
-    await repository.deleteUserOtp(userId);
+    await repository.deleteUserOtp(userId)
 
   const updateUserverification = async (userId: string) =>
-    await repository.updateUserVerified(userId);
+    await repository.updateUserVerified(userId)
 
   const registerGooglefacebookoUser = async (
     user: GoogleandFaceebookUserEntityType
-  ) => await repository.registerGoogleFacebookSignedUser(user);
+  ) => await repository.registerGoogleFacebookSignedUser(user)
 
   const verifyAndResetPassword = async (
     verificationCode: string,
     password: string
   ) =>
-    await repository.findVerificationCodeAndUpdate(verificationCode, password);
+    await repository.findVerificationCodeAndUpdate(verificationCode, password)
 
   const updateVerificationCode = async (
     email: string,
     verificationCode: string
-  ) => await repository.updateVerificationCode(email, verificationCode);
+  ) => await repository.updateVerificationCode(email, verificationCode)
 
   const updateProfile = async (userId: string, userData: Record<string, any>) =>
-    await repository.updateUserInfo(userId, userData);
+    await repository.updateUserInfo(userId, userData)
 
-  const getUserByNumber=async(phoneNumber:string)=>
+  const getUserByNumber = async (phoneNumber: string) =>
     await repository.getUserByNumber(phoneNumber)
 
-  const getAllUsers=async(role:string)=>
-    await repository.getAllUsers(role)
+  const getAllUsers = async () => await repository.getAllUsers()
+
+  const changeUserRole = async (id:string,role: string) => await repository.changeUserRole(id,role)
+
+  const updateWallet = async (userId: string, newBalance: number) =>
+    await repository.updateWallet(userId, newBalance);
+
+  const createTransaction = async (transactionDetails: TransactionEntityType) =>
+    await repository.createTransaction(transactionDetails);
+  const addWallet=async(userId:string)=>
+    await repository.addWallet(userId)
 
   return {
     getUserByEmail,
@@ -68,8 +77,12 @@ export const userDbInterface = (
     updateProfile,
     getUserByNumber,
     getAllUsers,
-    updateUserBlock
-  };
-};
+    updateUserBlock,
+    changeUserRole,
+    updateWallet,
+    createTransaction,
+    addWallet
+}
+}
 
-export type userDbInterfaceType = typeof userDbInterface;
+export type userDbInterfaceType = typeof userDbInterface

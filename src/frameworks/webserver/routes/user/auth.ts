@@ -43,6 +43,7 @@ const authRouter = () => {
     "/auth/reset_password/:token",
     authenticationController.resetPassword
   );
+  router.post("/changeRole",authenticateUser,authenticationController.roleSwitch)
 
   const userProfileController = profileController(
     authServiceInterface,
@@ -81,6 +82,11 @@ const authRouter = () => {
   );
 
   router.post("/bookNow",authenticateUser,userBookingController.handleBooking)
+  router.patch("/payment/status/:id",authenticateUser,userBookingController.updatePaymentStatus)
+  router.get("/bookings",authenticateUser,userBookingController.getBooking)
+  router.get("/bookingDetails/:id",authenticateUser,userBookingController.getBookingById)
+  router.patch("/booking/cancel/:bookingID",authenticateUser,userBookingController.cancelBooking)
+
 
   return router;
 };

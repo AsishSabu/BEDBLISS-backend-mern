@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
 const userSchema = new Schema(
   {
@@ -32,6 +32,8 @@ const userSchema = new Schema(
       type:Boolean,
       default:false
     },
+    wallet: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
+
     isBlocked:{
       type:Boolean,
       default:false,

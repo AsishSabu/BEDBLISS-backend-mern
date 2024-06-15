@@ -22,7 +22,7 @@ const profileController = (
   ) => {
     try {
       const userId = req.user;
-      console.log(userId)
+      console.log(userId,'user id...........')
       const user = await getUserProfile(userId, dbRepositoryUser);
       console.log(user, "user profile");
       res.status(200).json({ success: true, user });

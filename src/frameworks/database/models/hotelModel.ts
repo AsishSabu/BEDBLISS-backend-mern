@@ -26,9 +26,9 @@ const addressSchema = new Schema({
     type: String,
     required: true,
   },
-}, { _id: false }); // Disable the automatic _id field for the subdocument
+}, { _id: false }); 
 
-// Define the hotel schema
+
 const hotelSchema = new Schema({
   name: {
     type: String,
@@ -56,26 +56,10 @@ const hotelSchema = new Schema({
     required: true,
   },
   propertyRules: [String],
-  room: {
-    type: Number,
-    required: true,
-  },
-  bed: {
-    type: Number,
-    required: true,
-  },
-  bathroom: {
-    type: Number,
-    required: true,
-  },
-  guests: {
-    type: Number,
-    required: true,
-  },
-  price: {
-    type: String,
-    required: true,
-  },
+  rooms: [{
+    type: Schema.Types.ObjectId,
+    ref: "Room"
+  }],
   amenities: [String],
   isBlocked: {
     type: Boolean,
@@ -103,16 +87,10 @@ const hotelSchema = new Schema({
      
   },
 
-  unavailableDates: [{ type: Date }],
+ 
 }, { timestamps: true });
 
-hotelSchema.pre("save", async function (next) {
-  const currentDate = new Date();
-  this.unavailableDates = this.unavailableDates.filter(
-    (date: Date) => date >= currentDate
-  );
-  next();
-});
+
 
 const Hotel = model("Hotel", hotelSchema);
 export default Hotel;

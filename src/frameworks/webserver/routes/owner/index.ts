@@ -9,7 +9,8 @@ const ownerRouter = () => {
 
   const controller = hotelController(hotelDbInterface, hotelDbRepository);
 
-  router.post("/addhotel",authenticateUser, controller.registerHotel);
+  router.post("/addhotel",authenticateUser,controller.registerHotel);
+  router.post("/addRoom/:id",authenticateUser, controller.registerRoom);
   router.get("/myHotels",authenticateUser,controller.registeredHotels)
   return router;
 };

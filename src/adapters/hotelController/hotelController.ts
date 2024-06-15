@@ -1,6 +1,6 @@
 import { hotelDbRepositoryType } from "./../../frameworks/database/repositories/hotelRepositoryMongoDB"
-import { Request, Response, NextFunction } from "express"
-import { addHotel, getMyHotels } from "../../app/use-cases/Owner/hotel"
+import { Request, Response, NextFunction, query } from "express"
+import { addHotel, addRoom, getMyHotels } from "../../app/use-cases/Owner/hotel"
 import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
 import { HttpStatus } from "../../types/httpStatus"
 import {
@@ -23,8 +23,7 @@ const hotelController = (
   ) => {
     try {
       const ownerId = new mongoose.Types.ObjectId(req.user)
-      console.log(ownerId)
-
+      console.log(ownerId,"owner iddd")
       console.log(req.body, "data")
 
       const hotelData = req.body
@@ -38,6 +37,34 @@ const hotelController = (
         status: "success",
         message: "hotel added suuccessfully",
         registeredHotel,
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+
+  const registerRoom = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const hotelId = new mongoose.Types.ObjectId(req.params.id)
+      console.log(hotelId)
+      console.log(req.body, "data")
+
+      const roomData = req.body
+
+      const registeredRoom = await addRoom(
+        hotelId,
+       roomData,
+        dbRepositoryHotel
+      )
+      res.json({
+        status: "success",
+        message: "room added suuccessfully",
+        registeredRoom,
       })
     } catch (error) {
       next(error)
@@ -58,12 +85,15 @@ const hotelController = (
     }
   }
 
+
   const getHotelsUserSide = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
+      console.log("in hotel userside");
+  
       const { Hotels } = await getUserHotels(dbRepositoryHotel)
       console.log(Hotels)
 
@@ -96,17 +126,17 @@ const hotelController = (
     next: NextFunction
   ) => {
     try {
-      const { destination } = req.query
-      console.log(destination)
-      if (typeof destination !== "string") {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          status: "fail",
-          message: "Invalid destination parameter",
-        })
-      }
+    console.log(req.query,"all values");
+    
+      const destination = req.query.destination as string;
+      const adults = req.query.adult as string;
+      const children = req.query.children as string;
+      const room = req.query.room as string;
+      const startDate = req.query.startDate as string;
+      const endDate = req.query.endDate as string;
 
-      const data = await viewByDestination(destination, dbRepositoryHotel)
-      console.log(data)
+      const data = await viewByDestination(destination,adults,children,room,startDate,endDate, dbRepositoryHotel)
+      console.log(data,"data")
 
       res.status(HttpStatus.OK).json({
         status: "success",
@@ -128,19 +158,19 @@ const hotelController = (
       const isDateExisted=await checkAvailability( id,dates,dbRepositoryHotel)
       console.log(isDateExisted);
       
-      if(!isDateExisted){
-        console.log("hloooo");
+      // if(!isDateExisted){
+      //   console.log("hloooo");
         
-        res.status(HttpStatus.OK).json({
-          status: "success",
-          message: "date is availble"
-        })
-      }else{
-        res.status(HttpStatus.OK).json({
-          status: "fail",
-          message: "date is unavailble"
-        })
-      }
+      //   res.status(HttpStatus.OK).json({
+      //     status: "success",
+      //     message: "date is availble"
+      //   })
+      // }else{
+      //   res.status(HttpStatus.OK).json({
+      //     status: "fail",
+      //     message: "date is unavailble"
+      //   })
+      // }
       
     } catch (error) {
       next(error)
@@ -150,6 +180,7 @@ const hotelController = (
 
   return {
     registerHotel,
+    registerRoom,
     registeredHotels,
     getHotelsUserSide,
     hotelDetails,

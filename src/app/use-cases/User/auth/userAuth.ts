@@ -2,54 +2,54 @@ import createUserEntity, {
   GoogleandFaceebookSignInUserEntity,
   GoogleandFaceebookUserEntityType,
   UserEntityType,
-} from "../../../../entites/user";
-import { GoogleAndFacebookResponseType } from "../../../../types/GoogleandFacebookResponseTypes";
-import { HttpStatus } from "../../../../types/httpStatus";
+} from "../../../../entites/user"
+import { GoogleAndFacebookResponseType } from "../../../../types/GoogleandFacebookResponseTypes"
+import { HttpStatus } from "../../../../types/httpStatus"
 import {
   CreateUserInterface,
   UserInterface,
-} from "../../../../types/userInterfaces";
-import AppError from "../../../../utils/appError";
-import sendMail from "../../../../utils/sendMail";
-import { forgotPasswordEmail, otpEmail } from "../../../../utils/userEmail";
-import { userDbInterfaceType } from "../../../interfaces/userDbInterfaces";
-import { AuthServiceInterface } from "../../../service-interface/authServices";
+} from "../../../../types/userInterfaces"
+import AppError from "../../../../utils/appError"
+import sendMail from "../../../../utils/sendMail"
+import { forgotPasswordEmail, otpEmail } from "../../../../utils/userEmail"
+import { userDbInterfaceType } from "../../../interfaces/userDbInterfaces"
+import { AuthServiceInterface } from "../../../service-interface/authServices"
 
 export const userRegister = async (
   user: CreateUserInterface,
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const { name, email, password} = user;
-  const existingEmailUser = await userRepository.getUserByEmail(email);
+  const { name, email, password } = user
+  const existingEmailUser = await userRepository.getUserByEmail(email)
   if (existingEmailUser) {
     throw new AppError(
       "this email is already register with an account",
       HttpStatus.UNAUTHORIZED
-    );
+    )
   }
-  const hashedPassword: string = await authService.encryptPassword(password);
+  const hashedPassword: string = await authService.encryptPassword(password)
 
   const userEntity: UserEntityType = createUserEntity(
     name,
     email,
-    hashedPassword,
-  );
+    hashedPassword
+  )
 
   // create a new user
-  const newUser: UserInterface = await userRepository.addUser(userEntity);
+  const newUser: UserInterface = await userRepository.addUser(userEntity)
 
-  const OTP = authService.generateOtp();
+  const OTP = authService.generateOtp()
 
-  console.log(OTP, "---otp");
+  console.log(OTP, "---otp")
 
   //adding otp to database
-  await userRepository.addOtp(OTP, newUser.id);
-  const emailSubject = "Account verification";
-  sendMail(newUser.email, emailSubject, otpEmail(OTP, newUser.name));
+  await userRepository.addOtp(OTP, newUser.id)
+  const emailSubject = "Account verification"
+  sendMail(newUser.email, emailSubject, otpEmail(OTP, newUser.name))
 
-  return newUser;
-};
+  return newUser
+}
 
 //user login
 
@@ -58,39 +58,39 @@ export const loginUser = async (
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const { email, password } = user;
-  const isEmailExist = await userRepository.getUserByEmail(email);
+  const { email, password } = user
+  const isEmailExist = await userRepository.getUserByEmail(email)
 
   if (!isEmailExist) {
-    throw new AppError("Invalid Credantials", HttpStatus.UNAUTHORIZED);
+    throw new AppError("Invalid Credantials", HttpStatus.UNAUTHORIZED)
   }
   if (isEmailExist.isBlocked) {
-    throw new AppError("Account is Blocked", HttpStatus.FORBIDDEN);
+    throw new AppError("Account is Blocked", HttpStatus.FORBIDDEN)
   }
   if (!isEmailExist.isVerified) {
-    throw new AppError("Account is not verified", HttpStatus.UNAUTHORIZED);
+    throw new AppError("Account is not verified", HttpStatus.UNAUTHORIZED)
   }
   if (!isEmailExist.password) {
-    throw new AppError("Invalid credentials", HttpStatus.UNAUTHORIZED);
+    throw new AppError("Invalid credentials", HttpStatus.UNAUTHORIZED)
   }
 
   const isPasswordMatched = await authService.comparePassword(
     password,
     isEmailExist?.password
-  );
+  )
 
   if (!isPasswordMatched) {
-    throw new AppError("Invalid Credentials", HttpStatus.UNAUTHORIZED);
+    throw new AppError("Invalid Credentials", HttpStatus.UNAUTHORIZED)
   }
 
   const accessToken = authService.createTokens(
     isEmailExist.id,
     isEmailExist.name,
     isEmailExist.role
-  );
+  )
 
-  return { accessToken, isEmailExist };
-};
+  return { accessToken, isEmailExist }
+}
 
 export const verifyOtpUser = async (
   otp: string,
@@ -98,82 +98,81 @@ export const verifyOtpUser = async (
   userRepository: ReturnType<userDbInterfaceType>
 ) => {
   if (!otp) {
-    throw new AppError("please provide an OTP", HttpStatus.BAD_REQUEST);
+    throw new AppError("please provide an OTP", HttpStatus.BAD_REQUEST)
   }
-  const otpUser = await userRepository.findOtpWithUser(userId);
+  const otpUser = await userRepository.findOtpWithUser(userId)
   if (!otpUser) {
-    throw new AppError("Invlaid OTP ", HttpStatus.BAD_REQUEST);
+    throw new AppError("Invlaid OTP ", HttpStatus.BAD_REQUEST)
   }
   if (otpUser.otp === otp) {
-    await userRepository.updateUserverification(userId);
+    const wallet = await userRepository.addWallet(userId)
+    await userRepository.updateProfile(userId, {
+      isVerified: true,
+      wallet: wallet._id,
+    });
     return true;
   } else {
-    throw new AppError("Invalid OTP,try again", HttpStatus.BAD_REQUEST);
+    throw new AppError("Invalid OTP,try again", HttpStatus.BAD_REQUEST)
   }
-};
+}
 
 export const authenticateGoogleandFacebookUser = async (
   userData: GoogleAndFacebookResponseType,
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const { name, email, picture, email_verified} = userData;
-  const isEmailExist = await userRepository.getUserByEmail(email);
+  const { name, email, picture, email_verified } = userData
+  const isEmailExist = await userRepository.getUserByEmail(email)
   if (isEmailExist?.isBlocked) {
     throw new AppError(
       "Your account is blocked by administrator",
       HttpStatus.FORBIDDEN
-    );
+    )
   }
   if (isEmailExist) {
     const accessToken = authService.createTokens(
       isEmailExist.id,
       isEmailExist.name,
       isEmailExist.role
-    );
-    return { isEmailExist, accessToken };
+    )
+    return { isEmailExist, accessToken }
   } else {
     const googleFacebookUser: GoogleandFaceebookUserEntityType =
-      GoogleandFaceebookSignInUserEntity(
-        name,
-        email,
-        picture,
-        email_verified,
-      );
+      GoogleandFaceebookSignInUserEntity(name, email, picture, email_verified)
     const newUser = await userRepository.registerGooglefacebookoUser(
       googleFacebookUser
-    );
-    const userId = newUser._id as unknown as string;
-    const Name = newUser.name as unknown as string;
-    const role=newUser.role as unknown as string;
-    const accessToken = authService.createTokens(userId, Name, role);
-    return { accessToken, newUser };
+    )
+    const userId = newUser._id as unknown as string
+    const Name = newUser.name as unknown as string
+    const role = newUser.role as unknown as string
+    const accessToken = authService.createTokens(userId, Name, role)
+    return { accessToken, newUser }
   }
-};
+}
 export const sendResetVerificationCode = async (
   email: string,
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const isEmailExist = await userRepository.getUserByEmail(email);
+  const isEmailExist = await userRepository.getUserByEmail(email)
 
   if (!isEmailExist)
-    throw new AppError(`${email} does not exist`, HttpStatus.UNAUTHORIZED);
+    throw new AppError(`${email} does not exist`, HttpStatus.UNAUTHORIZED)
 
-  const verificationCode = authService.getRandomString();
+  const verificationCode = authService.getRandomString()
 
   const isUpdated = await userRepository.updateVerificationCode(
     email,
     verificationCode
-  );
-  console.log(verificationCode, "----verification code");
+  )
+  console.log(verificationCode, "----verification code")
 
   sendMail(
     email,
     "Reset password",
     forgotPasswordEmail(isEmailExist.name, verificationCode)
-  );
-};
+  )
+}
 
 export const verifyTokenResetPassword = async (
   verificationCode: string,
@@ -185,37 +184,40 @@ export const verifyTokenResetPassword = async (
     throw new AppError(
       "Please provide a verification code",
       HttpStatus.BAD_REQUEST
-    );
-  const hashedPassword = await authService.encryptPassword(password);
+    )
+  const hashedPassword = await authService.encryptPassword(password)
   const isPasswordUpdated = await userRepository.verifyAndResetPassword(
     verificationCode,
     hashedPassword
-  );
+  )
   if (!isPasswordUpdated) {
-    throw new AppError(
-      "Invalid token or token expired",
-      HttpStatus.BAD_REQUEST
-    );
+    throw new AppError("Invalid token or token expired", HttpStatus.BAD_REQUEST)
   }
-};
+}
 
 export const deleteOtp = async (
   userId: string,
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const newOtp: string = authService.generateOtp();
-  const deleted = await userRepository.deleteOtpWithUser(userId);
+  const newOtp: string = authService.generateOtp()
+  const deleted = await userRepository.deleteOtpWithUser(userId)
   if (deleted) {
-    await userRepository.addOtp(newOtp, userId);
+    await userRepository.addOtp(newOtp, userId)
   }
-  const user = await userRepository.getUserById(userId);
+  const user = await userRepository.getUserById(userId)
   if (!user) {
-    throw new AppError("User not found", HttpStatus.NOT_FOUND);
+    throw new AppError("User not found", HttpStatus.NOT_FOUND)
   }
 
-  const emailSubject = "Account verification ,New Otp";
-  sendMail(user.email, emailSubject, otpEmail(newOtp, user.name));
+  const emailSubject = "Account verification ,New Otp"
+  sendMail(user.email, emailSubject, otpEmail(newOtp, user.name))
 
-  console.log(newOtp, "----otp");
-};
+  console.log(newOtp, "----otp")
+}
+
+export const switchRole = async (
+  Id: string,
+  role: string,
+  userRepository: ReturnType<userDbInterfaceType>
+) => await userRepository.changeUserRole(Id, role)

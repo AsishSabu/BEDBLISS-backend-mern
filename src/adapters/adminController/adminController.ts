@@ -51,8 +51,8 @@ const adminController = (
     next: NextFunction
   ) => {
     try {
-      let role = "user"
-      const { users } = await getUsers(dbRepositoryUser, role)
+      
+      const { users } = await getUsers(dbRepositoryUser)
       return res.status(HttpStatus.OK).json({ success: true, users })
     } catch (error) {
       next(error)
@@ -71,19 +71,6 @@ const adminController = (
     }
   }
 
-  const getAllOwners = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      let role = "owner"
-      const { users } = await getUsers(dbRepositoryUser, role)
-      return res.status(HttpStatus.OK).json({ success: true, users })
-    } catch (error) {
-      next(error)
-    }
-  }
 
   const getAllHotels = async (
     req: Request,
@@ -100,12 +87,12 @@ const adminController = (
 
   const CardCount = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userCount = (await getUsers(dbRepositoryUser, "user")).count
-      const ownerCount = (await getUsers(dbRepositoryUser, "owner")).count
+      const userCount = (await getUsers(dbRepositoryUser)).count
+
       const hotelCount = (await getHotels(dbRepositoryHotel)).count
       return res
         .status(HttpStatus.OK)
-        .json({ success: true, userCount, ownerCount, hotelCount })
+        .json({ success: true, userCount,  hotelCount })
     } catch (error) {
       next(error)
     }
@@ -145,7 +132,6 @@ const adminController = (
     adminLogin,
     getAllUser,
     userBlock,
-    getAllOwners,
     getAllHotels,
     CardCount,
     hotelBlock,

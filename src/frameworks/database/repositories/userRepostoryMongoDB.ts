@@ -10,6 +10,11 @@ import wallet from "../models/wallet"
 import { UserInterface } from "./../../../types/userInterfaces"
 import { TransactionEntityType } from "../../../entites/transactionEntity"
 
+interface ChangeUserRole {
+  id: string
+  newRole: string
+}
+
 export const userDbRepository = () => {
   //get user by email
   const getUserEmail = async (email: string) => {
@@ -72,6 +77,28 @@ export const userDbRepository = () => {
   const updateVerificationCode = async (email: string, code: string) =>
     await User.findOneAndUpdate({ email }, { verificationCode: code })
 
+  const changeUserRole = async (id: string, newRole: string) => {
+    console.log(`Changing role to: ${newRole}`);
+  
+    try {
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: id },
+        { role: newRole },
+        { new: true } // This option returns the updated document
+      );
+  
+      if (!updatedUser) {
+        console.log("User not found");
+        return null;
+      }
+  
+      console.log("Role updated successfully:", updatedUser);
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating role:", error);
+      throw error;
+    }
+  };
   const updateUserInfo = async (id: string, updateData: Record<string, any>) =>
     await User.findByIdAndUpdate(id, updateData, { new: true })
 
@@ -80,9 +107,9 @@ export const userDbRepository = () => {
     return user
   }
 
-  const getAllUsers = async (role: string) => {
-    const users = await User.find({ isVerified: true, role })
-    const allUsers = await User.find({ role })
+  const getAllUsers = async () => {
+    const users = await User.find({ isVerified: true })
+    const allUsers = await User.find()
     const count = allUsers.length
     return { users, count }
   }
@@ -92,7 +119,7 @@ export const userDbRepository = () => {
 
   const addWallet = async (userId: string) => await wallet.create({ userId })
   const updateWallet = async (userId: string, newBalance: number) =>
-    await wallet.findOneAndUpdate({ userId }, { $inc: { balance: newBalance } })
+    await wallet.findByIdAndUpdate({ userId }, { $inc: { balance: newBalance } })
 
   const getWalletByUseId = async (userId: string) =>
     await wallet.findOne({ userId })
@@ -123,6 +150,12 @@ export const userDbRepository = () => {
     getUserByNumber,
     getAllUsers,
     updateUserBlock,
+    changeUserRole,
+    updateWallet,
+    createTransaction,
+    getWalletByUseId,
+    addWallet,
+    allTransactions
   }
 }
 

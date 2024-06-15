@@ -6,7 +6,9 @@ export interface BookingInterface {
     roomId: string;
     hotelId: string;
     userId: string;
-    maxPeople: number;
+    maxAdults: number;
+    maxChildren:number;
+    rooms:[]
     checkInDate: string;
     checkOutDate: string;
     totalDays:number
@@ -18,3 +20,10 @@ export interface BookingInterface {
     checkOutDate: string;
 
   }
+
+  export type TransactionDataType = {
+    newBalance: number;
+    type: "Debit" | "Credit";
+    description: string;
+  };
+  

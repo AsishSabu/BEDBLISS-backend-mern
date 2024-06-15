@@ -1,11 +1,19 @@
+import mongoose from "mongoose"
 import { HotelEntityType } from "../../entites/hotel"
+import { RoomEntityType } from "../../entites/room"
 import { hotelDbRepositoryType } from "../../frameworks/database/repositories/hotelRepositoryMongoDB"
+import { Dates, optionType } from "../../types/HotelInterface"
 
 export const hotelDbInterface = (
   repository: ReturnType<hotelDbRepositoryType>
 ) => {
   const addHotel = async (hotel: HotelEntityType) =>
     await repository.addHotel(hotel)
+
+  const addRoom = async (
+    hotel: RoomEntityType,
+    hotelId: mongoose.Types.ObjectId
+  ) => await repository.addRoom(hotel, hotelId)
 
   const getHotelById = async (Id: string) => await repository.getHotelById(Id)
 
@@ -33,8 +41,22 @@ export const hotelDbInterface = (
 
   const removeHotel = async (id: string) => await repository.remove(id)
 
-  const findByDestination = async (destination: string) =>
-    await repository.findByDestination(destination)
+  const findByDestination = async (
+    destination: string,
+    adults: string,
+    children: string,
+    room: string,
+    startDate: string,
+    endDate: string
+  ) =>
+    await repository.findByDestination(
+      destination,
+      adults,
+      children,
+      room,
+      startDate,
+      endDate
+    )
 
   const updateHotelVerified = async (id: string) =>
     await repository.updateHotelVerified(id)
@@ -42,11 +64,18 @@ export const hotelDbInterface = (
   const updateUnavailableDates = async (id: string, dates: any) =>
     await repository.updateUnavailableDates(id, dates)
 
-  const checkAvailability= async (id: string, checkInDate:string,checkOutDate:string) =>
-    await repository.checkAvailability(id,checkInDate,checkOutDate)
+  const checkAvailability = async (
+    id: string,
+    checkInDate: string,
+    checkOutDate: string
+  ) => await repository.checkAvailability(id, checkInDate, checkOutDate)
+
+  const addUnavilableDates = async (room: [], dates: string[]) =>
+    await repository.addUnavilableDates(room, dates)
 
   return {
     addHotel,
+    addRoom,
     getHotelByName,
     getHotelByEmail,
     getAllHotels,
@@ -61,6 +90,7 @@ export const hotelDbInterface = (
     updateHotelVerified,
     updateUnavailableDates,
     checkAvailability,
+    addUnavilableDates,
   }
 }
 
