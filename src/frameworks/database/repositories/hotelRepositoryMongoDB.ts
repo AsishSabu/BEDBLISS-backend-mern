@@ -5,6 +5,7 @@ import Room from "../models/roomModel"
 import { RoomEntityType } from "../../../entites/room"
 import { NextFunction } from "express"
 import mongoose from "mongoose"
+import Category from "../models/categoryModel"
 
 export const hotelDbRepository = () => {
   //adding hotel
@@ -58,6 +59,16 @@ export const hotelDbRepository = () => {
     return newRoom
   }
 
+  const addStayType= async (
+    name: string,
+  ) => {
+    const newCategory: any = new Category({
+      title: name,
+    }) 
+    newCategory.save()
+    return newCategory
+  }
+
   const deleteRoom = async (
     roomId: mongoose.Types.ObjectId,
     hotelId: mongoose.Types.ObjectId
@@ -98,6 +109,22 @@ export const hotelDbRepository = () => {
    return
   };
 
+  const removeUnavailableDates = async (rooms: RoomDetails[], dates: string[]) => {
+    for (const room of rooms) {
+      const roomId = room.roomId;
+      const roomNumbers = room.roomNumbers;
+  
+      for (const roomNumber of roomNumbers) {
+        await Room.updateOne(
+          { _id: roomId, "roomNumbers.number": roomNumber },
+          { $pull: { "roomNumbers.$.unavailableDates": { $in: dates } } }
+        );
+      }
+    }
+  
+    return;
+  };
+
   const getHotelById = async (Id: string) => {
     const hotel: HotelInterface | null = await Hotel.findById(Id)
     return hotel
@@ -121,6 +148,7 @@ export const hotelDbRepository = () => {
     const Hotels = await Hotel.find({
       isVerified: true,
       isListed: true,
+      isBlocked:false
     })
     const count = Hotels.length
 
@@ -132,7 +160,7 @@ export const hotelDbRepository = () => {
   }
 
   const getHotelDetails = async (id: string) => {
-    const Hotels = await Hotel.findById(id).populate("rooms")
+    const Hotels = await Hotel.findById(id).populate("rooms").populate("ownerId")
     return Hotels
   }
   const updateHotelBlock = async (id: string, status: boolean) =>
@@ -153,7 +181,6 @@ export const hotelDbRepository = () => {
     return { date, time: timeWithoutZ };
   };
 
-
   const findByDestination = async (
     destination: string,
     adults: string,
@@ -161,64 +188,75 @@ export const hotelDbRepository = () => {
     room: string,
     startDate: string,
     endDate: string
-  ) => {
+  ): Promise<HotelInterface[]> => {
     console.log("in find by destination");
   
+    let hotels:any;
   
     if (destination === "") {
-     return await Hotel.find({ isVerified: true, isListed: true });
-    } 
+      hotels = await Hotel.find({ isVerified: true, isListed: true, isBlocked: false }).populate('rooms');
+    } else {
       const regex = new RegExp(destination, "i");
-     const hotels:any = await Hotel.find({
+      hotels = await Hotel.find({
         $or: [
           { destination: { $regex: regex } },
-          { name: { $regex: regex } },
+          { name: { $regex: regex } }
         ],
         isVerified: true,
         isListed: true,
-      });
-   
+        isBlocked: false
+      }).populate('rooms');
+    }
   
-    console.log(hotels,"destinaiton filter");
-    const availableRooms = await Promise.all(
-      hotels.map(async (hotel:any) => {
-        const hotelObj = hotel.toObject();
-        const availableRoomNumbers = await Promise.all(
-          hotelObj.rooms.map(async (room: any) => {
-            const isRoomAvailable = room.roomNumbers.some((roomNumber: any) => {
-              const isAvailable = roomNumber.unavailableDates.every(
-                (unavailableDate: any) => {
-                  const date = new Date(unavailableDate);
-                  return date < new Date(startDate) || date > new Date(endDate);
-                }
-              );
-              return isAvailable;
-            });
+    console.log(hotels, "destination filter");
   
-            if (isRoomAvailable) {
-              return room.number;
-            }
+    const adultsInt = parseInt(adults);
+    const childrenInt = parseInt(children);
   
-            return null;
-          })
-        );
-  
-        const availableRoomNumbersFiltered = availableRoomNumbers.filter(
-          (roomNumber) => roomNumber !== null
-        );
-  
-        return {
-          hotel: hotelObj.name,
-          availableRoomNumbers: availableRoomNumbersFiltered,
-        };
-      })
+    const peopleFilter = hotels.filter((hotel:any) =>
+      hotel.rooms.some((room:any )=>
+        room.maxAdults >= adultsInt && room.maxChildren >= childrenInt
+      )
     );
-    console.log(availableRooms);
-    
   
-    // return availableRooms.filter((room) => room.availableRoomNumbers.length > 0);
+    console.log(peopleFilter, 'filtered by people');
+  
+    const getDatesInRange = (startDate: string, endDate: string): string[] => {
+      const currentDate = new Date(startDate);
+      const end = new Date(endDate);
+      const datesArray: string[] = [];
+  
+      while (currentDate <= end) {
+        const formattedDate = new Date(currentDate);
+        formattedDate.setUTCHours(0, 0, 0, 0);
+        datesArray.push(formattedDate.toISOString().split("T")[0]);
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+  
+      return datesArray;
+    };
+  
+    const dates = getDatesInRange(startDate, endDate);
+    console.log(dates);
+  
+    const isRoomNumberAvailable = (roomNumber: { number: number; unavailableDates: string[] }): boolean => {
+      return !roomNumber.unavailableDates.some((date: string) =>
+        dates.includes(new Date(date).toISOString().split("T")[0])
+      );
+    };
+  
+    const availableHotels = peopleFilter.map((hotel:any) => ({
+      ...hotel.toObject(), // Convert Mongoose document to plain object
+      rooms: hotel.rooms.map((room:any)=> ({
+        ...room,
+        roomNumbers: room.roomNumbers.filter(isRoomNumberAvailable)
+      })).filter((room:any) => room.roomNumbers.length > 0)
+    })).filter((hotel:any) => hotel.rooms.length > 0);
+  
+    console.log(availableHotels, "availableHotels");
+  
+    return availableHotels;
   };
-  
 
   const updateHotelVerified = async (id: string) => {
     await Hotel.findOneAndUpdate({ _id: id }, { isVerified: true })
@@ -271,6 +309,7 @@ export const hotelDbRepository = () => {
 
   return {
     addHotel,
+    addStayType,
     getHotelByName,
     getHotelEmail,
     getAllHotels,
@@ -287,7 +326,8 @@ export const hotelDbRepository = () => {
     checkAvailability,
     addRoom,
     deleteRoom,
-    addUnavilableDates
+    addUnavilableDates,
+    removeUnavailableDates
   }
 }
 export type hotelDbRepositoryType = typeof hotelDbRepository

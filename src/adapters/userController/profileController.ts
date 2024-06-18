@@ -5,6 +5,7 @@ import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces";
 import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB";
 import { HttpStatus } from "../../types/httpStatus";
 import { AuthServiceType } from "../../frameworks/services/authservice";
+import { getTransaction } from "../../app/use-cases/Booking/booking";
 
 const profileController = (
   authServiceInterface: AuthServiceInterface,
@@ -82,11 +83,31 @@ const profileController = (
     });
     
   }
+
+  const transactions=async(
+    req:Request,
+    res:Response,
+    next:NextFunction
+  )=>{
+    try {
+      const userId=req.user;
+      const transaction=await getTransaction(userId,dbRepositoryUser);
+      res
+      .status(200)
+      .json({ success: true, transaction, message: "transactions" });
+      
+    } catch (error) {
+      console.log(error);
+      
+      next(error)
+    }
+  }
   return {
     userProfile,
     updateProfile,
     verifyPhoneNumber,
     getUser,
+    transactions
   };
 };
 export default profileController;

@@ -20,7 +20,8 @@ export default async function createBooking(
   bookingDetails: BookingInterface,
   bookingRepository: ReturnType<bookingDbInterfaceType>,
   hotelRepository: ReturnType<hotelDbInterfaceType>,
-  hotelSerice: ReturnType<HotelServiceInterface>
+  hotelSerice: ReturnType<HotelServiceInterface>,
+  userRepository: ReturnType<userDbInterfaceType>
 ) {
   const {
     firstName,
@@ -46,7 +47,6 @@ export default async function createBooking(
     !hotelId ||
     !userId ||
     !maxAdults||
-    !maxChildren||
     !rooms||
     !checkInDate ||
     !checkOutDate ||
@@ -77,19 +77,49 @@ export default async function createBooking(
     paymentMethod,
   )
   const data = await bookingRepository.createBooking(bookingEntity)
+  console.log(data,"......................................");
+  
+
+  if(data.paymentMethod==="Wallet"){
+    const wallet=await userRepository.getWallet(data.userId as string)
+    console.log(wallet,"wallet in payment??????????????????????????????");
+
+    if (wallet&&data&&data.price&&wallet?.balance >= data.price) {
+      const transactionData: TransactionDataType = {
+        newBalance: data.price,
+        type: "Debit",
+        description: "Booking transaction",
+      };
+      await updateWallet(data.userId as string, transactionData, userRepository);
+      await updateBookingStatus(
+        data._id as unknown as string,
+        "Paid" ,
+        bookingRepository,
+        hotelRepository
+      )
+    } else {
+      throw new AppError(
+        "Insufficient wallet balance",
+        HttpStatus.BAD_REQUEST
+      );
+    }
+    
+  }
+
   return data
 }
 
 export const addUnavilableDates = async (
-  rooms: [],
+  rooms: any,
   checkInDate: Date,
   checkOutDate: Date,
   hotelRepository: ReturnType<hotelDbInterfaceType>,
   hotelService: ReturnType<HotelServiceInterface>
 ) => {
   const dates = await hotelService.unavailbleDates(checkInDate.toString(),checkOutDate.toString())
+  console.log(dates,'dates..................');
+  console.log(rooms,'rooms');
   const addDates=await hotelRepository.addUnavilableDates(rooms,dates)
- 
 }
 
 export const checkAvailability = async (
@@ -155,7 +185,7 @@ export const updateBookingStatus = async (
     paymentStatus,
     bookingStatus,
   }
-  console.log(updationData)
+  console.log(updationData,"updationData....................")
 
   const bookingData = await bookingRepository.updateBooking(id, updationData)
 
@@ -171,10 +201,20 @@ export const getBookingsById = async (
   bookingRepository: ReturnType<bookingDbInterfaceType>
 ) => await bookingRepository.getBookingById(userID)
 
+export const getBookingsBybookingId = async (
+  userID: string,
+  bookingRepository: ReturnType<bookingDbInterfaceType>
+) => await bookingRepository.getBookingsBybookingId(userID)
+
 export const getBookingsByHotel = async (
   userID: string,
   bookingRepository: ReturnType<bookingDbInterfaceType>
 ) => await bookingRepository.getBookingByHotel(userID)
+
+export const getBookingsByHotels = async (
+  userID: string[],
+  bookingRepository: ReturnType<bookingDbInterfaceType>
+) => await bookingRepository.getBookingByHotels(userID)
 
 export const getALLBookings = async (
   bookingRepository: ReturnType<bookingDbInterfaceType>
@@ -202,13 +242,6 @@ export const cancelBookingAndUpdateWallet = async (
   );
   console.log(bookingDetails,"booking details.............");
   
-  const booking = (await bookingRepository.getBookingBybookig(
-    bookingID
-  )) as unknown as BookingInterface;
-
-  console.log(booking,"booking");
-  
-
   if (bookingDetails) {
     console.log("in updating wallet");
     
@@ -225,6 +258,23 @@ export const cancelBookingAndUpdateWallet = async (
   }
   return bookingDetails;
 };
+
+export const getTransaction=async(
+  userId: string,
+  userRepository: ReturnType<userDbInterfaceType>
+)=>{ 
+  console.log(userId);
+  
+  const wallet=await userRepository.getWallet(userId)
+  console.log(wallet);
+  
+  if (!wallet) {
+    throw new Error('Wallet not found');
+  }
+  const walletID=wallet._id 
+  const transactions=await userRepository.getTransaction(walletID)
+  return transactions
+}
 
 export const updateWallet = async (
   userId: string,

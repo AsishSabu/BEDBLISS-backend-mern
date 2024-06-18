@@ -8,12 +8,14 @@ export interface UserInterface {
   id: string;
   name: string;
   email: string;
+  phoneNumber: string;
   password: string;
   profilePic?: string;
-  phone: string;
   role: string;
   wallet?: string;
   isVerified: boolean;
   isBlocked: boolean;
   createdAt?: Date;
+  updatedAt?: Date;
+  verificationCode?: string;
 }

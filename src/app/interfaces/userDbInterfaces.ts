@@ -1,3 +1,4 @@
+import mongoose from "mongoose"
 import { TransactionEntityType } from "../../entites/transactionEntity"
 import {
   GoogleandFaceebookUserEntityType,
@@ -63,6 +64,12 @@ export const userDbInterface = (
   const addWallet=async(userId:string)=>
     await repository.addWallet(userId)
 
+  const getWallet=async(userId: string)=>
+    await repository.getWalletByUseId(userId)
+
+  const getTransaction=async(walletId: mongoose.Types.ObjectId)=>
+    await repository.allTransactions(walletId)
+
   return {
     getUserByEmail,
     addUser,
@@ -81,7 +88,9 @@ export const userDbInterface = (
     changeUserRole,
     updateWallet,
     createTransaction,
-    addWallet
+    addWallet,
+    getWallet,
+    getTransaction
 }
 }
 

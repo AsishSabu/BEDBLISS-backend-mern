@@ -5,7 +5,7 @@ import { HttpStatus } from "../../types/httpStatus"
 import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces"
 import { getUsers } from "../../app/use-cases/Admin/read&write/adminRead"
 import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB"
-import { blockHotel, blockUser, verifyHotel } from "../../app/use-cases/Admin/read&write/adminUpdate"
+import { addStayType, blockHotel, blockUser, verifyHotel } from "../../app/use-cases/Admin/read&write/adminUpdate"
 import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
 import { hotelDbRepositoryType } from "../../frameworks/database/repositories/hotelRepositoryMongoDB"
 import { getHotels } from "../../app/use-cases/Owner/hotel"
@@ -127,6 +127,23 @@ const adminController = (
       next(error)
     }
   }
+  const addCategory = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { name } = req.body; // Destructure name from req.body
+      const result = await addStayType(name, dbRepositoryHotel);
+      if (result) {
+        return res
+          .status(HttpStatus.OK)
+          .json({ success: true, message: "Stay Type added Successfully" });
+      } else {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Failed to add Stay Type" });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
 
   return {
     adminLogin,
@@ -135,7 +152,8 @@ const adminController = (
     getAllHotels,
     CardCount,
     hotelBlock,
-    hotelVerify
+    hotelVerify,
+    addCategory
   }
 }
 

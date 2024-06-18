@@ -15,6 +15,10 @@ export const hotelDbInterface = (
     hotelId: mongoose.Types.ObjectId
   ) => await repository.addRoom(hotel, hotelId)
 
+  const addStayType = async (name:string) =>
+    await repository.addStayType(name)
+
+
   const getHotelById = async (Id: string) => await repository.getHotelById(Id)
 
   const getHotelByName = async (name: string) =>
@@ -72,10 +76,13 @@ export const hotelDbInterface = (
 
   const addUnavilableDates = async (room: [], dates: string[]) =>
     await repository.addUnavilableDates(room, dates)
+  const removeUnavailableDates = async (room: [], dates: string[]) =>
+    await repository.removeUnavailableDates(room, dates)
 
   return {
     addHotel,
     addRoom,
+    addStayType,
     getHotelByName,
     getHotelByEmail,
     getAllHotels,
@@ -91,6 +98,7 @@ export const hotelDbInterface = (
     updateUnavailableDates,
     checkAvailability,
     addUnavilableDates,
+    removeUnavailableDates
   }
 }
 

@@ -8,7 +8,9 @@ import createBooking, {
   addUnavilableDates,
   cancelBookingAndUpdateWallet,
   getBookings,
+  getBookingsByHotels,
   getBookingsById,
+  getBookingsBybookingId,
   makePayment,
   updateBookingStatus,
 } from "../../app/use-cases/Booking/booking"
@@ -18,6 +20,7 @@ import { HttpStatus } from "../../types/httpStatus"
 import { getUserProfile } from "../../app/use-cases/User/read&write/profile"
 import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces"
 import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB"
+import { getMyHotels } from "../../app/use-cases/Owner/hotel"
 
 export default function bookingController(
   bookingDbRepository: bookingDbInterfaceType,
@@ -39,16 +42,20 @@ export default function bookingController(
       try {
         const bookingDetails = req.body
         const userId = req.user
-
-        const {data,rooms} = await createBooking(
+        console.log(req.body,"req.body");
+        
+        const data = await createBooking(
           userId,
           bookingDetails,
           dbRepositoryBooking,
           dbRepositoryHotel,
-          hotelService
+          hotelService,
+          dbRepositoryUser
         )
 
         if (data && data.paymentMethod === "Online") {
+          console.log("in online payment")
+
           const user = await getUserProfile(userId, dbRepositoryUser)
 
           if (typeof data.price === "number") {
@@ -60,7 +67,7 @@ export default function bookingController(
               data.bookingId,
               data.price
             )
-             res.status(HttpStatus.OK).json({
+            res.status(HttpStatus.OK).json({
               success: true,
               message: "Booking created successfully",
               id: sessionId,
@@ -68,28 +75,30 @@ export default function bookingController(
           } else {
             throw new Error("Invalid price for online payment")
           }
-        } else if(data && data.paymentMethod === "Wallet") {
+        } else if (data && data.paymentMethod === "Wallet") {
           const dates = await addUnavilableDates(
-            rooms, 
-            data.checkInDate ?? new Date(), 
-            data.checkOutDate ?? new Date(), 
+            data.rooms,
+            data.checkInDate ?? new Date(),
+            data.checkOutDate ?? new Date(),
             dbRepositoryHotel,
             hotelService
-          );
+          )
           
+
           res.status(HttpStatus.OK).json({
             success: true,
             message: "Booking created successfully using Wallet",
             booking: data,
           })
-        }else{
+        } else {
+          console.log("in checkout payment")
           const dates = await addUnavilableDates(
-            rooms, 
-            data.checkInDate ?? new Date(), 
-            data.checkOutDate ?? new Date(), 
+            data.rooms,
+            data.checkInDate ?? new Date(),
+            data.checkOutDate ?? new Date(),
             dbRepositoryHotel,
             hotelService
-          );          
+          )
           res.status(HttpStatus.OK).json({
             success: true,
             message: "Booking created successfully ",
@@ -111,27 +120,30 @@ export default function bookingController(
       const { id } = req.params
       const { paymentStatus } = req.body
       console.log(id)
-      console.log(paymentStatus)
-      // if(paymentStatus==="Paid"){
-      //   const bookings = await getBookingsById(id, dbRepositoryBooking)
-      //   if(bookings){
-      //     const dates = await addUnavilableDates(
-      //       bookings.hotelId?.toString() ?? "", 
-      //       bookings.checkInDate ?? new Date(), 
-      //       bookings.checkOutDate ?? new Date(), 
-      //       dbRepositoryHotel,
-      //       hotelService
-      //     );          
-      //   }
+      console.log(paymentStatus, "payment status")
+      if (paymentStatus === "Paid") {
+        console.log("going too bookings");
+        
+        const bookings = await getBookingsBybookingId(id, dbRepositoryBooking)
+        console.log(bookings,'bokings////////////////////////////////');
+        
+        if (bookings) {
+          const dates = await addUnavilableDates(
+            bookings.rooms,
+            bookings.checkInDate ?? new Date(),
+            bookings.checkOutDate ?? new Date(),
+            dbRepositoryHotel,
+            hotelService
+          )
+        }
+      }
 
-      // }
-
-      // await updateBookingStatus(
-      //   id,
-      //   paymentStatus,
-      //   dbRepositoryBooking,
-      //   dbRepositoryHotel
-      // )
+      await updateBookingStatus(
+        id,
+        paymentStatus,
+        dbRepositoryBooking,
+        dbRepositoryHotel
+      )
       res
         .status(HttpStatus.OK)
         .json({ success: true, message: "Booking status updated" })
@@ -148,7 +160,7 @@ export default function bookingController(
       const userID = req.user
       console.log(userID)
       const bookings = await getBookings(userID, dbRepositoryBooking)
-      
+
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Bookings fetched successfully",
@@ -165,7 +177,9 @@ export default function bookingController(
   ) => {
     try {
       const ID = req.params.id
-      const bookings = await getBookingsById(ID, dbRepositoryBooking)          
+      console.log(ID,'booking id');
+      
+      const bookings = await getBookingsById(ID, dbRepositoryBooking)
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Bookings fetched successfully",
@@ -182,28 +196,57 @@ export default function bookingController(
     next: NextFunction
   ) => {
     try {
-      const userID = req.user;
-      const { bookingID } = req.params;
-      console.log(bookingID);
-      console.log(userID);
-      
-      
+      const userID = req.user
+      const { bookingID } = req.params
+      console.log(bookingID)
+      console.log(userID)
 
       const updateBooking = await cancelBookingAndUpdateWallet(
         userID,
         bookingID,
         dbRepositoryBooking,
         dbRepositoryUser
-      );
+      )
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Booking cancelled successfully",
         booking: updateBooking,
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
-  };
+  }
+
+  const getOwnerBookings = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userID = req.user
+      console.log(userID)
+      const hotels = await getMyHotels(userID, dbRepositoryHotel)
+
+      console.log(hotels,"-----------------------------------------------------------");
+      
+      const HotelIds: string[] = hotels.map((hotel) => hotel._id.toString());
+      console.log(HotelIds,"-----------------------------------------------------------");
+
+      const bookings=await getBookingsByHotels(HotelIds,dbRepositoryBooking)
+      console.log(bookings);
+      
+
+      
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Bookings fetched successfully",
+        bookings,
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
 
   // const handleCancelBooking = expressAsyncHandler(
   //   async (req: Request, res: Response, next: NextFunction) => {
@@ -245,16 +288,12 @@ export default function bookingController(
   //   }
   // );
 
-
-
- 
-
   return {
     handleBooking,
     updatePaymentStatus,
     getBooking,
     getBookingById,
-    cancelBooking
-
+    cancelBooking,
+    getOwnerBookings
   }
 }

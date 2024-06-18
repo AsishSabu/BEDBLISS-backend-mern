@@ -16,17 +16,21 @@ export default function bookingDbInterface(
   const getBookingById = async (bookingId: string) =>
     await repository.getBookingById(bookingId)
 
+    const getBookingsBybookingId = async (bookingId: string) =>
+    await repository.getBookingBybookingId(bookingId)
+
   const getBookingByHotel = async (bookingId: string) =>
     await repository.getBookingByHotel(bookingId)
 
-  const getBookingBybookig= async (bookingId: string) =>
-    await repository.getBookingBybookingId(bookingId)
 
   const deleteBooking = async (bookingId: string) =>
     await repository.deleteBooking(bookingId)
 
   const updateBooking = async (bookingId: string, updates: any) =>
     await repository.updateBooking(bookingId, updates)
+
+  const getBookingByHotels = async (bookingId: string[]) =>
+    await repository.getBookingByHotels(bookingId)
 
   return {
     createBooking,
@@ -36,7 +40,8 @@ export default function bookingDbInterface(
     updateBooking,
     getBookingById,
     getBookingByHotel,
-    getBookingBybookig
+    getBookingsBybookingId,
+    getBookingByHotels
   }
 }
 

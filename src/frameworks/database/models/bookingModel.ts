@@ -14,13 +14,13 @@ const bookingSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    firstName:{
-      type:String,
+    firstName: {
+      type: String,
       trim: true,
       require: true,
     },
-    lastName:{
-      type:String,
+    lastName: {
+      type: String,
       trim: true,
       require: true,
     },
@@ -45,6 +45,7 @@ const bookingSchema = new mongoose.Schema(
       require: true,
       ref: "Hotel",
     },
+    rooms: [],
     userId: {
       type: mongoose.Types.ObjectId,
       trim: true,
@@ -77,7 +78,7 @@ const bookingSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["Online", "Wallet","pay_on_checkout"],
+      enum: ["Online", "Wallet", "pay_on_checkout"],
     },
     paymentStatus: {
       type: String,
@@ -86,7 +87,7 @@ const bookingSchema = new mongoose.Schema(
     },
     bookingStatus: {
       type: String,
-      enum:["booked","rejected","cancelled","pending"],
+      enum: ["booked", "rejected", "cancelled", "pending"],
       default: "pending",
     },
   },

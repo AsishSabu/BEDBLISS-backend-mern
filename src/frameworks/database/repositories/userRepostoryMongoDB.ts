@@ -2,7 +2,7 @@ import {
   UserEntityType,
   GoogleandFaceebookUserEntityType,
 } from "../../../entites/user"
-import { Types } from "mongoose"
+import mongoose, { Types } from "mongoose"
 import otpModel from "../models/otpModel"
 import transaction from "../models/transaction"
 import User from "../models/userModel"
@@ -22,10 +22,15 @@ export const userDbRepository = () => {
     return user
   }
 
-  const getUserbyId = async (id: string) => {
-    const user: UserInterface | null = await User.findById(id)
-    return user
-  }
+  const getUserbyId = async (id: string): Promise<UserInterface | null> => {
+    const user = await User.findById(id).populate("wallet").lean();
+  
+    if (!user) {
+      return null;
+    }
+    const { _id, ...rest } = user;
+    return { id: _id.toString(), ...rest } as UserInterface;
+  };
 
   //add user
   const addUser = async (user: UserEntityType) => {
@@ -118,11 +123,16 @@ export const userDbRepository = () => {
     await User.findByIdAndUpdate(id, { isBlocked: status })
 
   const addWallet = async (userId: string) => await wallet.create({ userId })
-  const updateWallet = async (userId: string, newBalance: number) =>
-    await wallet.findByIdAndUpdate({ userId }, { $inc: { balance: newBalance } })
 
-  const getWalletByUseId = async (userId: string) =>
-    await wallet.findOne({ userId })
+  const updateWallet = async (userId: string, newBalance: number) =>
+    await wallet.findOneAndUpdate({ userId }, { $inc: { balance: newBalance } },{ new: true })
+
+  const getWalletByUseId = async (Id:string) =>{
+    console.log(Id);
+    
+    return await wallet.findOne({ userId: Id });
+  }
+  
 
   const createTransaction = async (transactionDetails: TransactionEntityType) =>
     await transaction.create({
@@ -132,8 +142,8 @@ export const userDbRepository = () => {
       amount: transactionDetails.getAmount(),
     })
 
-  const allTransactions = async (walletId: Types.ObjectId) =>
-    await transaction.find({ walletId }).sort({ createdAt: -1 })
+  const allTransactions = async (walletId:mongoose.Types.ObjectId) =>
+    await transaction.find({ walletId }).sort({ createdAt: -1 }).populate('walletId')
 
   return {
     getUserEmail,

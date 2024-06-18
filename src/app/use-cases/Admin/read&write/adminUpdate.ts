@@ -23,3 +23,8 @@ export const verifyHotel = async (
   const verifyHotel = await hotelDbRepository.updateHotelVerified(id)
 
 }
+
+export const addStayType=async(
+  name:string,
+  hotelDbRepository: ReturnType<hotelDbInterfaceType>
+)=>await hotelDbRepository.addStayType(name)

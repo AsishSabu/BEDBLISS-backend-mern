@@ -9,11 +9,11 @@ import { hotelDbRepository } from "../../../database/repositories/hotelRepositor
 import hotelController from "../../../../adapters/hotelController/hotelController";
 import authenticateUser from "./../../middlewares/authMiddleware";
 import { authService } from "../../../services/authservice";
-import bookingController from "../../../../adapters/bookingController/bookingController";
 import bookingDbInterface from "../../../../app/interfaces/bookingDbInterface";
 import bookingDbRepository from "../../../database/repositories/bookingRepositoryMongoDB";
 import { hotelServiceInterface } from "../../../../app/service-interface/hotelServices";
 import { hotelService } from "../../../services/hotelServices";
+import bookingController from "../../../../adapters/BookingController/bookingController";
 
 const authRouter = () => {
   const router = express.Router();
@@ -60,6 +60,7 @@ const authRouter = () => {
     userProfileController.updateProfile
   );
   router.post("/auth/verify", userProfileController.verifyPhoneNumber);
+  router.get("/wallet",authenticateUser,userProfileController.transactions)
 
   const userHotelController = hotelController(
     hotelDbInterface,
