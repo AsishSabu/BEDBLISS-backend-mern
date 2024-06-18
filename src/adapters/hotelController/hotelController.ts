@@ -10,6 +10,7 @@ import {
 } from "../../app/use-cases/User/read&write/hotels"
 import mongoose from "mongoose"
 import { checkAvailability } from "../../app/use-cases/Booking/booking"
+import { updateHotel } from "../../app/use-cases/Admin/read&write/adminUpdate"
 
 const hotelController = (
   hotelDbRepository: hotelDbInterfaceType,
@@ -114,7 +115,12 @@ const hotelController = (
 
       const Hotel = await getHotelDetails(id, dbRepositoryHotel)
       console.log(Hotel)
-      return res.status(HttpStatus.OK).json({ success: true, Hotel })
+      if(Hotel){
+        return res.status(HttpStatus.OK).json({ success: true, Hotel })
+      }else{
+        return res.status(HttpStatus.NOT_FOUND).json({ success: false })
+      }
+      
     } catch (error) {
       next(error)
     }
@@ -178,6 +184,30 @@ const hotelController = (
     }
   }
 
+  const listUnlistHotel= async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { id } = req.params
+      const {value}=req.body
+      console.log(value,'value.......................');
+      
+      
+      
+      const updates={
+        isListed:value,
+      }
+      await updateHotel(id,updates,dbRepositoryHotel)
+      return res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: "  Successfully updated" })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   return {
     registerHotel,
     registerRoom,
@@ -185,7 +215,8 @@ const hotelController = (
     getHotelsUserSide,
     hotelDetails,
     destinationSearch,
-    checkAvilabitiy
+    checkAvilabitiy,
+    listUnlistHotel
   }
 }
 export default hotelController

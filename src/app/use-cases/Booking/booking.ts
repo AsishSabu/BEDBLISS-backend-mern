@@ -122,6 +122,19 @@ export const addUnavilableDates = async (
   const addDates=await hotelRepository.addUnavilableDates(rooms,dates)
 }
 
+export const removeUnavilableDates = async (
+  rooms: any,
+  checkInDate: Date,
+  checkOutDate: Date,
+  hotelRepository: ReturnType<hotelDbInterfaceType>,
+  hotelService: ReturnType<HotelServiceInterface>
+) => {
+  const dates = await hotelService.unavailbleDates(checkInDate.toString(),checkOutDate.toString())
+  console.log(dates,'dates..................');
+  console.log(rooms,'rooms');
+  const addDates=await hotelRepository.removeUnavailableDates(rooms,dates)
+}
+
 export const checkAvailability = async (
   id: string,
   dates: dateInterface,
@@ -180,10 +193,9 @@ export const updateBookingStatus = async (
   bookingRepository: ReturnType<bookingDbInterfaceType>,
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => {
-  const bookingStatus = paymentStatus === "Paid" ? "booked" : "pending"
+ 
   const updationData: Record<string, any> = {
     paymentStatus,
-    bookingStatus,
   }
   console.log(updationData,"updationData....................")
 
@@ -221,7 +233,7 @@ export const getALLBookings = async (
 ) => await bookingRepository.getAllBooking()
 
 
-export const cancelBookingAndUpdateWallet = async (
+export const acceptBooking = async (
   userID: string,
   bookingID: string,
   bookingRepository: ReturnType<bookingDbInterfaceType>,
@@ -236,13 +248,38 @@ export const cancelBookingAndUpdateWallet = async (
   const bookingDetails = await bookingRepository.updateBooking(
     bookingID,
     {
-      bookingStatus: "Cancelled",
-      paymentStatus: "Refunded",
+      bookingStatus: "booked",
+    }
+  );
+  console.log(bookingDetails,"booking details.............");
+  return bookingDetails;
+};
+
+
+export const cancelBookingAndUpdateWallet = async (
+  userID: string,
+  bookingID: string,
+  status:string,
+  reason:string,
+  bookingRepository: ReturnType<bookingDbInterfaceType>,
+  userRepository: ReturnType<userDbInterfaceType>
+) => {
+  if (!bookingID)
+    throw new AppError(
+      "Please provide a booking ID",
+      HttpStatus.BAD_REQUEST
+    );
+
+  const bookingDetails = await bookingRepository.updateBooking(
+    bookingID,
+    {
+      bookingStatus: status,
+      Reason:reason
     }
   );
   console.log(bookingDetails,"booking details.............");
   
-  if (bookingDetails) {
+  if (bookingDetails&&bookingDetails.paymentMethod!=="pay_on_checkout") {
     console.log("in updating wallet");
     
     const data: TransactionDataType = {

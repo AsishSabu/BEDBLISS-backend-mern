@@ -5,7 +5,7 @@ import { HttpStatus } from "../../types/httpStatus"
 import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces"
 import { getUsers } from "../../app/use-cases/Admin/read&write/adminRead"
 import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB"
-import { addStayType, blockHotel, blockUser, verifyHotel } from "../../app/use-cases/Admin/read&write/adminUpdate"
+import { addStayType, blockHotel, blockUser, updateHotel, verifyHotel } from "../../app/use-cases/Admin/read&write/adminUpdate"
 import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
 import { hotelDbRepositoryType } from "../../frameworks/database/repositories/hotelRepositoryMongoDB"
 import { getHotels } from "../../app/use-cases/Owner/hotel"
@@ -51,8 +51,21 @@ const adminController = (
     next: NextFunction
   ) => {
     try {
-      
-      const { users } = await getUsers(dbRepositoryUser)
+      const  role='user'
+      const { users } = await getUsers(role,dbRepositoryUser)
+      return res.status(HttpStatus.OK).json({ success: true, users })
+    } catch (error) {
+      next(error)
+    }
+  }
+  const getAllOwners = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const  role='owner'
+      const { users } = await getUsers(role,dbRepositoryUser)
       return res.status(HttpStatus.OK).json({ success: true, users })
     } catch (error) {
       next(error)
@@ -87,12 +100,14 @@ const adminController = (
 
   const CardCount = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userCount = (await getUsers(dbRepositoryUser)).count
-
+      const user="user"
+      const owner='owner'
+      const userCount = (await getUsers(user,dbRepositoryUser)).count
+      const ownerCount = (await getUsers(owner,dbRepositoryUser)).count
       const hotelCount = (await getHotels(dbRepositoryHotel)).count
       return res
         .status(HttpStatus.OK)
-        .json({ success: true, userCount,  hotelCount })
+        .json({ success: true, userCount,  hotelCount,ownerCount })
     } catch (error) {
       next(error)
     }
@@ -127,6 +142,28 @@ const adminController = (
       next(error)
     }
   }
+  const rejectHotel= async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { id } = req.params
+      const {reason}=req.body
+      
+      
+      const updates={
+        isVerified:'rejected',
+        Reason:reason
+      }
+      await updateHotel(id,updates,dbRepositoryHotel)
+      return res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: " Rejected Successfully" })
+    } catch (error) {
+      next(error)
+    }
+  }
   const addCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name } = req.body; // Destructure name from req.body
@@ -153,7 +190,9 @@ const adminController = (
     CardCount,
     hotelBlock,
     hotelVerify,
-    addCategory
+    rejectHotel,
+    addCategory,
+    getAllOwners
   }
 }
 

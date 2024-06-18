@@ -1,8 +1,8 @@
 export interface CreateUserInterface {
   name: string;
   email: string;
-  phone:string;
   password: string;
+  role:string
 }
 export interface UserInterface {
   id: string;

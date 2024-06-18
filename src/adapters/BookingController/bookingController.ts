@@ -5,6 +5,7 @@ import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
 import { bookingDbRepositoryType } from "../../frameworks/database/repositories/bookingRepositoryMongoDB"
 import { hotelDbRepositoryType } from "../../frameworks/database/repositories/hotelRepositoryMongoDB"
 import createBooking, {
+  acceptBooking,
   addUnavilableDates,
   cancelBookingAndUpdateWallet,
   getBookings,
@@ -12,6 +13,7 @@ import createBooking, {
   getBookingsById,
   getBookingsBybookingId,
   makePayment,
+  removeUnavilableDates,
   updateBookingStatus,
 } from "../../app/use-cases/Booking/booking"
 import { HotelServiceInterface } from "../../app/service-interface/hotelServices"
@@ -197,11 +199,53 @@ export default function bookingController(
   ) => {
     try {
       const userID = req.user
+      const {reason,status}=req.body
+      console.log(req.body);
+      
       const { bookingID } = req.params
       console.log(bookingID)
       console.log(userID)
 
       const updateBooking = await cancelBookingAndUpdateWallet(
+        userID,
+        bookingID,
+        status,
+        reason,
+        dbRepositoryBooking,
+        dbRepositoryUser
+      )
+      if(updateBooking){
+        const dates = await removeUnavilableDates(
+          updateBooking.rooms,
+          updateBooking.checkInDate ?? new Date(),
+          updateBooking.checkOutDate ?? new Date(),
+          dbRepositoryHotel,
+          hotelService
+        )
+      }
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Booking cancelled successfully",
+        booking: updateBooking,
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+  const approveBooking = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userID = req.user
+      console.log('in approve booking');
+      
+      
+      const { bookingID } = req.params
+
+      const updateBooking = await acceptBooking(
         userID,
         bookingID,
         dbRepositoryBooking,
@@ -248,45 +292,6 @@ export default function bookingController(
   }
 
 
-  // const handleCancelBooking = expressAsyncHandler(
-  //   async (req: Request, res: Response, next: NextFunction) => {
-  //     const { bookingId } = req.params;
-  //     const userId = req.query?.userId as string
-
-  //     const data: any = await cancdelBooking(bookingId, bookingRepo);
-
-  //     if(userId){
-  //       const result = await addMoney(userId, data?.price, walletRepo, transRepo);
-  //     }
-
-  //     res.status(HttpStatus.OK).json({
-  //       status: "success",
-  //       messaage: `${bookingId?.substring(0, 10)} has been cancelled`,
-  //     });
-  //   }
-  // );
-
-  // const handleGettingAllBookingOfHotel = expressAsyncHandler(
-  //   async (req: Request, res: Response, next: NextFunction) => {
-  //     const { hotelId } = req.params;
-  //     const page = parseInt(req.query?.page as string);
-  //     const limit = parseInt(req.query?.limit as string);
-  //     console.log("pagination parameters", page, limit);
-
-  //     const bookings = await fetchAllBookingsOfHotel(
-  //       hotelId,
-  //       page,
-  //       limit,
-  //       bookingRepo
-  //     );
-
-  //     res.status(HttpStatus.OK).json({
-  //       status: "success",
-  //       messaage: "All bookings has been fetched",
-  //       bookings: bookings,
-  //     });
-  //   }
-  // );
 
   return {
     handleBooking,
@@ -294,6 +299,7 @@ export default function bookingController(
     getBooking,
     getBookingById,
     cancelBooking,
+    approveBooking,
     getOwnerBookings
   }
 }

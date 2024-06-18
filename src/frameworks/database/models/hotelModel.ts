@@ -70,13 +70,15 @@ const hotelSchema = new Schema({
     default: true,
   },
   imageUrls: [String],
+  
   reservationType: {
     type: String,
     required: true,
   },
   isVerified: {
-    type: Boolean,
-    default: false,
+    type: String,
+    enum: ["rejected", "cancelled", "pending",'verified'],
+    default: "pending",
   },
   hotelDocument: {
     type: String,
@@ -85,6 +87,9 @@ const hotelSchema = new Schema({
   ownerPhoto: {
     type: String,
      
+  },
+  Reason: {
+    type: String,   
   },
 
  

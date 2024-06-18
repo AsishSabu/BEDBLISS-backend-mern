@@ -52,6 +52,7 @@ const bookingSchema = new mongoose.Schema(
       require: true,
       ref: "User",
     },
+    
     maxPeople: {
       type: Number,
       trim: true,
@@ -75,6 +76,9 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       trim: true,
       require: true,
+    },
+    Reason: {
+      type: String,
     },
     paymentMethod: {
       type: String,

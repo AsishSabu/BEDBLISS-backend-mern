@@ -19,7 +19,7 @@ export const userRegister = async (
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const { name, email, password, phone,role } = user;
+  const { name, email, password,role } = user;
   const existingEmailUser = await userRepository.getUserByEmail(email);
   if (existingEmailUser) {
     throw new AppError(
@@ -32,7 +32,6 @@ export const userRegister = async (
   const userEntity: UserEntityType = createUserEntity(
     name,
     email,
-    phone,
     hashedPassword,
     role
   );
@@ -130,7 +129,7 @@ export const authenticateGoogleandFacebookUser = async (
     throw new AppError("Your account is blocked by administrator",HttpStatus.FORBIDDEN);
   }
   if(isEmailExist&&role!==isEmailExist?.role){
-    throw new AppError(you already register as ${isEmailExist?.role}, HttpStatus.FORBIDDEN);
+    throw new AppError(`you already register as ${isEmailExist?.role}`, HttpStatus.FORBIDDEN);
   }
   if (isEmailExist) {
     const accessToken = authService.createTokens(

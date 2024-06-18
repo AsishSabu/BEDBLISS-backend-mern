@@ -144,16 +144,70 @@ export const hotelDbRepository = () => {
     const count = Hotels.length
     return { Hotels, count }
   }
-  const getUserHotels = async () => {
-    const Hotels = await Hotel.find({
-      isVerified: true,
-      isListed: true,
-      isBlocked:false
-    })
-    const count = Hotels.length
 
-    return { Hotels, count }
-  }
+
+  const getUserHotels = async () => {
+    const Hotels = await Hotel.aggregate([
+      {
+        $match: {
+          isVerified: "verified",
+          isListed: true,
+          isBlocked: false
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'ownerId',
+          foreignField: '_id',
+          as: 'owner'
+        }
+      },
+      {
+        $unwind: '$owner'
+      },
+      {
+        $match: {
+          'owner.isBlocked': false
+        }
+      },
+      {
+        $project: {
+          name: 1,
+          destination: 1,
+          address: 1,
+          stayType: 1,
+          description: 1,
+          propertyRules: 1,
+          rooms: 1,
+          amenities: 1,
+          isBlocked: 1,
+          isListed: 1,
+          imageUrls: 1,
+          reservationType: 1,
+          isVerified: 1,
+          hotelDocument: 1,
+          ownerPhoto: 1,
+          Reason: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          owner: {
+            _id: 1,
+            name: 1,
+            email: 1,
+            phoneNumber: 1,
+            profilePic: 1,
+            isBlocked: 1
+          }
+        }
+      }
+    ]);
+  
+    const count = Hotels.length;
+  
+    return { Hotels, count };
+  };
+
   const getMyHotels = async (ownerId: string) => {
     const Hotels = await Hotel.find({ ownerId })
     return Hotels
@@ -194,7 +248,7 @@ export const hotelDbRepository = () => {
     let hotels:any;
   
     if (destination === "") {
-      hotels = await Hotel.find({ isVerified: true, isListed: true, isBlocked: false }).populate('rooms');
+      hotels = await Hotel.find({ isVerified:"verified", isListed: true, isBlocked: false }).populate('rooms');
     } else {
       const regex = new RegExp(destination, "i");
       hotels = await Hotel.find({
@@ -202,7 +256,7 @@ export const hotelDbRepository = () => {
           { destination: { $regex: regex } },
           { name: { $regex: regex } }
         ],
-        isVerified: true,
+        isVerified:"verified",
         isListed: true,
         isBlocked: false
       }).populate('rooms');
@@ -259,7 +313,11 @@ export const hotelDbRepository = () => {
   };
 
   const updateHotelVerified = async (id: string) => {
-    await Hotel.findOneAndUpdate({ _id: id }, { isVerified: true })
+    await Hotel.findOneAndUpdate({ _id: id }, { isVerified:"verified" })
+  }
+  const updateHotelRejected = async (id: string,updatingData: Record<any, any>) => {
+    await Hotel.findOneAndUpdate({ _id: id }, updatingData,
+      { new: true, upsert: true })
   }
 
   const updateUnavailableDates = async (id: string, dates: any) =>
@@ -322,6 +380,7 @@ export const hotelDbRepository = () => {
     remove,
     findByDestination,
     updateHotelVerified,
+    updateHotelRejected ,
     updateUnavailableDates,
     checkAvailability,
     addRoom,

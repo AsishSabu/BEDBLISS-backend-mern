@@ -19,7 +19,8 @@ const ownerRouter = () => {
   router.post("/addhotel",authenticateUser,controller.registerHotel);
   router.post("/addRoom/:id",authenticateUser, controller.registerRoom);
   router.get("/myHotels",authenticateUser,controller.registeredHotels)
-  router.get("/myHotels",authenticateUser,controller.registeredHotels)
+  router.patch("/listUnlist/:id",authenticateUser,controller.listUnlistHotel)
+  // router.get("/myHotels",authenticateUser,controller.registeredHotels)
 
 
   const ownerBookingController = bookingController(

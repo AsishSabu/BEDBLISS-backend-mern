@@ -20,12 +20,16 @@ export default function authenticateUser(
   console.log("in middleware");
   
   const access_token = req.headers.authorization;
+  console.log(access_token,"token is here");
+  
   if (!access_token) {
     console.log("no access token")
     return res.status(HttpStatus.FORBIDDEN).json("Your are not authenticated");
   }
   const tokenParts = access_token.split(" ");
   const token = tokenParts.length === 2 ? tokenParts[1] : null;
+  console.log(token);
+  
 
   if (!token) {
     console.log("not token");

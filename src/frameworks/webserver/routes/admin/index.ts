@@ -18,11 +18,13 @@ const adminRouter = () => {
   )
   router.post("/login", controller.adminLogin)
   router.get("/users", controller.getAllUser)
+  router.get("/owners", controller.getAllOwners)
   router.get("/counts", controller.CardCount)
   router.get("/hotels", controller.getAllHotels)
   router.patch("/block_user/:id", controller.userBlock)
   router.patch("/block_hotel/:id", controller.hotelBlock)
   router.patch("/verify_hotel/:id", controller.hotelVerify)
+  router.patch("/reject_hotel/:id", controller.rejectHotel)
   router.post("/addCategory",controller.addCategory);
 
   return router

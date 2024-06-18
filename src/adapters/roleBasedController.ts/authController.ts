@@ -154,28 +154,6 @@ const authController = (
     }
   }
 
-  const roleSwitch = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const {role }= req.body
-      const Id=req.user
-      console.log(role,"role");
-      console.log(Id);
-      
-      
-      const changeRole = await switchRole(Id, role, dbRepositoryUser)
-      return res.status(HttpStatus.OK).json({
-        success: true,
-        message: `switched to ${changeRole?.role}`,
-        user:changeRole
-      })
-    } catch (error) {
-      next(error)
-    }
-  }
 
   return {
     registerUser,
@@ -185,7 +163,7 @@ const authController = (
     forgotPassword,
     resetPassword,
     resendOtp,
-    roleSwitch
+   
   }
 }
 
