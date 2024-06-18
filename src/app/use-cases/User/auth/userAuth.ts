@@ -14,42 +14,44 @@ import sendMail from "../../../../utils/sendMail"
 import { forgotPasswordEmail, otpEmail } from "../../../../utils/userEmail"
 import { userDbInterfaceType } from "../../../interfaces/userDbInterfaces"
 import { AuthServiceInterface } from "../../../service-interface/authServices"
-
 export const userRegister = async (
   user: CreateUserInterface,
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const { name, email, password } = user
-  const existingEmailUser = await userRepository.getUserByEmail(email)
+  const { name, email, password, phone,role } = user;
+  const existingEmailUser = await userRepository.getUserByEmail(email);
   if (existingEmailUser) {
     throw new AppError(
       "this email is already register with an account",
       HttpStatus.UNAUTHORIZED
-    )
+    );
   }
-  const hashedPassword: string = await authService.encryptPassword(password)
+  const hashedPassword: string = await authService.encryptPassword(password);
 
   const userEntity: UserEntityType = createUserEntity(
     name,
     email,
-    hashedPassword
-  )
+    phone,
+    hashedPassword,
+    role
+  );
 
   // create a new user
-  const newUser: UserInterface = await userRepository.addUser(userEntity)
+  const newUser: UserInterface = await userRepository.addUser(userEntity);
 
-  const OTP = authService.generateOtp()
+  const OTP = authService.generateOtp();
 
-  console.log(OTP, "---otp")
+  console.log(OTP,"---otp");
 
   //adding otp to database
-  await userRepository.addOtp(OTP, newUser.id)
-  const emailSubject = "Account verification"
-  sendMail(newUser.email, emailSubject, otpEmail(OTP, newUser.name))
+  await userRepository.addOtp(OTP, newUser.id);
+  const emailSubject = "Account verification";
+  sendMail(newUser.email, emailSubject, otpEmail(OTP, newUser.name));
 
-  return newUser
-}
+  return newUser;
+};
+
 
 //user login
 
@@ -58,39 +60,40 @@ export const loginUser = async (
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const { email, password } = user
-  const isEmailExist = await userRepository.getUserByEmail(email)
+  const { email, password } = user;
+  const isEmailExist = await userRepository.getUserByEmail(email);
 
   if (!isEmailExist) {
-    throw new AppError("Invalid Credantials", HttpStatus.UNAUTHORIZED)
+    throw new AppError("Invalid Credantials", HttpStatus.UNAUTHORIZED);
   }
   if (isEmailExist.isBlocked) {
-    throw new AppError("Account is Blocked", HttpStatus.FORBIDDEN)
+    throw new AppError("Account is Blocked", HttpStatus.FORBIDDEN);
   }
   if (!isEmailExist.isVerified) {
-    throw new AppError("Account is not verified", HttpStatus.UNAUTHORIZED)
+    throw new AppError("Account is not verified", HttpStatus.UNAUTHORIZED);
   }
   if (!isEmailExist.password) {
-    throw new AppError("Invalid credentials", HttpStatus.UNAUTHORIZED)
+    throw new AppError("Invalid credentials", HttpStatus.UNAUTHORIZED);
   }
 
   const isPasswordMatched = await authService.comparePassword(
     password,
     isEmailExist?.password
-  )
+  );
 
   if (!isPasswordMatched) {
-    throw new AppError("Invalid Credentials", HttpStatus.UNAUTHORIZED)
+    throw new AppError("Invalid Credentials", HttpStatus.UNAUTHORIZED);
   }
 
   const accessToken = authService.createTokens(
     isEmailExist.id,
     isEmailExist.name,
     isEmailExist.role
-  )
+  );
 
-  return { accessToken, isEmailExist }
-}
+  return { accessToken, isEmailExist };
+};
+
 
 export const verifyOtpUser = async (
   otp: string,
@@ -121,34 +124,34 @@ export const authenticateGoogleandFacebookUser = async (
   userRepository: ReturnType<userDbInterfaceType>,
   authService: ReturnType<AuthServiceInterface>
 ) => {
-  const { name, email, picture, email_verified } = userData
-  const isEmailExist = await userRepository.getUserByEmail(email)
+  const { name, email, picture, email_verified,role } = userData;
+  const isEmailExist = await userRepository.getUserByEmail(email);
   if (isEmailExist?.isBlocked) {
-    throw new AppError(
-      "Your account is blocked by administrator",
-      HttpStatus.FORBIDDEN
-    )
+    throw new AppError("Your account is blocked by administrator",HttpStatus.FORBIDDEN);
+  }
+  if(isEmailExist&&role!==isEmailExist?.role){
+    throw new AppError(you already register as ${isEmailExist?.role}, HttpStatus.FORBIDDEN);
   }
   if (isEmailExist) {
     const accessToken = authService.createTokens(
       isEmailExist.id,
       isEmailExist.name,
       isEmailExist.role
-    )
-    return { isEmailExist, accessToken }
+    );
+    return { isEmailExist, accessToken };
   } else {
     const googleFacebookUser: GoogleandFaceebookUserEntityType =
-      GoogleandFaceebookSignInUserEntity(name, email, picture, email_verified)
+      GoogleandFaceebookSignInUserEntity(name, email, picture, email_verified,role);
     const newUser = await userRepository.registerGooglefacebookoUser(
       googleFacebookUser
-    )
-    const userId = newUser._id as unknown as string
-    const Name = newUser.name as unknown as string
-    const role = newUser.role as unknown as string
-    const accessToken = authService.createTokens(userId, Name, role)
-    return { accessToken, newUser }
+    );
+    const userId = newUser._id as unknown as string;
+    const Name = newUser.name as unknown as string;
+    const accessToken = authService.createTokens(userId, Name, role);
+    return { accessToken, newUser };
   }
-}
+};
+
 export const sendResetVerificationCode = async (
   email: string,
   userRepository: ReturnType<userDbInterfaceType>,

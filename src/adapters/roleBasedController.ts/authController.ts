@@ -32,18 +32,20 @@ const authController = (
   const registerUser = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const user: CreateUserInterface = req.body
-        const newUser = await userRegister(user, dbRepositoryUser, authService)
+        const user: CreateUserInterface = req.body;
+        const newUser = await userRegister(user, dbRepositoryUser, authService);
         res.json({
           status: "success",
           message: "otp is sended to the email",
           newUser,
-        })
+        });
       } catch (error) {
-        next(error)
+        next(error);
       }
     }
-  )
+  );
+
+
 
   const verifyOtp = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -76,18 +78,18 @@ const authController = (
           req.body,
           dbRepositoryUser,
           authService
-        )
+        );
         res.json({
           status: "success",
           message: "user logined",
           accessToken,
           user: isEmailExist,
-        })
+        });
       } catch (error) {
-        next(error)
+        next(error);
       }
     }
-  )
+  );
 
   const GoogleAndFacebbokSignIn = async (
     req: Request,
@@ -95,21 +97,22 @@ const authController = (
     next: NextFunction
   ) => {
     try {
-      const userData: GoogleAndFacebookResponseType = req.body
+      const userData: GoogleAndFacebookResponseType = req.body;     
       const { accessToken, isEmailExist, newUser } =
         await authenticateGoogleandFacebookUser(
           userData,
           dbRepositoryUser,
           authService
-        )
-      const user = isEmailExist ? isEmailExist : newUser
+        );
+      const user = isEmailExist ? isEmailExist : newUser;
       res
         .status(HttpStatus.OK)
-        .json({ message: "login success", user, accessToken })
+        .json({ message: "login success", user, accessToken });
     } catch (error) {
-      next(error)
+      next(error);
     }
-  }
+  };
+
 
   const forgotPassword = async (
     req: Request,

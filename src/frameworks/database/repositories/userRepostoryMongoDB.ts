@@ -23,14 +23,14 @@ export const userDbRepository = () => {
   }
 
   const getUserbyId = async (id: string): Promise<UserInterface | null> => {
-    const user = await User.findById(id).populate("wallet").lean();
-  
+    const user = await User.findById(id).populate("wallet").lean()
+
     if (!user) {
-      return null;
+      return null
     }
-    const { _id, ...rest } = user;
-    return { id: _id.toString(), ...rest } as UserInterface;
-  };
+    const { _id, ...rest } = user
+    return { id: _id.toString(), ...rest } as UserInterface
+  }
 
   //add user
   const addUser = async (user: UserEntityType) => {
@@ -38,6 +38,7 @@ export const userDbRepository = () => {
       name: user.getName(),
       email: user.getEmail(),
       password: user.getPassword(),
+      role: user.getUserRole(),
     })
 
     newUser.save()
@@ -67,7 +68,9 @@ export const userDbRepository = () => {
       email: user.email(),
       profilePic: user.picture(),
       isVerified: user.email_verified(),
-    })
+      role:user.getUserRole()
+    });
+
 
   const findVerificationCodeAndUpdate = async (
     code: string,
@@ -83,27 +86,27 @@ export const userDbRepository = () => {
     await User.findOneAndUpdate({ email }, { verificationCode: code })
 
   const changeUserRole = async (id: string, newRole: string) => {
-    console.log(`Changing role to: ${newRole}`);
-  
+    console.log(`Changing role to: ${newRole}`)
+
     try {
       const updatedUser = await User.findOneAndUpdate(
         { _id: id },
         { role: newRole },
         { new: true } // This option returns the updated document
-      );
-  
+      )
+
       if (!updatedUser) {
-        console.log("User not found");
-        return null;
+        console.log("User not found")
+        return null
       }
-  
-      console.log("Role updated successfully:", updatedUser);
-      return updatedUser;
+
+      console.log("Role updated successfully:", updatedUser)
+      return updatedUser
     } catch (error) {
-      console.error("Error updating role:", error);
-      throw error;
+      console.error("Error updating role:", error)
+      throw error
     }
-  };
+  }
   const updateUserInfo = async (id: string, updateData: Record<string, any>) =>
     await User.findByIdAndUpdate(id, updateData, { new: true })
 
@@ -125,14 +128,17 @@ export const userDbRepository = () => {
   const addWallet = async (userId: string) => await wallet.create({ userId })
 
   const updateWallet = async (userId: string, newBalance: number) =>
-    await wallet.findOneAndUpdate({ userId }, { $inc: { balance: newBalance } },{ new: true })
+    await wallet.findOneAndUpdate(
+      { userId },
+      { $inc: { balance: newBalance } },
+      { new: true }
+    )
 
-  const getWalletByUseId = async (Id:string) =>{
-    console.log(Id);
-    
-    return await wallet.findOne({ userId: Id });
+  const getWalletByUseId = async (Id: string) => {
+    console.log(Id)
+
+    return await wallet.findOne({ userId: Id })
   }
-  
 
   const createTransaction = async (transactionDetails: TransactionEntityType) =>
     await transaction.create({
@@ -142,8 +148,11 @@ export const userDbRepository = () => {
       amount: transactionDetails.getAmount(),
     })
 
-  const allTransactions = async (walletId:mongoose.Types.ObjectId) =>
-    await transaction.find({ walletId }).sort({ createdAt: -1 }).populate('walletId')
+  const allTransactions = async (walletId: mongoose.Types.ObjectId) =>
+    await transaction
+      .find({ walletId })
+      .sort({ createdAt: -1 })
+      .populate("walletId")
 
   return {
     getUserEmail,
@@ -165,7 +174,7 @@ export const userDbRepository = () => {
     createTransaction,
     getWalletByUseId,
     addWallet,
-    allTransactions
+    allTransactions,
   }
 }
 
