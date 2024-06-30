@@ -105,6 +105,8 @@ const adminController = (
       const userCount = (await getUsers(user,dbRepositoryUser)).count
       const ownerCount = (await getUsers(owner,dbRepositoryUser)).count
       const hotelCount = (await getHotels(dbRepositoryHotel)).count
+      console.log(ownerCount,"..........",userCount);
+      
       return res
         .status(HttpStatus.OK)
         .json({ success: true, userCount,  hotelCount,ownerCount })

@@ -52,22 +52,23 @@ export const userDbInterface = (
   const getUserByNumber = async (phoneNumber: string) =>
     await repository.getUserByNumber(phoneNumber)
 
-  const getAllUsers = async (role:string) => await repository.getAllUsers(role)
+  const getAllUsers = async (role: string) => await repository.getAllUsers(role)
 
-  const changeUserRole = async (id:string,role: string) => await repository.changeUserRole(id,role)
+  const changeUserRole = async (id: string, role: string) =>
+    await repository.changeUserRole(id, role)
 
   const updateWallet = async (userId: string, newBalance: number) =>
-    await repository.updateWallet(userId, newBalance);
+    await repository.updateWallet(userId, newBalance)
 
   const createTransaction = async (transactionDetails: TransactionEntityType) =>
-    await repository.createTransaction(transactionDetails);
-  const addWallet=async(userId:string)=>
-    await repository.addWallet(userId)
+    await repository.createTransaction(transactionDetails)
 
-  const getWallet=async(userId: string)=>
+  const addWallet = async (userId: string) => await repository.addWallet(userId)
+
+  const getWallet = async (userId: string) =>
     await repository.getWalletByUseId(userId)
 
-  const getTransaction=async(walletId: mongoose.Types.ObjectId)=>
+  const getTransaction = async (walletId: mongoose.Types.ObjectId) =>
     await repository.allTransactions(walletId)
 
   return {
@@ -90,8 +91,8 @@ export const userDbInterface = (
     createTransaction,
     addWallet,
     getWallet,
-    getTransaction
-}
+    getTransaction,
+  }
 }
 
 export type userDbInterfaceType = typeof userDbInterface

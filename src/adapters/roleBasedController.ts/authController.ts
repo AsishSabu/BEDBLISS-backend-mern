@@ -13,7 +13,6 @@ import {
   deleteOtp,
   loginUser,
   sendResetVerificationCode,
-  switchRole,
   userRegister,
   verifyOtpUser,
   verifyTokenResetPassword,

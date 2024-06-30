@@ -42,9 +42,14 @@ export default function bookingDbRepository() {
 
   const getBookingById = async (id: string) => {
     try {
-      const booking = await Booking.findById(id).populate("userId").populate("hotelId");
+      const booking = await Booking.findById(id)
+        .populate("userId")        // Populate userId field
+        .populate("hotelId")       // Populate hotelId field
+        .populate("hotelId.ownerId"); // Populate ownerId field of hotelId
+  
       return booking;
     } catch (error) {
+      console.error("Error fetching booking by ID:", error);
       throw new Error("Error fetching booking by ID");
     }
   };

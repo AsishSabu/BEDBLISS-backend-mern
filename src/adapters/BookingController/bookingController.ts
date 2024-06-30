@@ -5,7 +5,6 @@ import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
 import { bookingDbRepositoryType } from "../../frameworks/database/repositories/bookingRepositoryMongoDB"
 import { hotelDbRepositoryType } from "../../frameworks/database/repositories/hotelRepositoryMongoDB"
 import createBooking, {
-  acceptBooking,
   addUnavilableDates,
   cancelBookingAndUpdateWallet,
   getBookings,
@@ -14,6 +13,7 @@ import createBooking, {
   getBookingsBybookingId,
   makePayment,
   removeUnavilableDates,
+  updateBookingDetails,
   updateBookingStatus,
 } from "../../app/use-cases/Booking/booking"
 import { HotelServiceInterface } from "../../app/service-interface/hotelServices"
@@ -23,8 +23,12 @@ import { getUserProfile } from "../../app/use-cases/User/read&write/profile"
 import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces"
 import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB"
 import { getMyHotels } from "../../app/use-cases/Owner/hotel"
+import { BookingServiceInterface } from "../../app/service-interface/bookingServices"
+import { BookingServiceType } from "../../frameworks/services/bookingService"
 
 export default function bookingController(
+  bookingServiceInterface: BookingServiceInterface,
+  bookingServiceImpl: BookingServiceType,
   bookingDbRepository: bookingDbInterfaceType,
   bookingDbRepositoryImp: bookingDbRepositoryType,
   hotelDbRepository: hotelDbInterfaceType,
@@ -38,14 +42,15 @@ export default function bookingController(
   const dbRepositoryHotel = hotelDbRepository(hotelDbRepositoryImpl())
   const dbRepositoryUser = userDbRepository(userDbRepositoryImpl())
   const hotelService = hotelServiceInterface(hotelServiceImpl())
+  const bookingService = bookingServiceInterface(bookingServiceImpl())
 
   const handleBooking = expressAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const bookingDetails = req.body
         const userId = req.user
-        console.log(req.body,"req.body");
-        
+        console.log(req.body, "req.body")
+
         const data = await createBooking(
           userId,
           bookingDetails,
@@ -85,7 +90,6 @@ export default function bookingController(
             dbRepositoryHotel,
             hotelService
           )
-          
 
           res.status(HttpStatus.OK).json({
             success: true,
@@ -124,11 +128,11 @@ export default function bookingController(
       console.log(id)
       console.log(paymentStatus, "payment status")
       if (paymentStatus === "Paid") {
-        console.log("going too bookings");
-        
+        console.log("going too bookings")
+
         const bookings = await getBookingsBybookingId(id, dbRepositoryBooking)
-        console.log(bookings,'bokings////////////////////////////////');
-        
+        console.log(bookings, "bokings////////////////////////////////")
+
         if (bookings) {
           const dates = await addUnavilableDates(
             bookings.rooms,
@@ -179,9 +183,11 @@ export default function bookingController(
   ) => {
     try {
       const ID = req.params.id
-      console.log(ID,'booking id');
-      
+      console.log(ID, "booking id")
+
       const bookings = await getBookingsById(ID, dbRepositoryBooking)
+      console.log(bookings,"booking details");
+      
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Bookings fetched successfully",
@@ -198,10 +204,12 @@ export default function bookingController(
     next: NextFunction
   ) => {
     try {
+      console.log("in cancel booking")
+
       const userID = req.user
-      const {reason,status}=req.body
-      console.log(req.body);
-      
+      const { reason, status } = req.body
+      console.log(req.body)
+
       const { bookingID } = req.params
       console.log(bookingID)
       console.log(userID)
@@ -212,9 +220,10 @@ export default function bookingController(
         status,
         reason,
         dbRepositoryBooking,
-        dbRepositoryUser
+        dbRepositoryUser,
+        bookingService
       )
-      if(updateBooking){
+      if (updateBooking) {
         const dates = await removeUnavilableDates(
           updateBooking.rooms,
           updateBooking.checkInDate ?? new Date(),
@@ -233,20 +242,23 @@ export default function bookingController(
       next(error)
     }
   }
-  const approveBooking = async (
+  const updateBooking = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
       const userID = req.user
-      console.log('in approve booking');
-      
-      
+      console.log("in update booking")
+      const { reason, status } = req.body
+      console.log(req.body)
+
       const { bookingID } = req.params
 
-      const updateBooking = await acceptBooking(
+      const updateBooking = await updateBookingDetails(
         userID,
+        status,
+        reason,
         bookingID,
         dbRepositoryBooking,
         dbRepositoryUser
@@ -271,16 +283,20 @@ export default function bookingController(
       console.log(userID)
       const hotels = await getMyHotels(userID, dbRepositoryHotel)
 
-      console.log(hotels,"-----------------------------------------------------------");
-      
-      const HotelIds: string[] = hotels.map((hotel) => hotel._id.toString());
-      console.log(HotelIds,"-----------------------------------------------------------");
+      console.log(
+        hotels,
+        "-----------------------------------------------------------"
+      )
 
-      const bookings=await getBookingsByHotels(HotelIds,dbRepositoryBooking)
-      console.log(bookings);
-      
+      const HotelIds: string[] = hotels.map(hotel => hotel._id.toString())
+      console.log(
+        HotelIds,
+        "-----------------------------------------------------------"
+      )
 
-      
+      const bookings = await getBookingsByHotels(HotelIds, dbRepositoryBooking)
+      console.log(bookings)
+
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Bookings fetched successfully",
@@ -291,15 +307,13 @@ export default function bookingController(
     }
   }
 
-
-
   return {
     handleBooking,
     updatePaymentStatus,
     getBooking,
     getBookingById,
     cancelBooking,
-    approveBooking,
-    getOwnerBookings
+    updateBooking,
+    getOwnerBookings,
   }
 }

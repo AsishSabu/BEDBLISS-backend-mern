@@ -140,10 +140,13 @@ const hotelController = (
       const room = req.query.room as string;
       const startDate = req.query.startDate as string;
       const endDate = req.query.endDate as string;
+      const amenities=req.query.amenities as string[];
+      const minPrice=req.body.minPrice as string;
+      const maxPrice=req.body.maxPrice as string;
+      const categories=req.body.categories as string[];
+      
 
-      const data = await viewByDestination(destination,adults,children,room,startDate,endDate, dbRepositoryHotel)
-      console.log(data,"data")
-
+      const data = await viewByDestination(destination,adults,children,room,startDate,endDate,amenities,minPrice,maxPrice,categories,dbRepositoryHotel)
       res.status(HttpStatus.OK).json({
         status: "success",
         message: "search result has been fetched",

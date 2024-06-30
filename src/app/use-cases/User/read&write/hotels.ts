@@ -16,6 +16,10 @@ export const viewByDestination = async (
   room: string,
   startDate: string,
   endDate: string,
+  amenities: string[],
+  minPrice: string,
+  maxPrice: string,
+  categories: string[],
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => {
   const data = await hotelRepository.findByDestination(
@@ -24,7 +28,11 @@ export const viewByDestination = async (
     children,
     room,
     startDate,
-    endDate
+    endDate,
+    amenities,
+    minPrice,
+    maxPrice,
+    categories
   )
   return data
 }

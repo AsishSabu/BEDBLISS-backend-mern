@@ -68,9 +68,8 @@ export const userDbRepository = () => {
       email: user.email(),
       profilePic: user.picture(),
       isVerified: user.email_verified(),
-      role:user.getUserRole()
-    });
-
+      role: user.getUserRole(),
+    })
 
   const findVerificationCodeAndUpdate = async (
     code: string,
@@ -115,9 +114,9 @@ export const userDbRepository = () => {
     return user
   }
 
-  const getAllUsers = async (role:string) => {
-    const users = await User.find({ isVerified: true,role:role })
-    const allUsers = await User.find()
+  const getAllUsers = async (role: string) => {
+    const users = await User.find({ isVerified: true, role: role })
+    const allUsers = await User.find({ role: role })
     const count = allUsers.length
     return { users, count }
   }

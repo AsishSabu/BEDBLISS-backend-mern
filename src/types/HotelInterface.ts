@@ -10,6 +10,9 @@ interface Address {
 }
 
 export interface RoomInterface {
+  _id: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
   title: string;
   price: number;
   maxAdults: number;
@@ -38,7 +41,7 @@ export interface HotelInterface {
   hotelDocument: string;
   ownerPhoto: string;
   unavailbleDates: Date[];
-  rooms: mongoose.Types.ObjectId[] | RoomInterface[];
+  rooms: RoomInterface[];
 }
 
 export interface Options {

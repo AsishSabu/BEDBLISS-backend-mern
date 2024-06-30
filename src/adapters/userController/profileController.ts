@@ -31,6 +31,20 @@ const profileController = (
       next(error);
     }
   };
+
+  const getUserById= async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.params.id;
+      const user = await getUserProfile(userId, dbRepositoryUser);
+      res.status(200).json({ success: true, user });
+    } catch (error) {
+      next(error);
+    }
+  };
   const getUser=async(
     req:Request,
     res:Response,
@@ -104,6 +118,7 @@ const profileController = (
   }
   return {
     userProfile,
+    getUserById,
     updateProfile,
     verifyPhoneNumber,
     getUser,

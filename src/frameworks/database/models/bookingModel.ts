@@ -91,10 +91,10 @@ const bookingSchema = new mongoose.Schema(
     },
     bookingStatus: {
       type: String,
-      enum: ["booked", "rejected", "cancelled", "pending"],
+      enum: ["booked", "rejected", "cancelled", "pending","cancelled with refund","cancel requested"],
       default: "pending",
     },
-  },
+  },  
   { timestamps: true }
 )
 

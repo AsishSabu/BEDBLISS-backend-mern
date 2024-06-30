@@ -10,6 +10,11 @@ import { hotelService } from "../../../services/hotelServices";
 import { userDbInterface } from "../../../../app/interfaces/userDbInterfaces";
 import { userDbRepository } from "../../../database/repositories/userRepostoryMongoDB";
 import bookingController from "../../../../adapters/BookingController/bookingController";
+import { bookingServiceInterface } from "../../../../app/service-interface/bookingServices";
+import { bookingService } from "../../../services/bookingService";
+import chatController from "../../../../adapters/chatController/chatController";
+import { chatDbInterface } from "../../../../app/interfaces/chatDbInterface";
+import chatDbRepository from "../../../database/repositories/chatRepositoryMongoDB";
 
 const ownerRouter = () => {
   const router = Router();
@@ -20,10 +25,13 @@ const ownerRouter = () => {
   router.post("/addRoom/:id",authenticateUser, controller.registerRoom);
   router.get("/myHotels",authenticateUser,controller.registeredHotels)
   router.patch("/listUnlist/:id",authenticateUser,controller.listUnlistHotel)
+  router.get("/hotelDetails/:id",authenticateUser, controller.hotelDetails)
   // router.get("/myHotels",authenticateUser,controller.registeredHotels)
 
 
   const ownerBookingController = bookingController(
+    bookingServiceInterface,
+    bookingService,
     bookingDbInterface,
     bookingDbRepository,
     hotelDbInterface,
@@ -34,6 +42,15 @@ const ownerRouter = () => {
     userDbRepository
    );
    router.get("/bookings",authenticateUser,ownerBookingController.getOwnerBookings)
+
+   const ownerChatController=chatController(chatDbInterface,chatDbRepository)
+
+  //  router.get("/conversation/:id", ownerChatController.getConversation);
+   router.get("/conversations",authenticateUser, ownerChatController.fetchChats);
+   router.post("/chat", authenticateUser,ownerChatController.createNewChat);
+ 
+   router.post("/messages", ownerChatController.createNewMessage);
+   router.get("/messages/:id", ownerChatController.fetchMessages);
 
 
   return router;
