@@ -3,6 +3,7 @@ import { HotelEntityType } from "../../entites/hotel"
 import { RoomEntityType } from "../../entites/room"
 import { hotelDbRepositoryType } from "../../frameworks/database/repositories/hotelRepositoryMongoDB"
 import { Dates, optionType } from "../../types/HotelInterface"
+import { RatingEntityType } from "../../entites/rating"
 
 export const hotelDbInterface = (
   repository: ReturnType<hotelDbRepositoryType>
@@ -85,6 +86,12 @@ export const hotelDbInterface = (
   const removeUnavailableDates = async (room: [], dates: string[]) =>
     await repository.removeUnavailableDates(room, dates)
 
+  const addRating = async (ratingData: RatingEntityType) =>
+    await repository.addRating(ratingData);
+
+  const getRatings = async (filter: Record<string, any>) =>
+    await repository.getRatings(filter);
+
   return {
     addHotel,
     addRoom,
@@ -105,6 +112,8 @@ export const hotelDbInterface = (
     checkAvailability,
     addUnavilableDates,
     removeUnavailableDates,
+    addRating,
+    getRatings
   }
 }
 

@@ -74,6 +74,8 @@ const authRouter = () => {
   router.get("/searchedHotels", userHotelController.destinationSearch)
   router.get("/hotelDetails/:id", userHotelController.hotelDetails)
   router.get("/checkAvailability/:id", userHotelController.checkAvilabitiy)
+  router.post("/addRating",authenticateUser,userHotelController.addRating)
+  router.get("/getRating/:hotelId",userHotelController.getRatingsbyHotelId)
 
   const userBookingController = bookingController(
     bookingServiceInterface,

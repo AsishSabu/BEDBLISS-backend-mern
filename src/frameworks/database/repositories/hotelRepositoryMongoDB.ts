@@ -2,7 +2,7 @@ import {
   Dates,
   HotelInterface,
   optionType,
-  RoomInterface
+  RoomInterface,
 } from "./../../../types/HotelInterface"
 import { HotelEntityType } from "../../../entites/hotel"
 import Hotel from "../models/hotelModel"
@@ -13,7 +13,8 @@ import mongoose from "mongoose"
 import Category from "../models/categoryModel"
 import { getDates } from "../../../utils/DateHelper"
 import AppError from "../../../utils/appError"
-
+import { RatingEntityType } from "../../../entites/rating"
+import Rating from "../models/reviewModel"
 
 export const hotelDbRepository = () => {
   //adding hotel
@@ -242,23 +243,20 @@ export const hotelDbRepository = () => {
     return { date, time: timeWithoutZ }
   }
 
-
-  const getDates =async (startDate: string, endDate: string) => {
-    const currentDate = new Date(startDate);
-    const end = new Date(endDate);
-    const datesArray: string[] = [];
+  const getDates = async (startDate: string, endDate: string) => {
+    const currentDate = new Date(startDate)
+    const end = new Date(endDate)
+    const datesArray: string[] = []
 
     while (currentDate <= end) {
-      const formattedDate = new Date(currentDate);
-      formattedDate.setUTCHours(0, 0, 0, 0);
-      datesArray.push(formattedDate.toISOString().split("T")[0]);
-      currentDate.setDate(currentDate.getDate() + 1);
+      const formattedDate = new Date(currentDate)
+      formattedDate.setUTCHours(0, 0, 0, 0)
+      datesArray.push(formattedDate.toISOString().split("T")[0])
+      currentDate.setDate(currentDate.getDate() + 1)
     }
 
-    return datesArray;
-  };
-
-
+    return datesArray
+  }
 
   const findByDestination = async (
     destination: string,
@@ -299,75 +297,71 @@ export const hotelDbRepository = () => {
       )
     )
 
-
-    const dates = await getDates(startDate, endDate);
-console.log(dates, "dates"); 
+    const dates = await getDates(startDate, endDate)
+    console.log(dates, "dates")
 
     const isRoomNumberAvailable = (roomNumber: {
-      number: number;
-      unavailableDates: Date[];
+      number: number
+      unavailableDates: Date[]
     }): boolean => {
       return !roomNumber.unavailableDates.some((date: Date) =>
         dates.includes(date.toISOString().split("T")[0])
-      );
-    };
-    
+      )
+    }
+
     let availableHotels
 
     availableHotels = peopleFilter
-    .map((hotel: HotelInterface) => ({
-      ...hotel,
-      rooms: hotel.rooms
-        .map((room: RoomInterface) => ({
-          ...room,
-          roomNumbers: room.roomNumbers.filter(isRoomNumberAvailable),
-        }))
-        .filter((room: any) => room.roomNumbers.length > 0),
-    }))
-    .filter((hotel: any) => hotel.rooms.length > 0);
+      .map((hotel: HotelInterface) => ({
+        ...hotel,
+        rooms: hotel.rooms
+          .map((room: RoomInterface) => ({
+            ...room,
+            roomNumbers: room.roomNumbers.filter(isRoomNumberAvailable),
+          }))
+          .filter((room: any) => room.roomNumbers.length > 0),
+      }))
+      .filter((hotel: any) => hotel.rooms.length > 0)
 
-    
     if (categories && Array.isArray(categories)) {
       availableHotels = availableHotels.filter((hotel: any) => {
         return categories.includes(hotel.stayType)
       })
     }
 
-if (minPrice && maxPrice) {
-  const min = parseInt(minPrice);
-  const max = parseInt(maxPrice);
-  console.log(minPrice, maxPrice, "Price range values");
+    if (minPrice && maxPrice) {
+      const min = parseInt(minPrice)
+      const max = parseInt(maxPrice)
+      console.log(minPrice, maxPrice, "Price range values")
 
-  try {
-    availableHotels = availableHotels
-      .filter((hotel: HotelInterface) => {   
-        const hasRoomInRange = hotel.rooms.some((room: RoomInterface) => {
-          // console.log(room, "room before price filter////////////////////////////////////////////////////////////////////////////");
-          // const price = room.price !== undefined ? room.price : room?.price;
-          // console.log(price, "..........//././././/./././.");
-          // if (price === undefined) {
-          //   console.log("Price is undefined:", room);
-          //   return false;
-          // }
-          // if (typeof price !== 'number') {
-          //   console.log(`Invalid price format: ${price}`);
-          //   return false;
-          // }
-          // const isPriceInRange = price >= min && price <= max;
-          // console.log(`Price ${price} is in range (${min}, ${max}): ${isPriceInRange}`);
-          // return isPriceInRange;
-        });
-        // console.log(`Hotel ${hotel.name} has room in range: ${hasRoomInRange}`);
-        return hasRoomInRange;
-      });
-    // console.log(availableHotels, "availableHotels after price filter");
-  } catch (error) {
-    console.log(error);
+      try {
+        availableHotels = availableHotels.filter((hotel: HotelInterface) => {
+          const hasRoomInRange = hotel.rooms.some((room: RoomInterface) => {
+            // console.log(room, "room before price filter////////////////////////////////////////////////////////////////////////////");
+            // const price = room.price !== undefined ? room.price : room?.price;
+            // console.log(price, "..........//././././/./././.");
+            // if (price === undefined) {
+            //   console.log("Price is undefined:", room);
+            //   return false;
+            // }
+            // if (typeof price !== 'number') {
+            //   console.log(`Invalid price format: ${price}`);
+            //   return false;
+            // }
+            // const isPriceInRange = price >= min && price <= max;
+            // console.log(`Price ${price} is in range (${min}, ${max}): ${isPriceInRange}`);
+            // return isPriceInRange;
+          })
+          // console.log(`Hotel ${hotel.name} has room in range: ${hasRoomInRange}`);
+          return hasRoomInRange
+        })
+        // console.log(availableHotels, "availableHotels after price filter");
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    return availableHotels
   }
-}
-return availableHotels;
-
-  }    
 
   const updateHotelVerified = async (id: string) => {
     await Hotel.findOneAndUpdate({ _id: id }, { isVerified: "verified" })
@@ -427,6 +421,18 @@ return availableHotels;
     // return !isUnavailable;
   }
 
+  const addRating = async (ratingData: RatingEntityType) =>
+    await Rating.create({
+      userId: ratingData.getUserId(),
+      hotelId: ratingData.getHotelId(),
+      rating: ratingData.getRating(),
+      description: ratingData.getDescription(),
+      imageUrls: ratingData.getImageUrls(),
+    })
+
+  const getRatings = async (filter: Record<string, any>) =>
+    await Rating.find(filter).populate("userId")
+
   return {
     addHotel,
     addStayType,
@@ -449,6 +455,8 @@ return availableHotels;
     deleteRoom,
     addUnavilableDates,
     removeUnavailableDates,
+    addRating,
+    getRatings,
   }
 }
 export type hotelDbRepositoryType = typeof hotelDbRepository

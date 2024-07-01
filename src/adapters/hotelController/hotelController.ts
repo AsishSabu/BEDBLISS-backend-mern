@@ -4,8 +4,10 @@ import { addHotel, addRoom, getMyHotels } from "../../app/use-cases/Owner/hotel"
 import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
 import { HttpStatus } from "../../types/httpStatus"
 import {
+  addNewRating,
   getHotelDetails,
   getUserHotels,
+  ratings,
   viewByDestination,
 } from "../../app/use-cases/User/read&write/hotels"
 import mongoose from "mongoose"
@@ -24,7 +26,7 @@ const hotelController = (
   ) => {
     try {
       const ownerId = new mongoose.Types.ObjectId(req.user)
-      console.log(ownerId,"owner iddd")
+      console.log(ownerId, "owner iddd")
       console.log(req.body, "data")
 
       const hotelData = req.body
@@ -44,7 +46,6 @@ const hotelController = (
     }
   }
 
-
   const registerRoom = async (
     req: Request,
     res: Response,
@@ -57,11 +58,7 @@ const hotelController = (
 
       const roomData = req.body
 
-      const registeredRoom = await addRoom(
-        hotelId,
-       roomData,
-        dbRepositoryHotel
-      )
+      const registeredRoom = await addRoom(hotelId, roomData, dbRepositoryHotel)
       res.json({
         status: "success",
         message: "room added suuccessfully",
@@ -86,15 +83,14 @@ const hotelController = (
     }
   }
 
-
   const getHotelsUserSide = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      console.log("in hotel userside");
-  
+      console.log("in hotel userside")
+
       const { Hotels } = await getUserHotels(dbRepositoryHotel)
       console.log(Hotels)
 
@@ -115,12 +111,11 @@ const hotelController = (
 
       const Hotel = await getHotelDetails(id, dbRepositoryHotel)
       console.log(Hotel)
-      if(Hotel){
+      if (Hotel) {
         return res.status(HttpStatus.OK).json({ success: true, Hotel })
-      }else{
+      } else {
         return res.status(HttpStatus.NOT_FOUND).json({ success: false })
       }
-      
     } catch (error) {
       next(error)
     }
@@ -132,21 +127,32 @@ const hotelController = (
     next: NextFunction
   ) => {
     try {
-    console.log(req.query,"all values");
-    
-      const destination = req.query.destination as string;
-      const adults = req.query.adult as string;
-      const children = req.query.children as string;
-      const room = req.query.room as string;
-      const startDate = req.query.startDate as string;
-      const endDate = req.query.endDate as string;
-      const amenities=req.query.amenities as string[];
-      const minPrice=req.body.minPrice as string;
-      const maxPrice=req.body.maxPrice as string;
-      const categories=req.body.categories as string[];
-      
+      console.log(req.query, "all values")
 
-      const data = await viewByDestination(destination,adults,children,room,startDate,endDate,amenities,minPrice,maxPrice,categories,dbRepositoryHotel)
+      const destination = req.query.destination as string
+      const adults = req.query.adult as string
+      const children = req.query.children as string
+      const room = req.query.room as string
+      const startDate = req.query.startDate as string
+      const endDate = req.query.endDate as string
+      const amenities = req.query.amenities as string[]
+      const minPrice = req.body.minPrice as string
+      const maxPrice = req.body.maxPrice as string
+      const categories = req.body.categories as string[]
+
+      const data = await viewByDestination(
+        destination,
+        adults,
+        children,
+        room,
+        startDate,
+        endDate,
+        amenities,
+        minPrice,
+        maxPrice,
+        categories,
+        dbRepositoryHotel
+      )
       res.status(HttpStatus.OK).json({
         status: "success",
         message: "search result has been fetched",
@@ -164,12 +170,16 @@ const hotelController = (
     try {
       const dates = req.body
       const id = req.params.id
-      const isDateExisted=await checkAvailability( id,dates,dbRepositoryHotel)
-      console.log(isDateExisted);
-      
+      const isDateExisted = await checkAvailability(
+        id,
+        dates,
+        dbRepositoryHotel
+      )
+      console.log(isDateExisted)
+
       // if(!isDateExisted){
       //   console.log("hloooo");
-        
+
       //   res.status(HttpStatus.OK).json({
       //     status: "success",
       //     message: "date is availble"
@@ -180,34 +190,59 @@ const hotelController = (
       //     message: "date is unavailble"
       //   })
       // }
-      
     } catch (error) {
       next(error)
-      
     }
   }
 
-  const listUnlistHotel= async (
+  const listUnlistHotel = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
       const { id } = req.params
-      const {value}=req.body
-      console.log(value,'value.......................');
-      
-      
-      
-      const updates={
-        isListed:value,
+      const { value } = req.body
+      console.log(value, "value.......................")
+
+      const updates = {
+        isListed: value,
       }
-      await updateHotel(id,updates,dbRepositoryHotel)
+      await updateHotel(id, updates, dbRepositoryHotel)
       return res
         .status(HttpStatus.OK)
         .json({ success: true, message: "  Successfully updated" })
     } catch (error) {
       next(error)
+    }
+  }
+
+  const addRating = async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user
+    const data = req.body
+    const result = await addNewRating(userId, data, dbRepositoryHotel)
+    if (result) {
+      return res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: "  Successfully added rating" })
+    } else {
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false })
+    }
+  }
+
+  const getRatingsbyHotelId = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const hotelId = req.params.hotelId
+    const result = await ratings(hotelId, dbRepositoryHotel)
+    if (result) {
+      return res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: "  Successfully getted rating",result})
+    } else {
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false })
     }
   }
 
@@ -219,7 +254,9 @@ const hotelController = (
     hotelDetails,
     destinationSearch,
     checkAvilabitiy,
-    listUnlistHotel
+    listUnlistHotel,
+    addRating,
+    getRatingsbyHotelId,
   }
 }
 export default hotelController
