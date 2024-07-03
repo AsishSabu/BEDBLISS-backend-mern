@@ -6,6 +6,7 @@ const RoomSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
     price: {
       type: Number,
       required: true,
@@ -28,6 +29,10 @@ const RoomSchema = new mongoose.Schema(
         unavailableDates: { type: [Date] }
       }
     ],
+    listed:{
+      type: Boolean,
+      default: true
+    }
   },
   { timestamps: true }
 );

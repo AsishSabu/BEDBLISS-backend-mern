@@ -12,7 +12,7 @@ export const getHotelDetails = async (
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => await hotelRepository.getHotelDetails(id)
 
-export const viewByDestination = async (
+export const filterHotels = async (
   destination: string,
   adults: string,
   children: string,
@@ -25,7 +25,7 @@ export const viewByDestination = async (
   categories: string[],
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => {
-  const data = await hotelRepository.findByDestination(
+  const data = await hotelRepository.filterHotels(
     destination,
     adults,
     children,
@@ -36,6 +36,31 @@ export const viewByDestination = async (
     minPrice,
     maxPrice,
     categories
+  )
+  return data
+}
+
+export const hotelDetailsFilter = async (
+  id:string,
+  adults: string,
+  children: string,
+  room: string,
+  startDate: string,
+  endDate: string,
+  minPrice: string,
+  maxPrice: string,
+  hotelRepository: ReturnType<hotelDbInterfaceType>
+) => {
+  const data = await hotelRepository.UserfilterHotelBYId(
+    id,
+    adults,
+    children,
+    room,
+    startDate,
+    endDate,
+    minPrice,
+    maxPrice,
+
   )
   return data
 }

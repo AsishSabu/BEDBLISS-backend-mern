@@ -115,7 +115,7 @@ export const userDbRepository = () => {
   }
 
   const getAllUsers = async (role: string) => {
-    const users = await User.find({ isVerified: true, role: role })
+    const users = await User.find({ isVerified: true, role: role }).sort({updatedAt:-1})
     const allUsers = await User.find({ role: role })
     const count = allUsers.length
     return { users, count }

@@ -1,4 +1,4 @@
-import mongoose,{ ObjectId } from "mongoose"
+import mongoose, { ObjectId } from "mongoose"
 import Stripe from "stripe"
 import createBookingEntity from "../../../entites/booking"
 import {
@@ -15,6 +15,7 @@ import configKeys from "../../../config"
 import { userDbInterfaceType } from "../../interfaces/userDbInterfaces"
 import transactionEntity from "../../../entites/transactionEntity"
 import { BookingServiceInterface } from "../../service-interface/bookingServices"
+import reportingEntity from "../../../entites/reporting"
 
 export default async function createBooking(
   userId: string,
@@ -268,79 +269,77 @@ export const cancelBookingAndUpdateWallet = async (
   bookingService: ReturnType<BookingServiceInterface>
 ): Promise<any> => {
   if (!bookingID) {
-    throw new AppError("Please provide a booking ID", HttpStatus.BAD_REQUEST);
+    throw new AppError("Please provide a booking ID", HttpStatus.BAD_REQUEST)
   }
 
   const bookingDetails = await bookingRepository.updateBooking(bookingID, {
     bookingStatus: status,
     Reason: reason,
-  });
+  })
 
-  let bookerId: string | undefined;
+  let bookerId: string | undefined
   if (bookingDetails?.userId) {
-    if (typeof bookingDetails.userId === 'string') {
-      bookerId = bookingDetails.userId;
+    if (typeof bookingDetails.userId === "string") {
+      bookerId = bookingDetails.userId
     } else if (bookingDetails.userId instanceof mongoose.Types.ObjectId) {
-      bookerId = bookingDetails.userId.toString();
+      bookerId = bookingDetails.userId.toString()
     }
   }
- 
 
   if (bookingDetails && bookingDetails.paymentMethod !== "pay_on_checkout") {
-    console.log("in updating wallet");
+    console.log("in updating wallet")
 
     if (bookingDetails.bookingStatus === "cancelled") {
-
       const dateDifference = await bookingService.dateDifference(
         bookingDetails.updatedAt,
         bookingDetails.checkInDate ?? 0
-      );
-      console.log(bookingDetails.updatedAt,"updated date");
-      console.log(bookingDetails.checkInDate,"checkin date");
-      
-      
-      console.log(dateDifference, "dateDifference");
+      )
+      console.log(bookingDetails.updatedAt, "updated date")
+      console.log(bookingDetails.checkInDate, "checkin date")
 
-      const paidPrice = bookingDetails.price;
+      console.log(dateDifference, "dateDifference")
+
+      const paidPrice = bookingDetails.price
       if (paidPrice !== undefined && paidPrice !== null) {
-        const platformFee = paidPrice * 0.05;
-        let refundAmount: number = paidPrice - platformFee;
-        console.log(refundAmount, "price after reducing platform fee");
+        const platformFee = paidPrice * 0.05
+        let refundAmount: number = paidPrice - platformFee
+        console.log(refundAmount, "price after reducing platform fee")
 
-        if (dateDifference !== undefined && dateDifference>2) {
-          const isRoomCountLessThanOrEqualTo5 = bookingDetails.rooms.length <= 5;
+        if (dateDifference !== undefined && dateDifference > 2) {
+          const isRoomCountLessThanOrEqualTo5 = bookingDetails.rooms.length <= 5
 
           if (isRoomCountLessThanOrEqualTo5) {
             if (dateDifference > 7) {
-              refundAmount = refundAmount;
-            } else if (dateDifference <= 7 ) {
-              refundAmount /= 2;
+              refundAmount = refundAmount
+            } else if (dateDifference <= 7) {
+              refundAmount /= 2
             }
           } else {
             if (dateDifference > 10) {
-              refundAmount = refundAmount;
-            } else if (dateDifference <= 10 ) {
-              refundAmount /= 2;
+              refundAmount = refundAmount
+            } else if (dateDifference <= 10) {
+              refundAmount /= 2
             }
           }
-          console.log(refundAmount, "refund amount");
+          console.log(refundAmount, "refund amount")
 
           const data: TransactionDataType = {
             newBalance: refundAmount,
             type: "Credit",
             description: "Booking cancelled by user refund amount",
-          };
-          if(bookerId!==undefined && bookerId!==null){
-            await updateWallet(bookerId, data, userRepository);
           }
-          const updateBooking = await bookingRepository.updateBooking(bookingID, {
-            bookingStatus: "cancelled with refund",
-            paymentStatus:"Refunded"
-          });
-
-        
+          if (bookerId !== undefined && bookerId !== null) {
+            await updateWallet(bookerId, data, userRepository)
+          }
+          const updateBooking = await bookingRepository.updateBooking(
+            bookingID,
+            {
+              bookingStatus: "cancelled with refund",
+              paymentStatus: "Refunded",
+            }
+          )
         } else {
-          console.error("Date difference is less than 2 or undefined");
+          console.error("Date difference is less than 2 or undefined")
         }
       }
     } else {
@@ -348,19 +347,19 @@ export const cancelBookingAndUpdateWallet = async (
         newBalance: bookingDetails?.price ?? 0,
         type: "Credit",
         description: "Booking cancelled by owner refund amount",
-      };
-      if(bookerId!==undefined && bookerId!==null){
-        await updateWallet(bookerId, data, userRepository);
+      }
+      if (bookerId !== undefined && bookerId !== null) {
+        await updateWallet(bookerId, data, userRepository)
       }
       const updateBooking = await bookingRepository.updateBooking(bookingID, {
         bookingStatus: "cancelled with refund",
-        paymentStatus:"Refunded"
-      });
+        paymentStatus: "Refunded",
+      })
     }
   }
 
-  return bookingDetails;
-};
+  return bookingDetails
+}
 
 export const getTransaction = async (
   userId: string,
@@ -388,10 +387,9 @@ export const updateWallet = async (
   console.log(transactionData, "transation data")
 
   const balance = type === "Debit" ? -newBalance : newBalance
-  console.log(userId,"userId",balance,"balance")
+  console.log(userId, "userId", balance, "balance")
   const updateWallet = await userRepository.updateWallet(userId, balance)
-  console.log(updateWallet,"update wallet");
-  
+  console.log(updateWallet, "update wallet")
 
   if (updateWallet) {
     const transactionDetails = transactionEntity(
@@ -405,3 +403,29 @@ export const updateWallet = async (
     )
   }
 }
+
+export const addNewReporting = async (
+  userId: string,
+  reportingData: { hotelId: string; bookingId: string; reason: string },
+  bookingRepository: ReturnType<bookingDbInterfaceType>,
+) => {
+  const { hotelId, bookingId, reason } = reportingData
+  const newReportingEntity = reportingEntity(userId, hotelId, bookingId, reason)
+
+  return await bookingRepository.addReporting(newReportingEntity)
+}
+export const reportings = async (
+  bookingRepository: ReturnType<bookingDbInterfaceType>,
+) => await bookingRepository.getReportings();
+
+
+export const reportingsByFilter = async (
+  ID: string,
+  bookingRepository: ReturnType<bookingDbInterfaceType>,
+) => await bookingRepository.getReportingsByFilter(ID);
+
+export const updateReporting = async (
+  ID: string,
+  updateData:any,
+  bookingRepository: ReturnType<bookingDbInterfaceType>,
+) => await bookingRepository.updateReporting(ID,updateData);

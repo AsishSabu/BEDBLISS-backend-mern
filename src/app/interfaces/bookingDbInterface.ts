@@ -1,6 +1,7 @@
 import mongoose, { mongo } from "mongoose"
 import { bookingEntityType } from "../../entites/booking"
 import { bookingDbRepositoryType } from "../../frameworks/database/repositories/bookingRepositoryMongoDB"
+import { ReportingEntityType } from "../../entites/reporting"
 
 export default function bookingDbInterface(
   repository: ReturnType<bookingDbRepositoryType>
@@ -32,6 +33,20 @@ export default function bookingDbInterface(
   const getBookingByHotels = async (bookingId: string[]) =>
     await repository.getBookingByHotels(bookingId)
 
+  const addReporting = async (reportingData:ReportingEntityType) =>
+    await repository.addReporting(reportingData);
+
+  const getReportings = async () =>
+    await repository.getReportings();
+
+  const getReportingsByFilter = async (id:string) =>
+    await repository.getReportingsByFilter(id);
+
+  const updateReporting = async (reportId: string, updates: any) =>
+    await repository.updateReporting(reportId, updates)
+  
+
+
   return {
     createBooking,
     getAllBooking,
@@ -41,7 +56,12 @@ export default function bookingDbInterface(
     getBookingById,
     getBookingByHotel,
     getBookingsBybookingId,
-    getBookingByHotels
+    getBookingByHotels,
+    addReporting,
+    getReportings,
+    getReportingsByFilter,
+    updateReporting
+
   }
 }
 

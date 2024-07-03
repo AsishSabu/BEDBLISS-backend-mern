@@ -6,6 +6,8 @@ import { userDbRepository } from "../../../database/repositories/userRepostoryMo
 import { hotelDbInterface } from "../../../../app/interfaces/hotelDbInterface"
 import { hotelDbRepository } from "../../../database/repositories/hotelRepositoryMongoDB"
 import { authService } from "../../../services/authservice"
+import bookingDbInterface from "../../../../app/interfaces/bookingDbInterface"
+import bookingDbRepository from "../../../database/repositories/bookingRepositoryMongoDB"
 const adminRouter = () => {
   const router = Router()
   const controller = adminController(
@@ -14,18 +16,24 @@ const adminRouter = () => {
     userDbInterface,
     userDbRepository,
     hotelDbInterface,
-    hotelDbRepository
+    hotelDbRepository,
+    bookingDbInterface,
+    bookingDbRepository
   )
   router.post("/login", controller.adminLogin)
   router.get("/users", controller.getAllUser)
   router.get("/owners", controller.getAllOwners)
   router.get("/counts", controller.CardCount)
   router.get("/hotels", controller.getAllHotels)
+  router.get("/bookings", controller.getBookings)
   router.patch("/block_user/:id", controller.userBlock)
   router.patch("/block_hotel/:id", controller.hotelBlock)
   router.patch("/verify_hotel/:id", controller.hotelVerify)
   router.patch("/reject_hotel/:id", controller.rejectHotel)
   router.post("/addCategory",controller.addCategory);
+  router.get("/reportings",controller.getReportings);
+  router.get("/reporting/:id",controller.getReportingsByFilter);
+  router.patch("/updateReporting/:id",controller.updateReportings);
 
   return router
 }

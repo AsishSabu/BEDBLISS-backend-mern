@@ -145,7 +145,7 @@ export const hotelDbRepository = () => {
     return user
   }
   const getAllHotels = async () => {
-    const Hotels = await Hotel.find({})
+    const Hotels = await Hotel.find({}).sort({updatedAt:-1})
     console.log(Hotels, "..............")
 
     const count = Hotels.length
@@ -207,6 +207,9 @@ export const hotelDbRepository = () => {
           },
         },
       },
+      {
+        $sort: { name: 1 } // Sort by hotel name in alphabetical order (ascending)
+      },
     ])
 
     const count = Hotels.length
@@ -243,9 +246,13 @@ export const hotelDbRepository = () => {
     return { date, time: timeWithoutZ }
   }
 
-  const getDates = async (startDate: string, endDate: string) => {
+  const getDates = async (startDate: any, endDate: any) => {
+    console.log(startDate, endDate, "😀")
+
     const currentDate = new Date(startDate)
     const end = new Date(endDate)
+    console.log(currentDate, end, "😄")
+
     const datesArray: string[] = []
 
     while (currentDate <= end) {
@@ -258,7 +265,7 @@ export const hotelDbRepository = () => {
     return datesArray
   }
 
-  const findByDestination = async (
+  const filterHotels = async (
     destination: string,
     adults: string,
     children: string,
@@ -269,99 +276,181 @@ export const hotelDbRepository = () => {
     minPrice: string,
     maxPrice: string,
     categories: string[]
-  ): Promise<HotelInterface[]> => {
-    let hotels: any
+  ) => {
+    let hotels: any[]
 
-    if (destination === "") {
-      hotels = await Hotel.find({
-        isVerified: "verified",
-        isListed: true,
-        isBlocked: false,
-      }).populate("rooms")
-    } else {
-      const regex = new RegExp(destination, "i")
-      hotels = await Hotel.find({
-        $or: [{ destination: { $regex: regex } }, { name: { $regex: regex } }],
-        isVerified: "verified",
-        isListed: true,
-        isBlocked: false,
-      }).populate("rooms")
-    }
-    const adultsInt = parseInt(adults)
-    const childrenInt = parseInt(children)
+      if (destination) {
+        const regex = new RegExp(destination, "i")
+        hotels = await Hotel.find({
+          $or: [
+            { destination: { $regex: regex } },
+            { name: { $regex: regex } },
+          ],
+          isVerified: "verified",
+          isListed: true,
+          isBlocked: false,
+        }).populate("rooms")
+      } else {
+        hotels = await Hotel.find({
+          isVerified: "verified",
+          isListed: true,
+          isBlocked: false,
+        }).populate("rooms")
+      }
+    
 
-    const peopleFilter = hotels.filter((hotel: HotelInterface) =>
-      hotel.rooms.some(
-        (room: RoomInterface) =>
-          room.maxAdults >= adultsInt && room.maxChildren >= childrenInt
-      )
-    )
+    const adultsInt = adults ? parseInt(adults) : 0
+    const childrenInt = children ? parseInt(children) : 0
 
-    const dates = await getDates(startDate, endDate)
-    console.log(dates, "dates")
+    hotels = hotels.filter((hotel: any) => {
+      const filteredRooms = hotel.rooms.filter((room: any) => {
+        return room.maxAdults >= adultsInt && room.maxChildren >= childrenInt
+      })
+      if (filteredRooms.length > 0) {
+        hotel.rooms = filteredRooms
+        return true
+      }
+      return false
+    })
+
+    const start = splitDate(startDate)
+    const end = splitDate(endDate)
+    const dates = await getDates(start.date, end.date)
 
     const isRoomNumberAvailable = (roomNumber: {
       number: number
       unavailableDates: Date[]
     }): boolean => {
-      return !roomNumber.unavailableDates.some((date: Date) =>
-        dates.includes(date.toISOString().split("T")[0])
-      )
-    }
-
-    let availableHotels
-
-    availableHotels = peopleFilter
-      .map((hotel: HotelInterface) => ({
-        ...hotel,
-        rooms: hotel.rooms
-          .map((room: RoomInterface) => ({
-            ...room,
-            roomNumbers: room.roomNumbers.filter(isRoomNumberAvailable),
-          }))
-          .filter((room: any) => room.roomNumbers.length > 0),
-      }))
-      .filter((hotel: any) => hotel.rooms.length > 0)
-
-    if (categories && Array.isArray(categories)) {
-      availableHotels = availableHotels.filter((hotel: any) => {
-        return categories.includes(hotel.stayType)
+      return !roomNumber.unavailableDates.some((date: Date) => {
+        const curr = new Date(date).toISOString().split("T")[0]
+        return dates.includes(curr)
       })
     }
 
-    if (minPrice && maxPrice) {
-      const min = parseInt(minPrice)
-      const max = parseInt(maxPrice)
-      console.log(minPrice, maxPrice, "Price range values")
-
-      try {
-        availableHotels = availableHotels.filter((hotel: HotelInterface) => {
-          const hasRoomInRange = hotel.rooms.some((room: RoomInterface) => {
-            // console.log(room, "room before price filter////////////////////////////////////////////////////////////////////////////");
-            // const price = room.price !== undefined ? room.price : room?.price;
-            // console.log(price, "..........//././././/./././.");
-            // if (price === undefined) {
-            //   console.log("Price is undefined:", room);
-            //   return false;
-            // }
-            // if (typeof price !== 'number') {
-            //   console.log(`Invalid price format: ${price}`);
-            //   return false;
-            // }
-            // const isPriceInRange = price >= min && price <= max;
-            // console.log(`Price ${price} is in range (${min}, ${max}): ${isPriceInRange}`);
-            // return isPriceInRange;
-          })
-          // console.log(`Hotel ${hotel.name} has room in range: ${hasRoomInRange}`);
-          return hasRoomInRange
+    hotels = hotels.filter((hotel: HotelInterface) => {
+      const filteredRooms = hotel.rooms
+        .filter((room: RoomInterface) => {
+          const availableRoomNumbers = room.roomNumbers.filter(
+            isRoomNumberAvailable
+          )
+          return availableRoomNumbers.length > 0
         })
-        // console.log(availableHotels, "availableHotels after price filter");
-      } catch (error) {
-        console.log(error)
+        .map((room: RoomInterface) => ({
+          ...room,
+          roomNumbers: room.roomNumbers.filter(isRoomNumberAvailable),
+        }))
+
+      if (filteredRooms.length > 0) {
+        hotel.rooms = filteredRooms
+        return true
       }
-    }
-    return availableHotels
+      return false
+    })
+
+    console.log(hotels, ".................................")
+
+    // if (categories && Array.isArray(categories)) {
+    //   availableHotels = availableHotels.filter((hotel: any) => {
+    //     return categories.includes(hotel.stayType)
+    //   })
+    // }
+
+    // if (minPrice && maxPrice) {
+    //   const min = parseInt(minPrice)
+    //   const max = parseInt(maxPrice)
+    //   console.log(minPrice, maxPrice, "Price range values")
+
+    // try {
+    //   availableHotels = availableHotels.filter((hotel: HotelInterface) => {
+    //     const hasRoomInRange = hotel.rooms.some((room: RoomInterface) => {
+    //       console.log(room, "room before price filter////////////////////////////////////////////////////////////////////////////");
+    //       const price = room.price !== undefined ? room.price : room?.price;
+    //       console.log(price, "..........//././././/./././.");
+    //       if (price === undefined) {
+    //         console.log("Price is undefined:", room);
+    //         return false;
+    //       }
+    //       if (typeof price !== 'number') {
+    //         console.log(`Invalid price format: ${price}`);
+    //         return false;
+    //       }
+    //       const isPriceInRange = price >= min && price <= max;
+    //       console.log(`Price ${price} is in range (${min}, ${max}): ${isPriceInRange}`);
+    //       return isPriceInRange;
+    //     })
+    //     console.log(`Hotel ${hotel.name} has room in range: ${hasRoomInRange}`);
+    //     return hasRoomInRange
+    //   })
+    //   console.log(availableHotels, "availableHotels after price filter");
+    // } catch (error) {
+    //   console.log(error)
+    // }
+    // }
+    return hotels
   }
+
+  
+const UserfilterHotelBYId = async (
+  id: string,
+  adults: string,
+  children: string,
+  room: string,
+  startDate: string,
+  endDate: string,
+  minPrice: string,
+  maxPrice: string
+) => {
+  try {
+    // Fetch the hotel by ID and populate rooms
+    const hotel = await Hotel.findById(id).populate('rooms');
+
+    if (!hotel) {
+      throw new Error('Hotel not found');
+    }
+
+    // Convert string inputs to numbers
+    const adultsInt = adults ? parseInt(adults) : 0;
+    const childrenInt = children ? parseInt(children) : 0;
+
+    // Filter rooms based on max adults and children
+    hotel.rooms = hotel.rooms.filter((room: any) => {
+      return room.maxAdults >= adultsInt && room.maxChildren >= childrenInt;
+    });
+
+    // Split start and end dates into parts
+    const start = splitDate(startDate);
+    const end = splitDate(endDate);
+
+    // Get dates between start and end date
+    const dates = await getDates(start.date, end.date);
+
+    // Function to check room availability
+    const isRoomNumberAvailable = (roomNumber: {
+      number: number;
+      unavailableDates: Date[];
+    }): boolean => {
+      return !roomNumber.unavailableDates.some((date: Date) => {
+        const curr = new Date(date).toISOString().split('T')[0];
+        return dates.includes(curr);
+      });
+    };
+
+    // Filter rooms again based on availability
+    hotel.rooms.forEach((room: any) => {
+      room.roomNumbers = room.roomNumbers.filter(isRoomNumberAvailable);
+    });
+
+    // Filter out rooms that have no available room numbers
+    hotel.rooms = hotel.rooms.filter((room: any) => room.roomNumbers.length > 0);
+
+    // Return the hotel with filtered rooms
+    console.log(hotel, 'Filtered hotel with available rooms');
+    return hotel;
+  } catch (error) {
+    console.error('Error filtering hotel:', error);
+    throw error;
+  }
+};
 
   const updateHotelVerified = async (id: string) => {
     await Hotel.findOneAndUpdate({ _id: id }, { isVerified: "verified" })
@@ -402,23 +491,6 @@ export const hotelDbRepository = () => {
     const checkOut = new Date(checkOutDate)
 
     const hotel = await Hotel.findById(id).select("unavailableDates")
-
-    // if (!hotel) {
-    //   throw new Error("Hotel not found");
-    // }
-
-    // // if (!Array.isArray(hotel.unavailableDates)) {
-    // //   throw new Error("Unavailable dates is not an array");
-    // // }
-
-    // const datesInRange = getDatesInRange(checkIn, checkOut);
-    // // Check if any of these dates are in the unavailableDates array
-    // const isUnavailable = datesInRange.some(date =>
-    //   hotel.unavailableDates.some(unavailableDate =>
-    //     unavailableDate.getTime() === date.getTime()
-    //   )
-    // );
-    // return !isUnavailable;
   }
 
   const addRating = async (ratingData: RatingEntityType) =>
@@ -446,7 +518,7 @@ export const hotelDbRepository = () => {
     updateHotelBlock,
     update,
     remove,
-    findByDestination,
+    filterHotels,
     updateHotelVerified,
     updateHotelRejected,
     updateUnavailableDates,
@@ -457,6 +529,7 @@ export const hotelDbRepository = () => {
     removeUnavailableDates,
     addRating,
     getRatings,
+    UserfilterHotelBYId
   }
 }
 export type hotelDbRepositoryType = typeof hotelDbRepository

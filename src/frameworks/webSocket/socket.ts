@@ -48,6 +48,18 @@ const socketConfig = (io: Server) => {
       
       io.to(user?.socketId ?? "").emit("senderTyping", isTyping,userId);
     });
+    
+    socket.on("noti", ({  bookingId,userId,status }) => {
+      console.log(userId,"iddddd 😀");
+      const user = getUser( userId);
+      console.log(status,"///////////");
+      console.log(bookingId,"/////////");
+      
+      
+  
+      
+      io.to(user?.socketId ?? "").emit("senderTyping",userId);
+    });
     // when disconnection
     socket.on("disconnect", () => {
       removeUser(socket.id)

@@ -26,6 +26,8 @@ const ownerRouter = () => {
   router.get("/myHotels",authenticateUser,controller.registeredHotels)
   router.patch("/listUnlist/:id",authenticateUser,controller.listUnlistHotel)
   router.get("/hotelDetails/:id",authenticateUser, controller.hotelDetails)
+  router.patch("/editHotel/:id",authenticateUser, controller.editHotel)
+  // router.patch("/listUnlistRoom/:id",authenticateUser,controller.)
   // router.get("/myHotels",authenticateUser,controller.registeredHotels)
 
 

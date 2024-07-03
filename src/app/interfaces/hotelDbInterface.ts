@@ -44,7 +44,7 @@ export const hotelDbInterface = (
 
   const removeHotel = async (id: string) => await repository.remove(id)
 
-  const findByDestination = async (
+  const filterHotels = async (
     destination: string,
     adults: string,
     children: string,
@@ -56,7 +56,7 @@ export const hotelDbInterface = (
     maxPrice: string,
     categories: string[]
   ) =>
-    await repository.findByDestination(
+    await repository.filterHotels(
       destination,
       adults,
       children,
@@ -68,6 +68,27 @@ export const hotelDbInterface = (
       maxPrice,
       categories
     )
+    const UserfilterHotelBYId = async (
+      id:string,
+      adults: string,
+      children: string,
+      room: string,
+      startDate: string,
+      endDate: string,
+      minPrice: string,
+      maxPrice: string,
+     
+    ) =>
+      await repository.UserfilterHotelBYId(
+        id,
+        adults,
+        children,
+        room,
+        startDate,
+        endDate,
+        minPrice,
+        maxPrice,
+      )
 
   const updateHotelVerified = async (id: string) =>
     await repository.updateHotelVerified(id)
@@ -106,7 +127,8 @@ export const hotelDbInterface = (
     updateHotelBlock,
     updateHotel,
     removeHotel,
-    findByDestination,
+    filterHotels,
+    UserfilterHotelBYId,
     updateHotelVerified,
     updateUnavailableDates,
     checkAvailability,

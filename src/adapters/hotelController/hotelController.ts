@@ -1,18 +1,18 @@
 import { hotelDbRepositoryType } from "./../../frameworks/database/repositories/hotelRepositoryMongoDB"
 import { Request, Response, NextFunction, query } from "express"
-import { addHotel, addRoom, getMyHotels } from "../../app/use-cases/Owner/hotel"
+import { addHotel, addRoom, getMyHotels, updateHotel } from "../../app/use-cases/Owner/hotel"
 import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
 import { HttpStatus } from "../../types/httpStatus"
 import {
   addNewRating,
+  filterHotels,
   getHotelDetails,
   getUserHotels,
+  hotelDetailsFilter,
   ratings,
-  viewByDestination,
 } from "../../app/use-cases/User/read&write/hotels"
 import mongoose from "mongoose"
 import { checkAvailability } from "../../app/use-cases/Booking/booking"
-import { updateHotel } from "../../app/use-cases/Admin/read&write/adminUpdate"
 
 const hotelController = (
   hotelDbRepository: hotelDbInterfaceType,
@@ -121,14 +121,13 @@ const hotelController = (
     }
   }
 
-  const destinationSearch = async (
+  const hotelsFilter = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
       console.log(req.query, "all values")
-
       const destination = req.query.destination as string
       const adults = req.query.adult as string
       const children = req.query.children as string
@@ -140,7 +139,7 @@ const hotelController = (
       const maxPrice = req.body.maxPrice as string
       const categories = req.body.categories as string[]
 
-      const data = await viewByDestination(
+      const data = await filterHotels(
         destination,
         adults,
         children,
@@ -162,6 +161,44 @@ const hotelController = (
       next(error)
     }
   }
+
+  const DetailsFilter = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      console.log(req.query, "all values")
+      const id = req.query.id as string
+      const adults = req.query.adult as string
+      const children = req.query.children as string
+      const room = req.query.room as string
+      const startDate = req.query.startDate as string
+      const endDate = req.query.endDate as string
+      const minPrice = req.body.minPrice as string
+      const maxPrice = req.body.maxPrice as string
+
+      const data = await hotelDetailsFilter(
+        id,
+        adults,
+        children,
+        room,
+        startDate,
+        endDate,
+        minPrice,
+        maxPrice,
+        dbRepositoryHotel
+      )
+      res.status(HttpStatus.OK).json({
+        status: "success",
+        message: "Hotel details fetched",
+        data,
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   const checkAvilabitiy = async (
     req: Request,
     res: Response,
@@ -216,7 +253,22 @@ const hotelController = (
       next(error)
     }
   }
+  const editHotel = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params
 
+      const result = await updateHotel(id, req.body, dbRepositoryHotel)
+      if (result) {
+        return res
+          .status(HttpStatus.OK)
+          .json({ success: true, message: "  Successfully updated" })
+      } else {
+        return res.status(HttpStatus.NOT_FOUND).json({ success: false })
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
   const addRating = async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user
     const data = req.body
@@ -238,9 +290,11 @@ const hotelController = (
     const hotelId = req.params.hotelId
     const result = await ratings(hotelId, dbRepositoryHotel)
     if (result) {
-      return res
-        .status(HttpStatus.OK)
-        .json({ success: true, message: "  Successfully getted rating",result})
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "  Successfully getted rating",
+        result,
+      })
     } else {
       return res.status(HttpStatus.NOT_FOUND).json({ success: false })
     }
@@ -252,11 +306,13 @@ const hotelController = (
     registeredHotels,
     getHotelsUserSide,
     hotelDetails,
-    destinationSearch,
+    hotelsFilter,
+    DetailsFilter,
     checkAvilabitiy,
     listUnlistHotel,
     addRating,
     getRatingsbyHotelId,
+    editHotel
   }
 }
 export default hotelController

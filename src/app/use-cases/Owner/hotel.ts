@@ -99,3 +99,11 @@ export const getMyHotels = async (
   ownerId: string,
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => await hotelRepository.getMyHotels(ownerId)
+
+
+export const updateHotel=async(
+  hotelId:string,
+  updates:any,
+  hotelRepository: ReturnType<hotelDbInterfaceType>
+
+)=>await hotelRepository.updateHotel(hotelId,updates)

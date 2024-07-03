@@ -71,7 +71,8 @@ const authRouter = () => {
     hotelDbRepository
   )
   router.get("/hotels", userHotelController.getHotelsUserSide)
-  router.get("/searchedHotels", userHotelController.destinationSearch)
+  router.get("/searchedHotels", userHotelController.hotelsFilter)
+  router.get("/hotelDetails", userHotelController.DetailsFilter)
   router.get("/hotelDetails/:id", userHotelController.hotelDetails)
   router.get("/checkAvailability/:id", userHotelController.checkAvilabitiy)
   router.post("/addRating",authenticateUser,userHotelController.addRating)
@@ -102,6 +103,12 @@ const authRouter = () => {
     authenticateUser,
     userBookingController.getBookingById
   )
+
+  router.get(
+    "/bookingDetailsByBookingId/:id",
+    authenticateUser,
+    userBookingController.getByBookingId
+  )
   router.patch(
     "/booking/cancel/:bookingID",
     authenticateUser,
@@ -112,6 +119,10 @@ const authRouter = () => {
     authenticateUser,
     userBookingController.updateBooking
   )
+  router.post(
+    "/addReporting/:userId",
+    userBookingController.addReporting
+  )
 
   const userChatController = chatController(chatDbInterface, chatDbRepository)
 
@@ -121,6 +132,7 @@ const authRouter = () => {
 
   router.post("/messages", userChatController.createNewMessage)
   router.get("/messages/:id", userChatController.fetchMessages)
+
 
   return router
 }

@@ -28,9 +28,7 @@ export const updateHotel=async(
   id:string,
   updates:any,
   hotelDbRepository: ReturnType<hotelDbInterfaceType>
-)=>{
-  const updatehotel=await hotelDbRepository.updateHotel(id,updates)
-}
+)=>await hotelDbRepository.updateHotel(id,updates)
 
 export const addStayType=async(
   name:string,

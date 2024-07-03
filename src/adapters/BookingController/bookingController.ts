@@ -5,6 +5,7 @@ import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
 import { bookingDbRepositoryType } from "../../frameworks/database/repositories/bookingRepositoryMongoDB"
 import { hotelDbRepositoryType } from "../../frameworks/database/repositories/hotelRepositoryMongoDB"
 import createBooking, {
+  addNewReporting,
   addUnavilableDates,
   cancelBookingAndUpdateWallet,
   getBookings,
@@ -198,6 +199,28 @@ export default function bookingController(
     }
   }
 
+
+  const getByBookingId = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const ID = req.params.id
+      console.log(ID, "booking id")
+
+      const bookings = await getBookingsBybookingId(ID, dbRepositoryBooking)
+      console.log(bookings,"booking details");
+      
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Bookings fetched successfully",
+        bookings,
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
   const cancelBooking = async (
     req: Request,
     res: Response,
@@ -307,6 +330,21 @@ export default function bookingController(
     }
   }
 
+
+  const addReporting = async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.userId
+    const data = req.body
+    const result = await addNewReporting(userId, data, dbRepositoryBooking)
+    if (result) {
+      return res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: "  Successfully added reporting" })
+    } else {
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false })
+    }
+  }
+
+
   return {
     handleBooking,
     updatePaymentStatus,
@@ -315,5 +353,8 @@ export default function bookingController(
     cancelBooking,
     updateBooking,
     getOwnerBookings,
+    addReporting,
+    getByBookingId,
+ 
   }
 }
