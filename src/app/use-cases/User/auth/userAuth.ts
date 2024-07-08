@@ -46,6 +46,8 @@ export const userRegister = async (
   //adding otp to database
   await userRepository.addOtp(OTP, newUser.id);
   const emailSubject = "Account verification";
+  console.log(emailSubject);
+  
   sendMail(newUser.email, emailSubject, otpEmail(OTP, newUser.name));
 
   return newUser;

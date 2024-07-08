@@ -18,6 +18,16 @@ export const hotelDbInterface = (
 
   const addStayType = async (name: string) => await repository.addStayType(name)
 
+  const StayTypeById = async (id: string) => await repository.StayTypeById(id)
+
+  const StayTypeByName = async (name: string) =>
+    await repository.StayTypeByName(name)
+
+  const StayTypes = async () => await repository.allStayTypes()
+
+  const updateStayType = async (id: string, data: Record<string, string|boolean>) =>
+    await repository.updateStayType(id, data)
+
   const getHotelById = async (Id: string) => await repository.getHotelById(Id)
 
   const getHotelByName = async (name: string) =>
@@ -68,27 +78,26 @@ export const hotelDbInterface = (
       maxPrice,
       categories
     )
-    const UserfilterHotelBYId = async (
-      id:string,
-      adults: string,
-      children: string,
-      room: string,
-      startDate: string,
-      endDate: string,
-      minPrice: string,
-      maxPrice: string,
-     
-    ) =>
-      await repository.UserfilterHotelBYId(
-        id,
-        adults,
-        children,
-        room,
-        startDate,
-        endDate,
-        minPrice,
-        maxPrice,
-      )
+  const UserfilterHotelBYId = async (
+    id: string,
+    adults: string,
+    children: string,
+    room: string,
+    startDate: string,
+    endDate: string,
+    minPrice: string,
+    maxPrice: string
+  ) =>
+    await repository.UserfilterHotelBYId(
+      id,
+      adults,
+      children,
+      room,
+      startDate,
+      endDate,
+      minPrice,
+      maxPrice
+    )
 
   const updateHotelVerified = async (id: string) =>
     await repository.updateHotelVerified(id)
@@ -108,15 +117,19 @@ export const hotelDbInterface = (
     await repository.removeUnavailableDates(room, dates)
 
   const addRating = async (ratingData: RatingEntityType) =>
-    await repository.addRating(ratingData);
+    await repository.addRating(ratingData)
 
   const getRatings = async (filter: Record<string, any>) =>
-    await repository.getRatings(filter);
+    await repository.getRatings(filter)
 
   return {
     addHotel,
     addRoom,
     addStayType,
+    StayTypeById,
+    StayTypeByName,
+    StayTypes,
+    updateStayType,
     getHotelByName,
     getHotelByEmail,
     getAllHotels,
@@ -135,7 +148,7 @@ export const hotelDbInterface = (
     addUnavilableDates,
     removeUnavailableDates,
     addRating,
-    getRatings
+    getRatings,
   }
 }
 

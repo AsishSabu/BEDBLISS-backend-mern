@@ -3,13 +3,20 @@ import { NextFunction, Request, Response } from "express"
 import { AuthServiceInterface } from "../../app/service-interface/authServices"
 import { HttpStatus } from "../../types/httpStatus"
 import { userDbInterfaceType } from "../../app/interfaces/userDbInterfaces"
-import { getALLBookings, getUsers } from "../../app/use-cases/Admin/read&write/adminRead"
+import {
+  getALLBookings,
+  getAllstayTypes,
+  getStayTypeById,
+  getStayTypeByName,
+  getUsers,
+} from "../../app/use-cases/Admin/read&write/adminRead"
 import { userDbRepositoryType } from "../../frameworks/database/repositories/userRepostoryMongoDB"
 import {
   addStayType,
   blockHotel,
   blockUser,
   updateHotel,
+  updateStayType,
   verifyHotel,
 } from "../../app/use-cases/Admin/read&write/adminUpdate"
 import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
@@ -23,6 +30,7 @@ import {
   reportingsByFilter,
   updateReporting,
 } from "../../app/use-cases/Booking/booking"
+import { CategoryInterface } from "../../types/categorInterface"
 
 const adminController = (
   authServiceInterface: AuthServiceInterface,
@@ -186,12 +194,25 @@ const adminController = (
     next: NextFunction
   ) => {
     try {
-      const { name } = req.body // Destructure name from req.body
+      const {name} = req.body // Destructure name from req.body
+      
+      const existing: CategoryInterface[] = await getStayTypeByName(
+        name,
+        dbRepositoryHotel
+      )
+      if (existing.length) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({
+            success: false,
+            message: "Stay type with this name already exists",
+          })
+      }
       const result = await addStayType(name, dbRepositoryHotel)
       if (result) {
         return res
           .status(HttpStatus.OK)
-          .json({ success: true, message: "Stay Type added Successfully" })
+          .json({ success: true, message: "Stay Type added Successfully",result })
       } else {
         return res
           .status(HttpStatus.BAD_REQUEST)
@@ -201,8 +222,126 @@ const adminController = (
       next(error)
     }
   }
+  const getAllCategories = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const data = await getAllstayTypes(dbRepositoryHotel)
+      if (data) {
+        return res
+          .status(HttpStatus.OK)
+          .json({
+            success: true,
+            message: "Stay Types fetched Successfully",
+            data,
+          })
+      } else {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Failed to fetch Stay Types" })
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
 
-  
+  const getCategoryById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const id = req.params.id
+      const data = await getStayTypeById(id, dbRepositoryHotel)
+      if (data) {
+        return res
+          .status(HttpStatus.OK)
+          .json({
+            success: true,
+            message: "Stay Type fetched Successfully",
+            data,
+          })
+      } else {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Failed to fetch Stay Type" })
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  const updateCategoryName = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const id = req.params.id
+      const { name } = req.body
+
+      const existing: CategoryInterface[] = await getStayTypeByName(
+        name,
+        dbRepositoryHotel
+      )
+      console.log(existing)
+
+      if (existing.some(category => category._id.toString() !== id)) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({
+            success: false,
+            message: "Stay type with this name already exists",
+          })
+      }
+      const data = {
+        name: name,
+      }
+
+      const result = await updateStayType(id, data, dbRepositoryHotel)
+      console.log(result)
+
+      if (result) {
+        return res
+          .status(HttpStatus.OK)
+          .json({ success: true, message: "Stay type updated successfully" })
+      } else {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Failed to update stay type" })
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  const categoryListing = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const id = req.params.id
+      const data = await getStayTypeById(id, dbRepositoryHotel)
+      const listing={isListed:!data?.isListed}
+      console.log(listing);      
+      const result = await updateStayType(id, listing, dbRepositoryHotel)
+      if (result) {
+        return res
+          .status(HttpStatus.OK)
+          .json({ success: true, message: "Stay type updated successfully",result })
+      } else {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: "Failed to update stay type" })
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+
   const getBookings = async (
     req: Request,
     res: Response,
@@ -210,13 +349,11 @@ const adminController = (
   ) => {
     const result = await getALLBookings(dbRepositoryBooking)
     if (result) {
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          success: true,
-          message: "  Successfully getted booking",
-          result,
-        })
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "  Successfully getted booking",
+        result,
+      })
     } else {
       return res.status(HttpStatus.NOT_FOUND).json({ success: false })
     }
@@ -229,13 +366,11 @@ const adminController = (
   ) => {
     const result = await reportings(dbRepositoryBooking)
     if (result) {
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          success: true,
-          message: "  Successfully getted reporting",
-          result,
-        })
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "  Successfully getted reporting",
+        result,
+      })
     } else {
       return res.status(HttpStatus.NOT_FOUND).json({ success: false })
     }
@@ -249,13 +384,11 @@ const adminController = (
     const id = req.params.id
     const result = await reportingsByFilter(id, dbRepositoryBooking)
     if (result) {
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          success: true,
-          message: "  Successfully getted reporting",
-          result,
-        })
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "  Successfully getted reporting",
+        result,
+      })
     } else {
       return res.status(HttpStatus.NOT_FOUND).json({ success: false })
     }
@@ -267,18 +400,16 @@ const adminController = (
     next: NextFunction
   ) => {
     const data = req.body
-    console.log(data);
-    
+    console.log(data)
+
     const id = req.params.id
     const result = await updateReporting(id, data, dbRepositoryBooking)
     if (result) {
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          success: true,
-          message: "  Successfully updated reporting",
-          result,
-        })
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "  Successfully updated reporting",
+        result,
+      })
     } else {
       return res.status(HttpStatus.NOT_FOUND).json({ success: false })
     }
@@ -298,7 +429,11 @@ const adminController = (
     getReportings,
     getReportingsByFilter,
     updateReportings,
-    getBookings
+    getBookings,
+    getAllCategories,
+    getCategoryById,
+    updateCategoryName,
+    categoryListing,
   }
 }
 

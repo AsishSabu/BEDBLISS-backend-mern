@@ -30,7 +30,7 @@ export const hotelDbRepository = () => {
       description: hotel.getDescription(),
       amenities: hotel.getAmenities(),
       imageUrls: hotel.getImageUrls(),
-      reservationType: hotel.getReservationType(),
+      coordinates: hotel.getCordinatesType(),
       ownerDocument: hotel.getOwnerDocument(),
       hotelDocument: hotel.getHotelDocument(),
       ownerPhoto: hotel.getOwnerPhoto(),
@@ -70,10 +70,26 @@ export const hotelDbRepository = () => {
 
   const addStayType = async (name: string) => {
     const newCategory: any = new Category({
-      title: name,
+      name: name,
     })
     newCategory.save()
     return newCategory
+  }
+
+  const StayTypeById = async (id: string) => await Category.findById(id)
+
+  const StayTypeByName = async (name: string) => {
+    console.log(name,"name");
+    const result = await Category.find({ name })
+    console.log(result,"result");
+    return result
+  }
+
+  const allStayTypes = async () => await Category.find().sort({ createdAt: -1 })
+
+  const updateStayType = async (id: string, data: Record<string, string|boolean>) => {
+    const result = await Category.findByIdAndUpdate(id, data)
+    return result
   }
 
   const deleteRoom = async (
@@ -145,7 +161,7 @@ export const hotelDbRepository = () => {
     return user
   }
   const getAllHotels = async () => {
-    const Hotels = await Hotel.find({}).sort({updatedAt:-1})
+    const Hotels = await Hotel.find({}).sort({ updatedAt: -1 })
     console.log(Hotels, "..............")
 
     const count = Hotels.length
@@ -205,10 +221,11 @@ export const hotelDbRepository = () => {
             profilePic: 1,
             isBlocked: 1,
           },
+          coordinates: 1,
         },
       },
       {
-        $sort: { name: 1 } // Sort by hotel name in alphabetical order (ascending)
+        $sort: { name: 1 }, // Sort by hotel name in alphabetical order (ascending)
       },
     ])
 
@@ -279,25 +296,21 @@ export const hotelDbRepository = () => {
   ) => {
     let hotels: any[]
 
-      if (destination) {
-        const regex = new RegExp(destination, "i")
-        hotels = await Hotel.find({
-          $or: [
-            { destination: { $regex: regex } },
-            { name: { $regex: regex } },
-          ],
-          isVerified: "verified",
-          isListed: true,
-          isBlocked: false,
-        }).populate("rooms")
-      } else {
-        hotels = await Hotel.find({
-          isVerified: "verified",
-          isListed: true,
-          isBlocked: false,
-        }).populate("rooms")
-      }
-    
+    if (destination) {
+      const regex = new RegExp(destination, "i")
+      hotels = await Hotel.find({
+        $or: [{ destination: { $regex: regex } }, { name: { $regex: regex } }],
+        isVerified: "verified",
+        isListed: true,
+        isBlocked: false,
+      }).populate("rooms")
+    } else {
+      hotels = await Hotel.find({
+        isVerified: "verified",
+        isListed: true,
+        isBlocked: false,
+      }).populate("rooms")
+    }
 
     const adultsInt = adults ? parseInt(adults) : 0
     const childrenInt = children ? parseInt(children) : 0
@@ -389,68 +402,69 @@ export const hotelDbRepository = () => {
     return hotels
   }
 
-  
-const UserfilterHotelBYId = async (
-  id: string,
-  adults: string,
-  children: string,
-  room: string,
-  startDate: string,
-  endDate: string,
-  minPrice: string,
-  maxPrice: string
-) => {
-  try {
-    // Fetch the hotel by ID and populate rooms
-    const hotel = await Hotel.findById(id).populate('rooms');
+  const UserfilterHotelBYId = async (
+    id: string,
+    adults: string,
+    children: string,
+    room: string,
+    startDate: string,
+    endDate: string,
+    minPrice: string,
+    maxPrice: string
+  ) => {
+    try {
+      // Fetch the hotel by ID and populate rooms
+      const hotel = await Hotel.findById(id).populate("rooms")
 
-    if (!hotel) {
-      throw new Error('Hotel not found');
+      if (!hotel) {
+        throw new Error("Hotel not found")
+      }
+
+      // Convert string inputs to numbers
+      const adultsInt = adults ? parseInt(adults) : 0
+      const childrenInt = children ? parseInt(children) : 0
+
+      // Filter rooms based on max adults and children
+      hotel.rooms = hotel.rooms.filter((room: any) => {
+        return room.maxAdults >= adultsInt && room.maxChildren >= childrenInt
+      })
+
+      // Split start and end dates into parts
+      const start = splitDate(startDate)
+      const end = splitDate(endDate)
+
+      // Get dates between start and end date
+      const dates = await getDates(start.date, end.date)
+
+      // Function to check room availability
+      const isRoomNumberAvailable = (roomNumber: {
+        number: number
+        unavailableDates: Date[]
+      }): boolean => {
+        return !roomNumber.unavailableDates.some((date: Date) => {
+          const curr = new Date(date).toISOString().split("T")[0]
+          return dates.includes(curr)
+        })
+      }
+
+      // Filter rooms again based on availability
+      hotel.rooms.forEach((room: any) => {
+        room.roomNumbers = room.roomNumbers.filter(isRoomNumberAvailable)
+      })
+
+      // Filter out rooms that have no available room numbers
+      hotel.rooms = hotel.rooms.filter(
+        (room: any) => room.roomNumbers.length > 0
+      )
+
+      // Return the hotel with filtered rooms
+      console.log(hotel, "Filtered hotel with available rooms")
+      return hotel
+    } catch (error) {
+      console.error("Error filtering hotel:", error)
+      throw error
     }
-
-    // Convert string inputs to numbers
-    const adultsInt = adults ? parseInt(adults) : 0;
-    const childrenInt = children ? parseInt(children) : 0;
-
-    // Filter rooms based on max adults and children
-    hotel.rooms = hotel.rooms.filter((room: any) => {
-      return room.maxAdults >= adultsInt && room.maxChildren >= childrenInt;
-    });
-
-    // Split start and end dates into parts
-    const start = splitDate(startDate);
-    const end = splitDate(endDate);
-
-    // Get dates between start and end date
-    const dates = await getDates(start.date, end.date);
-
-    // Function to check room availability
-    const isRoomNumberAvailable = (roomNumber: {
-      number: number;
-      unavailableDates: Date[];
-    }): boolean => {
-      return !roomNumber.unavailableDates.some((date: Date) => {
-        const curr = new Date(date).toISOString().split('T')[0];
-        return dates.includes(curr);
-      });
-    };
-
-    // Filter rooms again based on availability
-    hotel.rooms.forEach((room: any) => {
-      room.roomNumbers = room.roomNumbers.filter(isRoomNumberAvailable);
-    });
-
-    // Filter out rooms that have no available room numbers
-    hotel.rooms = hotel.rooms.filter((room: any) => room.roomNumbers.length > 0);
-
-    // Return the hotel with filtered rooms
-    console.log(hotel, 'Filtered hotel with available rooms');
-    return hotel;
-  } catch (error) {
-    console.error('Error filtering hotel:', error);
-    throw error;
   }
-};
 
   const updateHotelVerified = async (id: string) => {
     await Hotel.findOneAndUpdate({ _id: id }, { isVerified: "verified" })
@@ -529,7 +543,11 @@ const UserfilterHotelBYId = async (
     removeUnavailableDates,
     addRating,
     getRatings,
-    UserfilterHotelBYId
+    UserfilterHotelBYId,
+    StayTypeById,
+    allStayTypes,
+    updateStayType,
+    StayTypeByName,
   }
 }
 export type hotelDbRepositoryType = typeof hotelDbRepository

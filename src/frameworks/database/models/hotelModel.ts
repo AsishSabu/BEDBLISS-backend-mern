@@ -60,6 +60,18 @@ const addressSchema = new Schema({
   },
 }, { _id: false }); 
 
+const coordinateSchema = new Schema({
+  latitude: {
+    type: Number,
+    required: true,
+  },
+  longitude: {
+    type: Number,
+    required: true,
+  },
+
+}, { _id: false }); 
+
 
 const hotelSchema = new Schema({
   name: {
@@ -103,8 +115,8 @@ const hotelSchema = new Schema({
   },
   imageUrls: [String],
   
-  reservationType: {
-    type: String,
+  coordinates: {
+    type: coordinateSchema,
     required: true,
   },
   isVerified: {

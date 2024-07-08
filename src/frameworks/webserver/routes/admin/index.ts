@@ -30,7 +30,11 @@ const adminRouter = () => {
   router.patch("/block_hotel/:id", controller.hotelBlock)
   router.patch("/verify_hotel/:id", controller.hotelVerify)
   router.patch("/reject_hotel/:id", controller.rejectHotel)
-  router.post("/addCategory",controller.addCategory);
+  router.post("/addStayType",controller.addCategory);
+  router.get("/stayType/:id",controller.getCategoryById);
+  router.get("/stayTypes",controller.getAllCategories);
+  router.post("/updateStayType/:id",controller.updateCategoryName);
+  router.post("/stayTypeListing/:id",controller.categoryListing);
   router.get("/reportings",controller.getReportings);
   router.get("/reporting/:id",controller.getReportingsByFilter);
   router.patch("/updateReporting/:id",controller.updateReportings);

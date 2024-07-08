@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"
 
 export default function hotelEntity(
   ownerId: mongoose.Types.ObjectId,
@@ -9,18 +9,21 @@ export default function hotelEntity(
   propertyRules: string[],
   amenities: string[],
   imageUrls: string[],
-  reservationType: string,
-  address: {
-    streetAddress: string;
-    landMark: string;
-    district: string;
-    city: string;
-    pincode: string;
-    country: string,
+  coordinates: {
+    latitude: number
+    longitude: number
   },
-  ownerDocument:string,
-  hotelDocument:string,
-  ownerPhoto:string
+  address: {
+    streetAddress: string
+    landMark: string
+    district: string
+    city: string
+    pincode: string
+    country: string
+  },
+  ownerDocument: string,
+  hotelDocument: string,
+  ownerPhoto: string
 ) {
   return {
     getName: (): string => name,
@@ -29,14 +32,14 @@ export default function hotelEntity(
     getStayType: (): string => stayType,
     getDescription: (): string => description,
     getPropertyRules: (): string[] => propertyRules,
-    getReservationType: (): string => reservationType,
+    getCordinatesType: () => coordinates,
     getAmenities: (): string[] => amenities,
     getImageUrls: (): string[] => imageUrls,
     getAddress: () => address,
-    getOwnerDocument:():string=>ownerDocument,
-    getHotelDocument:():string=>hotelDocument,
-    getOwnerPhoto:():string=>ownerPhoto,
-  };
+    getOwnerDocument: (): string => ownerDocument,
+    getHotelDocument: (): string => hotelDocument,
+    getOwnerPhoto: (): string => ownerPhoto,
+  }
 }
 
-export type HotelEntityType = ReturnType<typeof hotelEntity>;
+export type HotelEntityType = ReturnType<typeof hotelEntity>

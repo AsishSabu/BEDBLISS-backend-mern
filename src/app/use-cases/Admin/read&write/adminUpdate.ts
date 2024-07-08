@@ -34,3 +34,10 @@ export const addStayType=async(
   name:string,
   hotelDbRepository: ReturnType<hotelDbInterfaceType>
 )=>await hotelDbRepository.addStayType(name)
+
+export const updateStayType=async(
+  id:string,
+  data:Record<string,string|boolean>,
+  hotelDbRepository: ReturnType<hotelDbInterfaceType>
+)=>
+  await hotelDbRepository.updateStayType(id,data)
