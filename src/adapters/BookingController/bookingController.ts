@@ -26,6 +26,7 @@ import { userDbRepositoryType } from "../../frameworks/database/repositories/use
 import { getMyHotels } from "../../app/use-cases/Owner/hotel"
 import { BookingServiceInterface } from "../../app/service-interface/bookingServices"
 import { BookingServiceType } from "../../frameworks/services/bookingService"
+import { HotelInterface } from "../../types/HotelInterface"
 
 export default function bookingController(
   bookingServiceInterface: BookingServiceInterface,
@@ -145,15 +146,20 @@ export default function bookingController(
         }
       }
 
-      await updateBookingStatus(
+    const result= await updateBookingStatus(
         id,
         paymentStatus,
         dbRepositoryBooking,
         dbRepositoryHotel
       )
-      res
+      
+      if(result){
+        res
         .status(HttpStatus.OK)
-        .json({ success: true, message: "Booking status updated" })
+        .json({ success: true, message: "Booking status updated succesfully", result })
+       
+      }
+    
     } catch (error) {
       next(error)
     }

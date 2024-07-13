@@ -2,7 +2,6 @@ import mongoose from "mongoose"
 import ratingEntity from "../../../../entites/rating"
 import { hotelDbInterfaceType } from "../../../interfaces/hotelDbInterface"
 
-
 export const getUserHotels = async (
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => await hotelRepository.getUserHotels()
@@ -19,11 +18,13 @@ export const filterHotels = async (
   room: string,
   startDate: string,
   endDate: string,
-  amenities: string[],
+  amenities: string,
   minPrice: string,
   maxPrice: string,
-  categories: string[],
-  hotelRepository: ReturnType<hotelDbInterfaceType>
+  categories: string,
+  hotelRepository: ReturnType<hotelDbInterfaceType>,
+  skip:number,
+  limit:number
 ) => {
   const data = await hotelRepository.filterHotels(
     destination,
@@ -35,13 +36,15 @@ export const filterHotels = async (
     amenities,
     minPrice,
     maxPrice,
-    categories
+    categories,
+    skip,
+    limit
   )
   return data
 }
 
 export const hotelDetailsFilter = async (
-  id:string,
+  id: string,
   adults: string,
   children: string,
   room: string,
@@ -59,40 +62,44 @@ export const hotelDetailsFilter = async (
     startDate,
     endDate,
     minPrice,
-    maxPrice,
-
+    maxPrice
   )
   return data
 }
 
 export const addNewRating = async (
   userId: string,
-  ratingData: { hotelId: string; rating: number; description: string;  imageUrls:string[] },
+  ratingData: {
+    hotelId: string
+    rating: number
+    description: string
+    imageUrls: string[]
+  },
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => {
-  const { hotelId, rating, description,imageUrls } = ratingData;
+  const { hotelId, rating, description, imageUrls } = ratingData
   const newRatingEntity = ratingEntity(
     userId,
     hotelId,
     rating,
     description,
-    imageUrls,
-  );
+    imageUrls
+  )
 
-  return await hotelRepository.addRating(newRatingEntity);
-};
+  return await hotelRepository.addRating(newRatingEntity)
+}
 
 export const ratings = async (
   hotelID: string,
   hotelRepository: ReturnType<hotelDbInterfaceType>
-) => await hotelRepository.getRatings({ hotelId: hotelID });
+) => await hotelRepository.getRatings({ hotelId: hotelID })
 
 export const ReviewsByUserId = async (
   userID: string,
-  hotelID:mongoose.Types.ObjectId,
+  hotelID: mongoose.Types.ObjectId,
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) =>
   await hotelRepository.getRatings({
     userId: userID,
     hotelId: hotelID,
-  });
+  })

@@ -209,19 +209,10 @@ export const deleteOtp = async (
   if (deleted) {
     await userRepository.addOtp(newOtp, userId)
   }
-  const user = await userRepository.getUserById(userId)
-  if (!user) {
-    throw new AppError("User not found", HttpStatus.NOT_FOUND)
-  }
-
+  const user:any = await userRepository.getUserById(userId)
   const emailSubject = "Account verification ,New Otp"
   sendMail(user.email, emailSubject, otpEmail(newOtp, user.name))
 
   console.log(newOtp, "----otp")
 }
 
-export const switchRole = async (
-  Id: string,
-  role: string,
-  userRepository: ReturnType<userDbInterfaceType>
-) => await userRepository.changeUserRole(Id, role)

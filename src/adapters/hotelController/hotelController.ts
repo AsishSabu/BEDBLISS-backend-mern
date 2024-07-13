@@ -134,11 +134,15 @@ const hotelController = (
       const room = req.query.room as string
       const startDate = req.query.startDate as string
       const endDate = req.query.endDate as string
-      const amenities = req.query.amenities as string[]
-      const minPrice = req.body.minPrice as string
-      const maxPrice = req.body.maxPrice as string
-      const categories = req.body.categories as string[]
-
+      const amenities = req.query.amenities as string
+      const minPrice = req.query.minAmount as string
+      const maxPrice = req.query.maxAmount as string
+      const stayTypes = req.query.stayTypes as string
+      const page=parseInt(req.query.pages as string)||1
+      const limit = 2;
+      const skip = (page - 1) * limit;
+      console.log(skip,limit,"...............");
+      
       const data = await filterHotels(
         destination,
         adults,
@@ -149,8 +153,10 @@ const hotelController = (
         amenities,
         minPrice,
         maxPrice,
-        categories,
-        dbRepositoryHotel
+        stayTypes,
+        dbRepositoryHotel,
+        skip,
+        limit
       )
       res.status(HttpStatus.OK).json({
         status: "success",
@@ -256,6 +262,8 @@ const hotelController = (
   const editHotel = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params
+      console.log(req.body);
+      
 
       const result = await updateHotel(id, req.body, dbRepositoryHotel)
       if (result) {

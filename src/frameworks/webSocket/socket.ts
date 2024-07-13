@@ -16,7 +16,7 @@ const socketConfig = (io: Server) => {
   }
 
   function getUser(userId: string) {
-   console.log(users,"this is user array")
+    console.log(users, "this is user array")
     return users.find(user => user.userId === userId)
   }
 
@@ -30,36 +30,39 @@ const socketConfig = (io: Server) => {
       addUsers(userId, socket.id)
       io.emit("getUsers", users)
     })
-  // send and get message
+    // send and get message
     socket.on("sendMessage", ({ senderId, receiverId, text, chatId }) => {
-      const receiver=getUser(receiverId)
+      const receiver = getUser(receiverId)
       io.to(receiver?.socketId ?? "").emit("getMessage", { senderId, text })
-      io.to(receiver?.socketId ?? "").emit("notification", {
+      io.to(receiver?.socketId ?? "").emit("msgCount", {
         count: 1,
         senderId,
         chatId,
         text,
-      });
+      })
     })
-    socket.on("typing", ({  receiverId, isTyping,userId }) => {
-      console.log(receiverId,"iddddd 😀");
-      const user = getUser( receiverId);
-      console.log(isTyping,"is typingggggg 😀");
-      
-      io.to(user?.socketId ?? "").emit("senderTyping", isTyping,userId);
-    });
-    
-    socket.on("noti", ({  bookingId,userId,status }) => {
-      console.log(userId,"iddddd 😀");
-      const user = getUser( userId);
-      console.log(status,"///////////");
-      console.log(bookingId,"/////////");
-      
-      
-  
-      
-      io.to(user?.socketId ?? "").emit("senderTyping",userId);
-    });
+    socket.on("typing", ({ receiverId, isTyping, userId }) => {
+      console.log(receiverId, "iddddd 😀")
+      const user = getUser(receiverId)
+      console.log(isTyping, "is typingggggg 😀")
+
+      io.to(user?.socketId ?? "").emit("senderTyping", isTyping, userId)
+    })
+
+    // socket.on("noti", ({  bookingId,userId,status }) => {
+    //   console.log(userId,"iddddd 😀");
+    //   const user = getUser( userId);
+    //   console.log(status,"///////////");
+    //   console.log(bookingId,"/////////");
+    //   io.to(user?.socketId ?? "").emit("senderTyping",userId);
+    // });
+
+    socket.on("noti", (data, receiverId) => {
+      console.log(receiverId, "iddddd 😀")
+      const user = getUser(receiverId)
+      io.to(user?.socketId ?? "").emit("notification", data)
+      io.to(user?.socketId ?? "").emit("notificationCount", { count: 1 })
+    })
     // when disconnection
     socket.on("disconnect", () => {
       removeUser(socket.id)
@@ -69,4 +72,4 @@ const socketConfig = (io: Server) => {
   })
 }
 
-export default socketConfig;
+export default socketConfig

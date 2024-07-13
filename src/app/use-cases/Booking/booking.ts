@@ -202,6 +202,7 @@ export const updateBookingStatus = async (
   console.log(updationData, "updationData....................")
 
   const bookingData = await bookingRepository.updateBooking(id, updationData)
+  return bookingData
 }
 
 export const getBookings = async (

@@ -7,7 +7,10 @@ import otpModel from "../models/otpModel"
 import transaction from "../models/transaction"
 import User from "../models/userModel"
 import wallet from "../models/wallet"
-import { UserInterface } from "./../../../types/userInterfaces"
+import {
+  NotificationInterface,
+  UserInterface,
+} from "./../../../types/userInterfaces"
 import { TransactionEntityType } from "../../../entites/transactionEntity"
 
 interface ChangeUserRole {
@@ -23,13 +26,53 @@ export const userDbRepository = () => {
   }
 
   const getUserbyId = async (id: string): Promise<UserInterface | null> => {
-    const user = await User.findById(id).populate("wallet").lean()
+    try {
+      const userDoc = await User.findById(id).populate("wallet").lean()
 
-    if (!user) {
+      if (!userDoc) {
+        return null
+      }
+
+      // Transform notifications
+      const transformedNotifications: NotificationInterface[] =
+        userDoc.notifications.map((notification: any) => ({
+          _id:notification._id??"",
+          type: notification.type ?? "",
+          message: notification.message ?? "",
+          data: {
+            senderId:
+              notification.data?.senderId ?? new mongoose.Types.ObjectId(),
+            name: notification.data?.name ?? "",
+            image:notification.data?.image?? "",
+            onClickPath: notification.data?.onClickPath ?? "",
+          },
+          read: notification.read ?? false,
+          createdAt: notification.createdAt ?? new Date(),
+        }))
+
+      // Transform the user to ensure all fields are properly typed
+      const transformedUser: UserInterface = {
+        id: userDoc._id.toString(), // Convert `_id` to `id`
+        name: userDoc.name ?? "", // Ensure name is a string
+        email: userDoc.email ?? "",
+        phoneNumber: userDoc.phoneNumber ?? undefined,
+        password: userDoc.password ?? "",
+        profilePic: userDoc.profilePic ?? "", // Ensure profilePic is a string
+        role: userDoc.role ?? "user", // Ensure role is a string
+        isVerified: userDoc.isVerified ?? false,
+        isBlocked: userDoc.isBlocked ?? false,
+        wallet: userDoc.wallet ?? undefined,
+        notifications: transformedNotifications,
+        createdAt: userDoc.createdAt ?? new Date(),
+        updatedAt: userDoc.updatedAt ?? new Date(),
+        verificationCode: userDoc.verificationCode ?? undefined,
+      }
+
+      return transformedUser
+    } catch (error) {
+      console.error("Error fetching user:", error)
       return null
     }
-    const { _id, ...rest } = user
-    return { id: _id.toString(), ...rest } as UserInterface
   }
 
   //add user
@@ -115,7 +158,9 @@ export const userDbRepository = () => {
   }
 
   const getAllUsers = async (role: string) => {
-    const users = await User.find({ isVerified: true, role: role }).sort({updatedAt:-1})
+    const users = await User.find({ isVerified: true, role: role }).sort({
+      updatedAt: -1,
+    })
     const allUsers = await User.find({ role: role })
     const count = allUsers.length
     return { users, count }
@@ -153,6 +198,102 @@ export const userDbRepository = () => {
       .sort({ createdAt: -1 })
       .populate("walletId")
 
+  const addNotifications = async (
+    id: string,
+    notification: NotificationInterface
+  ) => {
+    try {
+      const receiver = await User.findById(id).sort({ createdAt: 1 })
+      if (!receiver) {
+        throw new Error("User not found")
+      }
+      receiver.notifications.push(notification)
+      await receiver.save()
+      return receiver
+    } catch (error) {
+      console.error("Error adding notification:", error)
+      throw error
+    }
+  }
+
+  const deleteNotification = async (userId: string, notificationId: string) => {
+    try {
+      const user = await User.findById(userId)
+      if (!user) {
+        throw new Error("User not found")
+      }
+
+      const notification = user.notifications.id(notificationId)
+      if (!notification) {
+        throw new Error("Notification not found")
+      }
+
+      user.notifications.pull({ _id: notificationId })
+      await user.save()
+      return user
+    } catch (error) {
+      console.error("Error deleting notification:", error)
+      throw error
+    }
+  }
+
+  const markNotificationAsRead = async (
+    userId: string,
+    notificationId: string
+  ) => {
+    try {
+      const user = await User.findById(userId)
+      if (!user) {
+        throw new Error("User not found")
+      }
+      const notification = user.notifications.id(notificationId)
+      if (!notification) {
+        throw new Error("Notification not found")
+      }
+      notification.read = true
+      await user.save()
+      return user
+    } catch (error) {
+      console.error("Error marking notification as read:", error)
+      throw error
+    }
+  }
+
+  const markAllNotificationsAsRead = async (userId: string) => {
+    try {
+      const user = await User.findById(userId)
+      if (!user) {
+        throw new Error("User not found")
+      }
+
+      user.notifications.forEach(notification => {
+        notification.read = true
+      })
+
+      await user.save()
+      return user
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error)
+      throw error
+    }
+  }
+
+  const clearAllReadNotifications= async (userId: string) => {
+    try {
+      const user = await User.findById(userId)
+      if (!user) {
+        throw new Error("User not found")
+      }
+      user.notifications = user.notifications.filter(
+        notification => !notification.read
+      ) as any
+      await user.save()
+      return user
+    } catch (error) {
+      console.error("Error clearing read notifications:", error)
+      throw error
+    }
+  }
   return {
     getUserEmail,
     addUser,
@@ -174,6 +315,11 @@ export const userDbRepository = () => {
     getWalletByUseId,
     addWallet,
     allTransactions,
+    addNotifications,
+    deleteNotification,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    clearAllReadNotifications,
   }
 }
 

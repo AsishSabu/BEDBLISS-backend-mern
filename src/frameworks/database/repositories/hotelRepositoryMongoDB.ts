@@ -79,15 +79,18 @@ export const hotelDbRepository = () => {
   const StayTypeById = async (id: string) => await Category.findById(id)
 
   const StayTypeByName = async (name: string) => {
-    console.log(name,"name");
+    console.log(name, "name")
     const result = await Category.find({ name })
-    console.log(result,"result");
+    console.log(result, "result")
     return result
   }
 
   const allStayTypes = async () => await Category.find().sort({ createdAt: -1 })
 
-  const updateStayType = async (id: string, data: Record<string, string|boolean>) => {
+  const updateStayType = async (
+    id: string,
+    data: Record<string, string | boolean>
+  ) => {
     const result = await Category.findByIdAndUpdate(id, data)
     return result
   }
@@ -289,10 +292,12 @@ export const hotelDbRepository = () => {
     room: string,
     startDate: string,
     endDate: string,
-    amenities: string[],
+    amenities: string,
     minPrice: string,
     maxPrice: string,
-    categories: string[]
+    categories: string,
+    skip: number,
+    limit: number
   ) => {
     let hotels: any[]
 
@@ -315,8 +320,8 @@ export const hotelDbRepository = () => {
     const adultsInt = adults ? parseInt(adults) : 0
     const childrenInt = children ? parseInt(children) : 0
 
-    hotels = hotels.filter((hotel: any) => {
-      const filteredRooms = hotel.rooms.filter((room: any) => {
+    hotels = hotels.filter((hotel: HotelInterface) => {
+      const filteredRooms = hotel.rooms.filter((room: RoomInterface) => {
         return room.maxAdults >= adultsInt && room.maxChildren >= childrenInt
       })
       if (filteredRooms.length > 0) {
@@ -340,66 +345,39 @@ export const hotelDbRepository = () => {
       })
     }
 
-    hotels = hotels.filter((hotel: HotelInterface) => {
-      const filteredRooms = hotel.rooms
-        .filter((room: RoomInterface) => {
-          const availableRoomNumbers = room.roomNumbers.filter(
-            isRoomNumberAvailable
-          )
-          return availableRoomNumbers.length > 0
+    if (minPrice && maxPrice && parseInt(maxPrice) !== 0) {
+      const minPriceInt = parseInt(minPrice)
+      const maxPriceInt = parseInt(maxPrice)
+      console.log(minPriceInt, "-----", maxPriceInt)
+
+      hotels = hotels.filter((hotel: HotelInterface) => {
+        const filteredRooms = hotel.rooms.filter((room: RoomInterface) => {
+          const result =
+            room.price !== undefined &&
+            room.price >= minPriceInt &&
+            room.price <= maxPriceInt
+          return result
         })
-        .map((room: RoomInterface) => ({
-          ...room,
-          roomNumbers: room.roomNumbers.filter(isRoomNumberAvailable),
-        }))
+        if (filteredRooms.length > 0) {
+          hotel.rooms = filteredRooms
+          return true
+        }
+        return false
+      })
+    }
+    console.log(hotels, " before   hotelssssssssss")
 
-      if (filteredRooms.length > 0) {
-        hotel.rooms = filteredRooms
-        return true
-      }
-      return false
-    })
+    if (amenities) {
+      const amenitiesArr = amenities.split(",")
+      hotels = hotels.filter(hotel => {
+        return amenitiesArr.every(amenity => hotel.amenities.includes(amenity))
+      })
+    }
 
-    console.log(hotels, ".................................")
+    console.log(hotels, "hotelssssssssss")
+    const paginatedHotels = hotels.slice(skip, skip + limit)
 
-    // if (categories && Array.isArray(categories)) {
-    //   availableHotels = availableHotels.filter((hotel: any) => {
-    //     return categories.includes(hotel.stayType)
-    //   })
-    // }
-
-    // if (minPrice && maxPrice) {
-    //   const min = parseInt(minPrice)
-    //   const max = parseInt(maxPrice)
-    //   console.log(minPrice, maxPrice, "Price range values")
-
-    // try {
-    //   availableHotels = availableHotels.filter((hotel: HotelInterface) => {
-    //     const hasRoomInRange = hotel.rooms.some((room: RoomInterface) => {
-    //       console.log(room, "room before price filter////////////////////////////////////////////////////////////////////////////");
-    //       const price = room.price !== undefined ? room.price : room?.price;
-    //       console.log(price, "..........//././././/./././.");
-    //       if (price === undefined) {
-    //         console.log("Price is undefined:", room);
-    //         return false;
-    //       }
-    //       if (typeof price !== 'number') {
-    //         console.log(`Invalid price format: ${price}`);
-    //         return false;
-    //       }
-    //       const isPriceInRange = price >= min && price <= max;
-    //       console.log(`Price ${price} is in range (${min}, ${max}): ${isPriceInRange}`);
-    //       return isPriceInRange;
-    //     })
-    //     console.log(`Hotel ${hotel.name} has room in range: ${hasRoomInRange}`);
-    //     return hasRoomInRange
-    //   })
-    //   console.log(availableHotels, "availableHotels after price filter");
-    // } catch (error) {
-    //   console.log(error)
-    // }
-    // }
-    return hotels
+    return paginatedHotels
   }
 
   const UserfilterHotelBYId = async (

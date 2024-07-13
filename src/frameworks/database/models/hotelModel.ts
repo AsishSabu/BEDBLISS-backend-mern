@@ -60,6 +60,31 @@ const addressSchema = new Schema({
   },
 }, { _id: false }); 
 
+const offerSchema = new Schema({
+  type: {
+    type: String,
+  },
+  desc: {
+    type: String,
+  },
+  startDate: {
+    type: Date,
+  },
+  endDate: {
+    type: Date,
+  },
+  amount: {
+    type: Number,
+  },
+  minAmount: {
+    type: Number,
+  },
+  maxAmount: {
+    type: Number,
+  },
+}, { _id: false });
+
+
 const coordinateSchema = new Schema({
   latitude: {
     type: Number,
@@ -91,6 +116,10 @@ const hotelSchema = new Schema({
     type: addressSchema,
     required: true,
   },
+  offer: {
+    type: offerSchema,
+    default: () => ({}),
+  },
   stayType: {
     type: String,
     required: true,
@@ -109,6 +138,7 @@ const hotelSchema = new Schema({
     type: Boolean,
     default: false,
   },
+
   isListed: {
     type: Boolean,
     default: true,

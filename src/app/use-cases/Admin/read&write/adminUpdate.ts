@@ -5,7 +5,7 @@ export const blockUser = async (
   id: string,
   userDbRepository: ReturnType<userDbInterfaceType>
 ) => {
-  const user = await userDbRepository.getUserById(id)
+  const user:any= await userDbRepository.getUserById(id)
   await userDbRepository.updateUserBlock(id, !user?.isBlocked)
 }
 export const blockHotel = async (

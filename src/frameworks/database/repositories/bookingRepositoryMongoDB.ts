@@ -123,7 +123,12 @@ export default function bookingDbRepository() {
         { bookingId },
         updatingData,
         { new: true, upsert: true }
-      )
+      )    .populate({
+        path: "hotelId",
+        populate: {
+          path: "ownerId"
+        }
+      });
       return updatedBooking
     } catch (error) {
       throw new Error("Error updating booking")

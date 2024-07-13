@@ -25,8 +25,10 @@ export const hotelDbInterface = (
 
   const StayTypes = async () => await repository.allStayTypes()
 
-  const updateStayType = async (id: string, data: Record<string, string|boolean>) =>
-    await repository.updateStayType(id, data)
+  const updateStayType = async (
+    id: string,
+    data: Record<string, string | boolean>
+  ) => await repository.updateStayType(id, data)
 
   const getHotelById = async (Id: string) => await repository.getHotelById(Id)
 
@@ -61,10 +63,12 @@ export const hotelDbInterface = (
     room: string,
     startDate: string,
     endDate: string,
-    amenities: string[],
+    amenities: string,
     minPrice: string,
     maxPrice: string,
-    categories: string[]
+    categories: string,
+    skip:number,
+    limit:number
   ) =>
     await repository.filterHotels(
       destination,
@@ -76,7 +80,9 @@ export const hotelDbInterface = (
       amenities,
       minPrice,
       maxPrice,
-      categories
+      categories,
+      skip,
+      limit
     )
   const UserfilterHotelBYId = async (
     id: string,

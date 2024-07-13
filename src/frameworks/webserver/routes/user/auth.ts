@@ -57,6 +57,12 @@ const authRouter = () => {
   router.patch("/user/:id", userProfileController.getUser)
   router.get("/user/:id", userProfileController.getUserById)
   router.get("/profile", authenticateUser, userProfileController.userProfile)
+  router.patch("/addNotification/:id",authenticateUser, userProfileController.addNotification)
+  router.patch("/deleteNotification/:id",authenticateUser, userProfileController.deleteNotification)
+  router.patch("/markAsRead/:id",authenticateUser, userProfileController.markAsRead)
+  router.patch("/markAllAsRead",authenticateUser,userProfileController.markAllAsRead)
+  router.patch("/clearAllRead",authenticateUser,userProfileController.clearAllRead)
+
 
   router.patch(
     "/profile/edit",
