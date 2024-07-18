@@ -9,10 +9,10 @@ export default function hotelEntity(
   propertyRules: string[],
   amenities: string[],
   imageUrls: string[],
-  coordinates: {
-    latitude: number
-    longitude: number
-  },
+  // coordinates: {
+  //   latitude: number
+  //   longitude: number
+  // },
   address: {
     streetAddress: string
     landMark: string
@@ -32,7 +32,7 @@ export default function hotelEntity(
     getStayType: (): string => stayType,
     getDescription: (): string => description,
     getPropertyRules: (): string[] => propertyRules,
-    getCordinatesType: () => coordinates,
+    // getCordinatesType: () => coordinates,
     getAmenities: (): string[] => amenities,
     getImageUrls: (): string[] => imageUrls,
     getAddress: () => address,

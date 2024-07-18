@@ -22,7 +22,7 @@ export const addHotel = async (
     propertyRules,
     amenities,
     imageUrls,
-    coordinates,
+    // coordinates,
     address,
     hotelDocument,
     ownerPhoto,
@@ -48,7 +48,7 @@ export const addHotel = async (
     propertyRules,
     amenities,
     imageUrls,
-    coordinates,
+    // coordinates,
     address,
     ownerDocument,
     hotelDocument,
@@ -101,9 +101,27 @@ export const getMyHotels = async (
 ) => await hotelRepository.getMyHotels(ownerId)
 
 
-export const updateHotel=async(
+export const hotelUpdate=async(
+  hotelId:string,
+  updates:any,
+  hotelRepository: ReturnType<hotelDbInterfaceType>
+)=>await hotelRepository.updateHotel(hotelId,updates)
+
+export const roomUpdate=async(
+  roomId:string,
+  updates:any,
+  hotelRepository: ReturnType<hotelDbInterfaceType>
+)=>await hotelRepository.updateRoom(roomId,updates)
+
+export const offerUpdate=async(
   hotelId:string,
   updates:any,
   hotelRepository: ReturnType<hotelDbInterfaceType>
 
-)=>await hotelRepository.updateHotel(hotelId,updates)
+)=>await hotelRepository.offerUpdate(hotelId,updates)
+
+export const offerRemove=async(
+  hotelId:string,
+  hotelRepository: ReturnType<hotelDbInterfaceType>
+
+)=>await hotelRepository.offerRemove(hotelId)

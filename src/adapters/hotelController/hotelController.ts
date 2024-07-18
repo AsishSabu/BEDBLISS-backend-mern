@@ -1,15 +1,28 @@
 import { hotelDbRepositoryType } from "./../../frameworks/database/repositories/hotelRepositoryMongoDB"
 import { Request, Response, NextFunction, query } from "express"
-import { addHotel, addRoom, getMyHotels, updateHotel } from "../../app/use-cases/Owner/hotel"
+import {
+  addHotel,
+  addRoom,
+  getMyHotels,
+  hotelUpdate,
+  offerRemove,
+  offerUpdate,
+  roomUpdate,
+} from "../../app/use-cases/Owner/hotel"
 import { hotelDbInterfaceType } from "../../app/interfaces/hotelDbInterface"
 import { HttpStatus } from "../../types/httpStatus"
 import {
   addNewRating,
+  addToSaved,
   filterHotels,
   getHotelDetails,
+  getSaved,
   getUserHotels,
   hotelDetailsFilter,
   ratings,
+  removeFromSaved,
+  ReviewById,
+  updateReviewById,
 } from "../../app/use-cases/User/read&write/hotels"
 import mongoose from "mongoose"
 import { checkAvailability } from "../../app/use-cases/Booking/booking"
@@ -63,6 +76,71 @@ const hotelController = (
         status: "success",
         message: "room added suuccessfully",
         registeredRoom,
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  const addSaved = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user
+      const hotelId = new mongoose.Types.ObjectId(req.params.id)
+      console.log(hotelId)
+      console.log(req.body, "data")
+      const { updatedSavedEntry, message } = await addToSaved(
+        userId,
+        hotelId,
+        dbRepositoryHotel
+      )
+
+      res.json({
+        status: "success",
+        message,
+        savedRoom: updatedSavedEntry,
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  const removeSaved = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.user
+      const hotelId = new mongoose.Types.ObjectId(req.params.id)
+      console.log(hotelId)
+      console.log(req.body, "data")
+      const savedRoom = await removeFromSaved(
+        userId,
+        hotelId,
+        dbRepositoryHotel
+      )
+      res.json({
+        status: "success",
+        message: "hotel removed from saved suuccessfully",
+        savedRoom,
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  const savedHotels = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.user
+      const savedHotels = await getSaved(userId, dbRepositoryHotel)
+      res.json({
+        status: "success",
+        message: " saved hotels fetched succefully",
+        savedHotels,
       })
     } catch (error) {
       next(error)
@@ -138,11 +216,11 @@ const hotelController = (
       const minPrice = req.query.minAmount as string
       const maxPrice = req.query.maxAmount as string
       const stayTypes = req.query.stayTypes as string
-      const page=parseInt(req.query.pages as string)||1
-      const limit = 2;
-      const skip = (page - 1) * limit;
-      console.log(skip,limit,"...............");
-      
+      const page = parseInt(req.query.pages as string) || 1
+      const limit = 2
+      const skip = (page - 1) * limit
+      console.log(skip, limit, "...............")
+
       const data = await filterHotels(
         destination,
         adults,
@@ -211,28 +289,30 @@ const hotelController = (
     next: NextFunction
   ) => {
     try {
-      const dates = req.body
+      const {dates,count} = req.body
       const id = req.params.id
-      const isDateExisted = await checkAvailability(
+      const RoomAvailable= await checkAvailability(
         id,
+        count,
         dates,
         dbRepositoryHotel
       )
-      console.log(isDateExisted)
+      console.log(RoomAvailable,"rooms")
 
-      // if(!isDateExisted){
-      //   console.log("hloooo");
+      if(RoomAvailable){
+        console.log("hloooo");
 
-      //   res.status(HttpStatus.OK).json({
-      //     status: "success",
-      //     message: "date is availble"
-      //   })
-      // }else{
-      //   res.status(HttpStatus.OK).json({
-      //     status: "fail",
-      //     message: "date is unavailble"
-      //   })
-      // }
+        res.status(HttpStatus.OK).json({
+          status: "success",
+          message: "date is availble",
+          RoomAvailable,
+        })
+      }else{
+        res.status(HttpStatus.OK).json({
+          status: "fail",
+          message: "date is unavailble",
+        })
+      }
     } catch (error) {
       next(error)
     }
@@ -251,7 +331,7 @@ const hotelController = (
       const updates = {
         isListed: value,
       }
-      await updateHotel(id, updates, dbRepositoryHotel)
+      await hotelUpdate(id, updates, dbRepositoryHotel)
       return res
         .status(HttpStatus.OK)
         .json({ success: true, message: "  Successfully updated" })
@@ -259,17 +339,72 @@ const hotelController = (
       next(error)
     }
   }
+
+  const listUnlistRoom = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { id } = req.params
+      const { value } = req.body
+      console.log(id, "iddddd")
+
+      console.log(value, "value.......................")
+
+      const updates = {
+        listed: value,
+      }
+      console.log(updates, "value.......................")
+      const response = await roomUpdate(id, updates, dbRepositoryHotel)
+      console.log(response)
+
+      if (response) {
+        if (response.listed) {
+          return res
+            .status(HttpStatus.OK)
+            .json({ success: true, message: " Room listed Successfully " })
+        } else {
+          return res
+            .status(HttpStatus.OK)
+            .json({ success: true, message: " Room Unlisted Successfully " })
+        }
+      } else {
+        return res
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json({ success: false })
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  const editRoom = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params
+      const updates = req.body
+      console.log(updates, "value.......................")
+      const response = await roomUpdate(id, updates, dbRepositoryHotel)
+      if (response) {
+        return res
+          .status(HttpStatus.OK)
+          .json({ success: true, message: " Room edited Successfully " })
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+
   const editHotel = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params
-      console.log(req.body);
-      
+      console.log(req.body)
 
-      const result = await updateHotel(id, req.body, dbRepositoryHotel)
+      const result = await hotelUpdate(id, req.body, dbRepositoryHotel)
       if (result) {
         return res
           .status(HttpStatus.OK)
-          .json({ success: true, message: "  Successfully updated" })
+          .json({ success: true, message: " hotel updated successfully " })
       } else {
         return res.status(HttpStatus.NOT_FOUND).json({ success: false })
       }
@@ -277,6 +412,45 @@ const hotelController = (
       next(error)
     }
   }
+
+  const addOffer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params
+      console.log(req.body)
+
+      const result = await offerUpdate(id, req.body, dbRepositoryHotel)
+      if (result) {
+        return res
+          .status(HttpStatus.OK)
+          .json({ success: true, message: "offer added Successfully " })
+      } else {
+        return res.status(HttpStatus.NOT_FOUND).json({ success: false })
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  const removeOffer = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { id } = req.params
+      const result = await offerRemove(id, dbRepositoryHotel)
+      if (result) {
+        return res
+          .status(HttpStatus.OK)
+          .json({ success: true, message: " offer removed Successfully" })
+      } else {
+        return res.status(HttpStatus.NOT_FOUND).json({ success: false })
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+
   const addRating = async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user
     const data = req.body
@@ -308,6 +482,54 @@ const hotelController = (
     }
   }
 
+  const getRatingsbyId = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const Id = req.params.Id
+    console.log(Id,"review idddd");
+    
+    const result = await ReviewById(Id, dbRepositoryHotel)
+    console.log(result);
+    
+    if (result) {
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "  Successfully getted rating",
+        result,
+      })
+    } else {
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false })
+    }
+  }
+  const updateRatingsbyId = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const Id = req.params.Id
+    console.log(Id);
+    
+    const updates=req.body
+    console.log(updates);
+    
+    const result = await updateReviewById(Id,updates, dbRepositoryHotel)
+    console.log(result);
+    
+    if (result) {
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "  Successfully getted rating",
+        result,
+      })
+    } else {
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false })
+    }
+  }
+
+
+
   return {
     registerHotel,
     registerRoom,
@@ -318,9 +540,18 @@ const hotelController = (
     DetailsFilter,
     checkAvilabitiy,
     listUnlistHotel,
+    listUnlistRoom,
     addRating,
     getRatingsbyHotelId,
-    editHotel
+    getRatingsbyId,
+    updateRatingsbyId,
+    editHotel,
+    addSaved,
+    removeSaved,
+    savedHotels,
+    addOffer,
+    removeOffer,
+    editRoom
   }
 }
 export default hotelController

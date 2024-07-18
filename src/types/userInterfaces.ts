@@ -36,6 +36,9 @@ export interface UserInterface {
   name: string;
   email: string;
   phoneNumber?: string; // Make phoneNumber optional if it's not always present
+  dob?: string;
+  state?: string;
+  country?: string;
   password: string;
   profilePic: string;
   role: string;

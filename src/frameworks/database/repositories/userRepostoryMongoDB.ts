@@ -56,6 +56,9 @@ export const userDbRepository = () => {
         name: userDoc.name ?? "", // Ensure name is a string
         email: userDoc.email ?? "",
         phoneNumber: userDoc.phoneNumber ?? undefined,
+        dob: userDoc.dob ?? undefined,
+        state: userDoc.state ?? undefined,
+        country: userDoc.country ?? undefined,
         password: userDoc.password ?? "",
         profilePic: userDoc.profilePic ?? "", // Ensure profilePic is a string
         role: userDoc.role ?? "user", // Ensure role is a string

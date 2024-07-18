@@ -80,9 +80,14 @@ const authRouter = () => {
   router.get("/searchedHotels", userHotelController.hotelsFilter)
   router.get("/hotelDetails", userHotelController.DetailsFilter)
   router.get("/hotelDetails/:id", userHotelController.hotelDetails)
-  router.get("/checkAvailability/:id", userHotelController.checkAvilabitiy)
+  router.post("/checkAvailability/:id", userHotelController.checkAvilabitiy)
   router.post("/addRating",authenticateUser,userHotelController.addRating)
   router.get("/getRating/:hotelId",userHotelController.getRatingsbyHotelId)
+  router.get("/getRatingById/:Id",userHotelController.getRatingsbyId)
+  router.patch("/updateRatingById/:Id",userHotelController.updateRatingsbyId)
+  router.patch("/addRemoveSaved/:id",authenticateUser,userHotelController.addSaved)
+  router.patch("/removeSaved/:id",authenticateUser,userHotelController.removeSaved)
+  router.get("/saved",authenticateUser,userHotelController.savedHotels)
 
   const userBookingController = bookingController(
     bookingServiceInterface,
@@ -108,6 +113,12 @@ const authRouter = () => {
     "/bookingDetails/:id",
     authenticateUser,
     userBookingController.getBookingById
+  )
+
+  router.post(
+    "/addUnavilableDates",
+    authenticateUser,
+    userBookingController.addUnavilableDate
   )
 
   router.get(

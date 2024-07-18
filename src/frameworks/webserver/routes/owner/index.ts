@@ -25,9 +25,12 @@ const ownerRouter = () => {
   router.post("/addRoom/:id",authenticateUser, controller.registerRoom);
   router.get("/myHotels",authenticateUser,controller.registeredHotels)
   router.patch("/listUnlist/:id",authenticateUser,controller.listUnlistHotel)
+  router.patch("/roomListUnlist/:id",authenticateUser,controller.listUnlistRoom)
   router.get("/hotelDetails/:id",authenticateUser, controller.hotelDetails)
   router.patch("/editHotel/:id",authenticateUser, controller.editHotel)
-  // router.patch("/listUnlistRoom/:id",authenticateUser,controller.)
+  router.patch("/addOffer/:id",authenticateUser, controller.addOffer)
+  router.patch("/removeOffer/:id",authenticateUser, controller.removeOffer)
+  router.patch("/editRoom/:id",authenticateUser, controller.editRoom)
   // router.get("/myHotels",authenticateUser,controller.registeredHotels)
 
 

@@ -14,6 +14,7 @@ import createBooking, {
   getBookingsBybookingId,
   makePayment,
   removeUnavilableDates,
+  reportingsByFilter,
   updateBookingDetails,
   updateBookingStatus,
 } from "../../app/use-cases/Booking/booking"
@@ -129,37 +130,36 @@ export default function bookingController(
       const { paymentStatus } = req.body
       console.log(id)
       console.log(paymentStatus, "payment status")
-      if (paymentStatus === "Paid") {
-        console.log("going too bookings")
-
+      if (paymentStatus === "Failed") {
         const bookings = await getBookingsBybookingId(id, dbRepositoryBooking)
-        console.log(bookings, "bokings////////////////////////////////")
+        console.log(bookings, "bokings")
 
         if (bookings) {
-          const dates = await addUnavilableDates(
+          const removedates = await removeUnavilableDates(
             bookings.rooms,
-            bookings.checkInDate ?? new Date(),
-            bookings.checkOutDate ?? new Date(),
+            bookings.checkInDate as unknown as Date,
+            bookings.checkOutDate as unknown as Date,
             dbRepositoryHotel,
             hotelService
           )
         }
       }
 
-    const result= await updateBookingStatus(
+      const result = await updateBookingStatus(
         id,
         paymentStatus,
         dbRepositoryBooking,
-        dbRepositoryHotel
+        dbRepositoryHotel,
+        dbRepositoryUser
       )
-      
-      if(result){
-        res
-        .status(HttpStatus.OK)
-        .json({ success: true, message: "Booking status updated succesfully", result })
-       
+
+      if (result) {
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: "Booking status updated succesfully",
+          result,
+        })
       }
-    
     } catch (error) {
       next(error)
     }
@@ -193,8 +193,8 @@ export default function bookingController(
       console.log(ID, "booking id")
 
       const bookings = await getBookingsById(ID, dbRepositoryBooking)
-      console.log(bookings,"booking details");
-      
+      console.log(bookings, "booking details")
+
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Bookings fetched successfully",
@@ -205,6 +205,29 @@ export default function bookingController(
     }
   }
 
+  const addUnavilableDate = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const data = req.body
+    console.log(req.body)
+
+    const result = await addUnavilableDates(
+      data.rooms,
+      data.checkInDate ?? new Date(),
+      data.checkOutDate ?? new Date(),
+      dbRepositoryHotel,
+      hotelService
+    )
+    console.log(result, ".......................................")
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "dates added successfully",
+      result,
+    })
+  }
 
   const getByBookingId = async (
     req: Request,
@@ -216,8 +239,8 @@ export default function bookingController(
       console.log(ID, "booking id")
 
       const bookings = await getBookingsBybookingId(ID, dbRepositoryBooking)
-      console.log(bookings,"booking details");
-      
+      console.log(bookings, "booking details")
+
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Bookings fetched successfully",
@@ -336,8 +359,11 @@ export default function bookingController(
     }
   }
 
-
-  const addReporting = async (req: Request, res: Response, next: NextFunction) => {
+  const addReporting = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     const userId = req.params.userId
     const data = req.body
     const result = await addNewReporting(userId, data, dbRepositoryBooking)
@@ -349,7 +375,22 @@ export default function bookingController(
       return res.status(HttpStatus.NOT_FOUND).json({ success: false })
     }
   }
-
+  const getReporting = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const Id = req.params.id
+    const result = await reportingsByFilter(Id,dbRepositoryBooking)
+    if (result) {
+      return res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: "  Successfully fetched reporting" }),
+        result
+    } else {
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false })
+    }
+  }
 
   return {
     handleBooking,
@@ -361,6 +402,7 @@ export default function bookingController(
     getOwnerBookings,
     addReporting,
     getByBookingId,
- 
+    addUnavilableDate,
+    getReporting
   }
 }

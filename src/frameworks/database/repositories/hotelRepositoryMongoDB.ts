@@ -1,24 +1,16 @@
-import {
-  Dates,
-  HotelInterface,
-  optionType,
-  RoomInterface,
-} from "./../../../types/HotelInterface"
+import { HotelInterface, RoomInterface } from "./../../../types/HotelInterface"
 import { HotelEntityType } from "../../../entites/hotel"
 import Hotel from "../models/hotelModel"
 import Room from "../models/roomModel"
 import { RoomEntityType } from "../../../entites/room"
-import { NextFunction } from "express"
 import mongoose from "mongoose"
 import Category from "../models/categoryModel"
-import { getDates } from "../../../utils/DateHelper"
-import AppError from "../../../utils/appError"
 import { RatingEntityType } from "../../../entites/rating"
 import Rating from "../models/reviewModel"
+import Saved from "../models/savedModel"
+import { title } from "process"
 
 export const hotelDbRepository = () => {
-  //adding hotel
-
   const addHotel = async (hotel: HotelEntityType) => {
     const newHotel: any = new Hotel({
       name: hotel.getName(),
@@ -30,7 +22,7 @@ export const hotelDbRepository = () => {
       description: hotel.getDescription(),
       amenities: hotel.getAmenities(),
       imageUrls: hotel.getImageUrls(),
-      coordinates: hotel.getCordinatesType(),
+      // coordinates: hotel.getCordinatesType(),
       ownerDocument: hotel.getOwnerDocument(),
       hotelDocument: hotel.getHotelDocument(),
       ownerPhoto: hotel.getOwnerPhoto(),
@@ -38,8 +30,6 @@ export const hotelDbRepository = () => {
     newHotel.save()
     return newHotel
   }
-
-  //adding room to hotel
 
   const addRoom = async (
     room: RoomEntityType,
@@ -66,6 +56,110 @@ export const hotelDbRepository = () => {
       console.log(error)
     }
     return newRoom
+  }
+
+  const getSavedHotels = async (id: string) => {
+    try {
+      const savedHotels = await Saved.aggregate([
+        { $match: { userId: new mongoose.Types.ObjectId(id) } },
+        { $unwind: "$Hotels" },
+        {
+          $lookup: {
+            from: "hotels",
+            localField: "Hotels",
+            foreignField: "_id",
+            as: "hotelDetails",
+          },
+        },
+        { $unwind: "$hotelDetails" },
+        {
+          $match: {
+            "hotelDetails.isVerified": "verified",
+            "hotelDetails.isListed": true,
+            "hotelDetails.isBlocked": false,
+          },
+        },
+        {
+          $group: {
+            _id: "$_id",
+            Hotels: { $push: "$hotelDetails" },
+          },
+        },
+      ])
+
+      // If there are saved hotels, return the Hotels array, otherwise return an empty array
+      return savedHotels.length > 0 ? savedHotels[0].Hotels : []
+    } catch (error) {
+      console.error("Error fetching verified saved hotels:", error)
+      throw error
+    }
+  }
+
+  const addOrRemoveFromSaved = async (
+    id: string,
+    hotelId: mongoose.Types.ObjectId
+  ) => {
+    try {
+      const savedEntry = await Saved.findOne({ userId: id })
+      let message = ""
+
+      if (savedEntry) {
+        const hotelIndex = savedEntry.Hotels.indexOf(hotelId)
+
+        if (hotelIndex === -1) {
+          // Hotel is not in the list, add it
+          savedEntry.Hotels.push(hotelId)
+          message = "Hotel added to saved list"
+        } else {
+          // Hotel is in the list, remove it
+          savedEntry.Hotels.splice(hotelIndex, 1)
+          message = "Hotel removed from saved list"
+        }
+        await savedEntry.save()
+      } else {
+        // No saved entry found, create a new one and add the hotel
+        const newSavedEntry = new Saved({
+          userId: id,
+          Hotels: [hotelId],
+        })
+        await newSavedEntry.save()
+        console.log("New saved list created and hotel added")
+      }
+
+      const updatedSavedEntry = await Saved.findOne({ userId: id }).populate(
+        "Hotels"
+      )
+      return { updatedSavedEntry, message }
+    } catch (error) {
+      console.error("Error updating saved list:", error)
+      throw error
+    }
+  }
+
+  const removeFromSaved = async (
+    id: string,
+    hotelId: mongoose.Types.ObjectId
+  ) => {
+    try {
+      const savedEntry = await Saved.findOne({ userId: id })
+      if (savedEntry) {
+        savedEntry.Hotels = savedEntry.Hotels.filter(
+          hotel => hotel.toString() !== hotelId.toString()
+        )
+        await savedEntry.save()
+        console.log("Hotel removed from saved list")
+        const updatedSavedEntry = await Saved.findOne({ userId: id }).populate(
+          "Hotels"
+        )
+        return updatedSavedEntry
+      } else {
+        console.log("No saved entry found for this user")
+        return null
+      }
+    } catch (error) {
+      console.error("Error removing from saved list:", error)
+      throw error
+    }
   }
 
   const addStayType = async (name: string) => {
@@ -117,19 +211,25 @@ export const hotelDbRepository = () => {
   }
 
   const addUnavilableDates = async (rooms: RoomDetails[], dates: string[]) => {
-    for (const room of rooms) {
-      const roomId = room.roomId
-      const roomNumbers = room.roomNumbers
-
-      for (const roomNumber of roomNumbers) {
-        await Room.updateOne(
-          { _id: roomId, "roomNumbers.number": roomNumber },
-          { $addToSet: { "roomNumbers.$.unavailableDates": { $each: dates } } }
-        )
+    try {
+      for (const room of rooms) {
+        const roomId = room.roomId
+        const roomNumbers = room.roomNumbers
+  
+        for (const roomNumber of roomNumbers) {
+          await Room.updateOne(
+            { _id: roomId, "roomNumbers.number": roomNumber },
+            { $addToSet: { "roomNumbers.$.unavailableDates": { $each: dates } } }
+          )
+        }
       }
+  
+      return
+    } catch (error) {
+      console.error("Error in add unavailable dates:", error)
+      throw error
     }
 
-    return
   }
 
   const removeUnavailableDates = async (
@@ -163,6 +263,7 @@ export const hotelDbRepository = () => {
     const user: HotelInterface | null = await Hotel.findOne({ email })
     return user
   }
+
   const getAllHotels = async () => {
     const Hotels = await Hotel.find({}).sort({ updatedAt: -1 })
     console.log(Hotels, "..............")
@@ -172,69 +273,27 @@ export const hotelDbRepository = () => {
   }
 
   const getUserHotels = async () => {
-    const Hotels = await Hotel.aggregate([
-      {
-        $match: {
-          isVerified: "verified",
-          isListed: true,
-          isBlocked: false,
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "ownerId",
-          foreignField: "_id",
-          as: "owner",
-        },
-      },
-      {
-        $unwind: "$owner",
-      },
-      {
-        $match: {
-          "owner.isBlocked": false,
-        },
-      },
-      {
-        $project: {
-          name: 1,
-          destination: 1,
-          address: 1,
-          stayType: 1,
-          description: 1,
-          propertyRules: 1,
-          rooms: 1,
-          amenities: 1,
-          isBlocked: 1,
-          isListed: 1,
-          imageUrls: 1,
-          reservationType: 1,
-          isVerified: 1,
-          hotelDocument: 1,
-          ownerPhoto: 1,
-          Reason: 1,
-          createdAt: 1,
-          updatedAt: 1,
-          owner: {
-            _id: 1,
-            name: 1,
-            email: 1,
-            phoneNumber: 1,
-            profilePic: 1,
-            isBlocked: 1,
-          },
-          coordinates: 1,
-        },
-      },
-      {
-        $sort: { name: 1 }, // Sort by hotel name in alphabetical order (ascending)
-      },
-    ])
-
-    const count = Hotels.length
-
-    return { Hotels, count }
+    const Hotels = await Hotel.find({
+      isBlocked: false,
+      isVerified: "verified",
+      isListed: true
+    })
+    .populate({
+      path: 'stayType',
+      match: { isListed: true }
+    })
+    .populate({
+      path: 'ownerId',
+      match: { isBlocked: false }
+    })
+    .populate("rooms");
+  
+    // Filter out hotels where stayType or ownerId is null after population
+    const filteredHotels = Hotels.filter(hotel => hotel.stayType && hotel.ownerId);
+  
+    const count = filteredHotels.length;
+  
+    return { Hotels: filteredHotels, count };
   }
 
   const getMyHotels = async (ownerId: string) => {
@@ -246,6 +305,7 @@ export const hotelDbRepository = () => {
     const Hotels = await Hotel.findById(id)
       .populate("rooms")
       .populate("ownerId")
+      .populate("rating")
     return Hotels
   }
   const updateHotelBlock = async (id: string, status: boolean) =>
@@ -258,9 +318,31 @@ export const hotelDbRepository = () => {
     return updatedHotel
   }
 
+  const updateRoom = async (id: string, updates: HotelEntityType) => {
+    const updatedRoom = await Room.findByIdAndUpdate(id, updates, {
+      new: true,
+    })
+    return updatedRoom
+  }
+  const updateOffer = async (id: string, updates: any) => {
+    const updatedHotel = await Hotel.findByIdAndUpdate(id, {
+      offer: updates,
+    })
+    return updatedHotel
+  }
+
+  const removeOffer = async (hotelId: string) => {
+    const updatedHotel = await Hotel.findByIdAndUpdate(hotelId, {
+      $unset: { offer: "" },
+    })
+    return updatedHotel
+  }
+
   const remove = async (id: string) => await Hotel.deleteOne({ _id: id })
 
   const splitDate = (dateString: string) => {
+    console.log(dateString);
+    
     const [date, time] = dateString.split("T")
     const timeWithoutZ = time.replace("Z", "") // Remove 'Z' from time
     return { date, time: timeWithoutZ }
@@ -476,26 +558,101 @@ export const hotelDbRepository = () => {
 
   const checkAvailability = async (
     id: string,
+    RoomCount: number,
     checkInDate: string,
     checkOutDate: string
   ) => {
-    const checkIn = new Date(checkInDate)
-    const checkOut = new Date(checkOutDate)
+    const checkIn = splitDate(checkInDate);
+    const checkOut = splitDate(checkOutDate);
+    console.log(checkIn, checkOut, "dates before getdates");
+  
+    const dateArray = await getDates(checkIn.date, checkOut.date);
+    const formattedDateArray = dateArray.map((date) => new Date(date).toISOString().split("T")[0]);
+  
+    try {
+      // Find the room by ID
+      const roomExist: RoomInterface | null = await Room.findById(id); 
+      if (!roomExist) {
+        throw new Error("Room not found");
+      }
+        const availableRooms = []; 
+      // Iterate over roomNumbers
+      for (const room of roomExist.roomNumbers) {
+        let isAvailable = true; 
+        // Check each date in dateArray against unavailableDates
+        for (const unavailableDate of room.unavailableDates) {
+          const formattedUnavailableDate = new Date(unavailableDate).toISOString().split("T")[0];
+          if (formattedDateArray.includes(formattedUnavailableDate)) {
+            isAvailable = false;
+            break; // No need to check further dates for this room
+          }
+        } 
+        if (isAvailable) {
+          availableRooms.push(room);
+        }
+        // Stop checking if we've found enough rooms
+        if (availableRooms.length === RoomCount) {
+          break;
+        }
+      }
+      if(availableRooms.length>=RoomCount){
+        return {
+          rooms: availableRooms.slice(0, RoomCount),
+          roomDetails: {
+            _id: roomExist._id,
+            title: roomExist.title,
+            price: roomExist.price,
+            maxChildren: roomExist.maxChildren,
+            maxAdults: roomExist.maxAdults,
+            desc: roomExist.desc,
+          },
+        };
 
-    const hotel = await Hotel.findById(id).select("unavailableDates")
-  }
+      }else{
+        return null;
+      }
+    } catch (error) {
+      console.error("Error checking room availability:", error);
+      throw error;
+    }
+  };
 
-  const addRating = async (ratingData: RatingEntityType) =>
-    await Rating.create({
+  const addRating = async (ratingData: RatingEntityType) => {
+    const result = new Rating({
       userId: ratingData.getUserId(),
       hotelId: ratingData.getHotelId(),
       rating: ratingData.getRating(),
       description: ratingData.getDescription(),
       imageUrls: ratingData.getImageUrls(),
     })
+    const savedRating = await result.save()
+
+    try {
+      await Hotel.findByIdAndUpdate(savedRating.hotelId, {
+        $push: { rating: savedRating._id },
+      })
+    } catch (error) {
+      console.log(error)
+    }
+
+    return savedRating
+  }
 
   const getRatings = async (filter: Record<string, any>) =>
     await Rating.find(filter).populate("userId")
+
+  const getRatingById = async (id:string) =>
+    await Rating.findById(id).populate("userId")
+
+  const updateRatingById = async (id: string, updates: Record<string, any>) => {
+    try {
+      const result = await Rating.findByIdAndUpdate(id, updates, { new: true });
+      return result;
+    } catch (error) {
+      console.error('Error updating rating:', error);
+      throw error;
+    }
+  };
 
   return {
     addHotel,
@@ -521,11 +678,19 @@ export const hotelDbRepository = () => {
     removeUnavailableDates,
     addRating,
     getRatings,
+    getRatingById,
+    updateRatingById,
     UserfilterHotelBYId,
     StayTypeById,
     allStayTypes,
     updateStayType,
     StayTypeByName,
+    getSavedHotels,
+    addOrRemoveFromSaved,
+    removeFromSaved,
+    updateRoom,
+    updateOffer,
+    removeOffer,
   }
 }
 export type hotelDbRepositoryType = typeof hotelDbRepository

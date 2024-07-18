@@ -16,6 +16,17 @@ export const hotelDbInterface = (
     hotelId: mongoose.Types.ObjectId
   ) => await repository.addRoom(hotel, hotelId)
 
+  const addSaved = async (userId: string, hotelId: mongoose.Types.ObjectId) =>
+    await repository.addOrRemoveFromSaved(userId, hotelId)
+
+  const removeSaved = async (
+    userId: string,
+    hotelId: mongoose.Types.ObjectId
+  ) => await repository.removeFromSaved(userId, hotelId)
+
+  const Saved = async (userId: string) =>
+    await repository.getSavedHotels(userId)
+
   const addStayType = async (name: string) => await repository.addStayType(name)
 
   const StayTypeById = async (id: string) => await repository.StayTypeById(id)
@@ -51,8 +62,16 @@ export const hotelDbInterface = (
   const updateHotelBlock = async (id: string, status: boolean) =>
     await repository.updateHotelBlock(id, status)
 
-  const updateHotel = async (id: string, updates: HotelEntityType) =>
+  const updateHotel = async (id: string, updates: any) =>
     await repository.update(id, updates)
+
+  const updateRoom = async (id: string, updates: any) =>
+    await repository.updateRoom(id, updates)
+
+  const offerUpdate = async (id: string, updates: any) =>
+    await repository.updateOffer(id, updates)
+
+  const offerRemove = async (id: string) => await repository.removeOffer(id)
 
   const removeHotel = async (id: string) => await repository.remove(id)
 
@@ -67,8 +86,8 @@ export const hotelDbInterface = (
     minPrice: string,
     maxPrice: string,
     categories: string,
-    skip:number,
-    limit:number
+    skip: number,
+    limit: number
   ) =>
     await repository.filterHotels(
       destination,
@@ -113,12 +132,14 @@ export const hotelDbInterface = (
 
   const checkAvailability = async (
     id: string,
+    count: number,
     checkInDate: string,
     checkOutDate: string
-  ) => await repository.checkAvailability(id, checkInDate, checkOutDate)
+  ) => await repository.checkAvailability(id, count, checkInDate, checkOutDate)
 
   const addUnavilableDates = async (room: [], dates: string[]) =>
     await repository.addUnavilableDates(room, dates)
+
   const removeUnavailableDates = async (room: [], dates: string[]) =>
     await repository.removeUnavailableDates(room, dates)
 
@@ -127,6 +148,11 @@ export const hotelDbInterface = (
 
   const getRatings = async (filter: Record<string, any>) =>
     await repository.getRatings(filter)
+
+  const getRatingById = async (id: string) => await repository.getRatingById(id)
+
+  const updateRatings = async (id: string, updates: Record<string, any>) =>
+    await repository.updateRatingById(id,updates)
 
   return {
     addHotel,
@@ -155,6 +181,14 @@ export const hotelDbInterface = (
     removeUnavailableDates,
     addRating,
     getRatings,
+    getRatingById,
+    updateRatings,
+    addSaved,
+    removeSaved,
+    updateRoom,
+    Saved,
+    offerUpdate,
+    offerRemove,
   }
 }
 

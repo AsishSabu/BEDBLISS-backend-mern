@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose"
 
 const notificationSchema = new mongoose.Schema({
   type: String,
@@ -6,12 +6,12 @@ const notificationSchema = new mongoose.Schema({
   data: {
     senderId: mongoose.Schema.Types.ObjectId,
     name: String,
-    image:String,
+    image: String,
     onClickPath: String,
   },
   read: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
-});
+})
 
 const userSchema = new Schema(
   {
@@ -26,7 +26,16 @@ const userSchema = new Schema(
       unique: true,
     },
     phoneNumber: {
-      type: String,  
+      type: String,
+    },
+    dob: {
+      type: String,
+    },
+    state: {
+      type: String,
+    },
+    country: {
+      type: String,
     },
     password: {
       type: String,
@@ -37,25 +46,25 @@ const userSchema = new Schema(
       trim: true,
       default: "",
     },
-    role:{
-      type:String,
-      default:"user"
+    role: {
+      type: String,
+      default: "user",
     },
-    isVerified:{
-      type:Boolean,
-      default:false
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
     wallet: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
 
-    isBlocked:{
-      type:Boolean,
-      default:false,
+    isBlocked: {
+      type: Boolean,
+      default: false,
     },
     notifications: [notificationSchema],
     verificationCode: String,
   },
   { timestamps: true }
-);
+)
 
-const User = model("User", userSchema);
-export default User;
+const User = model("User", userSchema)
+export default User

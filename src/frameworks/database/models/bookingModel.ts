@@ -77,6 +77,11 @@ const bookingSchema = new mongoose.Schema(
       trim: true,
       require: true,
     },
+    platformFee: {
+      type: Number,
+      trim: true,
+      require: true,
+    },
     Reason: {
       type: String,
     },

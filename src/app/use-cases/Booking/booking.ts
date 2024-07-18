@@ -38,6 +38,7 @@ export default async function createBooking(
     checkOutDate,
     totalDays,
     price,
+    platformFee,
     paymentMethod,
   } = bookingDetails
   console.log(bookingDetails, "bookingDetails")
@@ -53,6 +54,7 @@ export default async function createBooking(
     !checkInDate ||
     !checkOutDate ||
     !price ||
+    !platformFee||
     !totalDays ||
     !paymentMethod
   ) {
@@ -76,10 +78,15 @@ export default async function createBooking(
     totalDays,
     rooms,
     price,
+    platformFee,
     paymentMethod
   )
   const data = await bookingRepository.createBooking(bookingEntity)
-  console.log(data, "......................................")
+  console.log(data, "......................................data")
+  const booking: any = await bookingRepository.getBookingById(
+    data._id as unknown as string
+  )
+  console.log(booking, "bokinnng dataaaaaaa")
 
   if (data.paymentMethod === "Wallet") {
     const wallet = await userRepository.getWallet(data.userId as string)
@@ -92,11 +99,23 @@ export default async function createBooking(
         description: "Booking transaction",
       }
       await updateWallet(data.userId as string, transactionData, userRepository)
+      const ownerAmount = data.price-(data.price * 0.05)
+      const ownerTransactionData: TransactionDataType = {
+        newBalance: ownerAmount,
+        type: "Credit",
+        description: "Booking transaction",
+      }
+      await updateWallet(
+        booking?.hotelId?.ownerId as unknown as string,
+        ownerTransactionData,
+        userRepository
+      )
       await updateBookingStatus(
         data._id as unknown as string,
         "Paid",
         bookingRepository,
-        hotelRepository
+        hotelRepository,
+        userRepository
       )
     } else {
       throw new AppError("Insufficient wallet balance", HttpStatus.BAD_REQUEST)
@@ -140,11 +159,13 @@ export const removeUnavilableDates = async (
 
 export const checkAvailability = async (
   id: string,
+  count: number,
   dates: dateInterface,
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) =>
   await hotelRepository.checkAvailability(
     id,
+    count,
     dates.checkInDate,
     dates.checkOutDate
   )
@@ -194,13 +215,26 @@ export const updateBookingStatus = async (
   id: string,
   paymentStatus: "Paid" | "Failed",
   bookingRepository: ReturnType<bookingDbInterfaceType>,
-  hotelRepository: ReturnType<hotelDbInterfaceType>
+  hotelRepository: ReturnType<hotelDbInterfaceType>,
+  userRepository: ReturnType<userDbInterfaceType>
 ) => {
   const updationData: Record<string, any> = {
     paymentStatus,
   }
-  console.log(updationData, "updationData....................")
-
+  console.log(updationData, "updationData....................")  
+  const booking: any = await bookingRepository.getBookingsBybookingId(id)
+  console.log(booking,"online payment...........transefer to wallet..........");
+  const ownerAmount =booking.price- booking.platformFee
+  const ownerTransactionData: TransactionDataType = {
+    newBalance: ownerAmount,
+    type: "Credit",
+    description: "Booking transaction",
+  }
+  await updateWallet(
+    booking?.hotelId?.ownerId as unknown as string,
+    ownerTransactionData,
+    userRepository
+  )
   const bookingData = await bookingRepository.updateBooking(id, updationData)
   return bookingData
 }
@@ -273,10 +307,11 @@ export const cancelBookingAndUpdateWallet = async (
     throw new AppError("Please provide a booking ID", HttpStatus.BAD_REQUEST)
   }
 
-  const bookingDetails = await bookingRepository.updateBooking(bookingID, {
+  const bookingDetails:any = await bookingRepository.updateBooking(bookingID, {
     bookingStatus: status,
     Reason: reason,
   })
+console.log(bookingDetails,"-----------------------------------------------------------------------");
 
   let bookerId: string | undefined
   if (bookingDetails?.userId) {
@@ -332,6 +367,17 @@ export const cancelBookingAndUpdateWallet = async (
           if (bookerId !== undefined && bookerId !== null) {
             await updateWallet(bookerId, data, userRepository)
           }
+          const ownerData:TransactionDataType={
+            newBalance: refundAmount,
+            type: "Debit",
+            description: "Booking cancelled by user refund amount",
+          }
+          console.log(ownerData,"owner data to update");
+          
+          const ownerDebit=await updateWallet(bookingDetails.hotelId.ownerId._id,ownerData,userRepository)
+          console.log(ownerDebit,"owner debit details");
+          
+
           const updateBooking = await bookingRepository.updateBooking(
             bookingID,
             {
@@ -352,6 +398,15 @@ export const cancelBookingAndUpdateWallet = async (
       if (bookerId !== undefined && bookerId !== null) {
         await updateWallet(bookerId, data, userRepository)
       }
+      const ownerData:TransactionDataType={
+        newBalance: bookingDetails?.price ?? 0,
+        type: "Debit",
+        description: "Booking cancelled by owner refund amount",
+      }
+      console.log(ownerData,"owner data to update");
+      
+      const ownerDebit=await updateWallet(bookingDetails.hotelId.ownerId._id,ownerData,userRepository)
+      
       const updateBooking = await bookingRepository.updateBooking(bookingID, {
         bookingStatus: "cancelled with refund",
         paymentStatus: "Refunded",
@@ -408,7 +463,7 @@ export const updateWallet = async (
 export const addNewReporting = async (
   userId: string,
   reportingData: { hotelId: string; bookingId: string; reason: string },
-  bookingRepository: ReturnType<bookingDbInterfaceType>,
+  bookingRepository: ReturnType<bookingDbInterfaceType>
 ) => {
   const { hotelId, bookingId, reason } = reportingData
   const newReportingEntity = reportingEntity(userId, hotelId, bookingId, reason)
@@ -416,17 +471,16 @@ export const addNewReporting = async (
   return await bookingRepository.addReporting(newReportingEntity)
 }
 export const reportings = async (
-  bookingRepository: ReturnType<bookingDbInterfaceType>,
-) => await bookingRepository.getReportings();
-
+  bookingRepository: ReturnType<bookingDbInterfaceType>
+) => await bookingRepository.getReportings()
 
 export const reportingsByFilter = async (
   ID: string,
-  bookingRepository: ReturnType<bookingDbInterfaceType>,
-) => await bookingRepository.getReportingsByFilter(ID);
+  bookingRepository: ReturnType<bookingDbInterfaceType>
+) => await bookingRepository.getReportingsByFilter(ID)
 
 export const updateReporting = async (
   ID: string,
-  updateData:any,
-  bookingRepository: ReturnType<bookingDbInterfaceType>,
-) => await bookingRepository.updateReporting(ID,updateData);
+  updateData: any,
+  bookingRepository: ReturnType<bookingDbInterfaceType>
+) => await bookingRepository.updateReporting(ID, updateData)

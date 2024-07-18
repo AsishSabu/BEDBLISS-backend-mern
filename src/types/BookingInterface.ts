@@ -13,6 +13,7 @@ export interface BookingInterface {
     checkOutDate: string;
     totalDays:number
     price: number,
+    platformFee: number,
     paymentMethod:string
   }
   export interface dateInterface {

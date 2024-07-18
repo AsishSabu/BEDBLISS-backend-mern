@@ -11,6 +11,23 @@ export const getHotelDetails = async (
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => await hotelRepository.getHotelDetails(id)
 
+export const addToSaved = async (
+  userId: string,
+  hotelId: mongoose.Types.ObjectId,
+  hotelRepository: ReturnType<hotelDbInterfaceType>
+) => await hotelRepository.addSaved(userId, hotelId)
+
+export const removeFromSaved = async (
+  userId: string,
+  hotelId: mongoose.Types.ObjectId,
+  hotelRepository: ReturnType<hotelDbInterfaceType>
+) => await hotelRepository.removeSaved(userId, hotelId)
+
+export const getSaved = async (
+  userId: string,
+  hotelRepository: ReturnType<hotelDbInterfaceType>
+) => await hotelRepository.Saved(userId)
+
 export const filterHotels = async (
   destination: string,
   adults: string,
@@ -23,8 +40,8 @@ export const filterHotels = async (
   maxPrice: string,
   categories: string,
   hotelRepository: ReturnType<hotelDbInterfaceType>,
-  skip:number,
-  limit:number
+  skip: number,
+  limit: number
 ) => {
   const data = await hotelRepository.filterHotels(
     destination,
@@ -103,3 +120,14 @@ export const ReviewsByUserId = async (
     userId: userID,
     hotelId: hotelID,
   })
+
+export const ReviewById = async (
+  id: string,
+  hotelRepository: ReturnType<hotelDbInterfaceType>
+) => await hotelRepository.getRatingById(id)
+
+export const updateReviewById = async (
+  id: string,
+  updates: Record<string, any>,
+  hotelRepository: ReturnType<hotelDbInterfaceType>
+) => await hotelRepository.updateRatings(id, updates)

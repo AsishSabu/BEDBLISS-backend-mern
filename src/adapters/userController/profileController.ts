@@ -77,6 +77,8 @@ const profileController = (
     try {
       const userId = req.user
       const updatedData = req.body
+      console.log(updatedData,".....................");
+      
       const user = await updateUser(userId, updatedData, dbRepositoryUser)
       res
         .status(200)
