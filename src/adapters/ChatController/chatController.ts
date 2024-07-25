@@ -93,33 +93,7 @@ const chatController = (
       next(error)
     }
   }
-  /*
-   * METHOD:GET
-   * Retrive  the conversations by conversation ID
-   */
-  // const getConversation = async (
-  //   req: Request,
-  //   res: Response,
-  //   next: NextFunction
-  // ) => {
-  //   try {
-  //     const { id } = req.params;
-  //     const { recieverId, senderId } = req.query as {
-  //       recieverId: string;
-  //       senderId: string;
-  //     };
-  //     recieverId &&
-  //       (await updateUnreadMessages(id, recieverId, dbRepositoryChat));
-  //     const chats = await getChatById(id, senderId, dbRepositoryChat);
-  //     res.status(HttpStatus.OK).json(chats);
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
-  /*
-   * METHOD:POST
-   * create new send messages to the users
-   */
+ 
   const createNewMessage = async (
     req: Request,
     res: Response,

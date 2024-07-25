@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 
 export interface RoomInterface {
   _id: string;

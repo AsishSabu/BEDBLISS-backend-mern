@@ -158,11 +158,6 @@ const hotelSchema = new Schema(
       default: true,
     },
     imageUrls: [String],
-
-    // coordinates: {
-    //   type: coordinateSchema,
-    //   required: true,
-    // },
     isVerified: {
       type: String,
       enum: ["rejected", "cancelled", "pending", "verified"],

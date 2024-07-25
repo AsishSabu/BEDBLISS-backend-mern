@@ -81,7 +81,7 @@ export default async function createBooking(
     platformFee,
     paymentMethod
   )
-  const data = await bookingRepository.createBooking(bookingEntity)
+  const data:any = await bookingRepository.createBooking(bookingEntity)
   console.log(data, "......................................data")
   const booking: any = await bookingRepository.getBookingById(
     data._id as unknown as string
@@ -99,7 +99,7 @@ export default async function createBooking(
         description: "Booking transaction",
       }
       await updateWallet(data.userId as string, transactionData, userRepository)
-      const ownerAmount = data.price-(data.price * 0.05)
+      const ownerAmount = data.price-(data.price * data.platformFee)
       const ownerTransactionData: TransactionDataType = {
         newBalance: ownerAmount,
         type: "Credit",
@@ -111,7 +111,7 @@ export default async function createBooking(
         userRepository
       )
       await updateBookingStatus(
-        data._id as unknown as string,
+        data.bookingId as unknown as string,
         "Paid",
         bookingRepository,
         hotelRepository,

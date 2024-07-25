@@ -265,7 +265,7 @@ export const hotelDbRepository = () => {
   }
 
   const getAllHotels = async () => {
-    const Hotels = await Hotel.find({}).sort({ updatedAt: -1 })
+    const Hotels = await Hotel.find({}).populate("ownerId").sort({ updatedAt: -1 })
     console.log(Hotels, "..............")
 
     const count = Hotels.length
@@ -382,6 +382,8 @@ export const hotelDbRepository = () => {
     limit: number
   ) => {
     let hotels: any[]
+    console.log(categories,"Categories...................");
+    
 
     if (destination) {
       const regex = new RegExp(destination, "i")
@@ -447,19 +449,29 @@ export const hotelDbRepository = () => {
         return false
       })
     }
+
     console.log(hotels, " before   hotelssssssssss")
 
     if (amenities) {
       const amenitiesArr = amenities.split(",")
       hotels = hotels.filter(hotel => {
-        return amenitiesArr.every(amenity => hotel.amenities.includes(amenity))
+        return amenitiesArr.some(amenity => hotel.amenities.includes(amenity))
       })
     }
 
     console.log(hotels, "hotelssssssssss")
+
+    if (categories) {
+      const categoriesArr = categories.split(",");
+      hotels = hotels.filter(hotel => {
+        return categoriesArr.some(category => hotel.stayType === category);
+      });
+    }
+    const totalLength=hotels.length
+    console.log(hotels, "hotelssssssssss")
     const paginatedHotels = hotels.slice(skip, skip + limit)
 
-    return paginatedHotels
+    return {paginatedHotels,totalLength}
   }
 
   const UserfilterHotelBYId = async (

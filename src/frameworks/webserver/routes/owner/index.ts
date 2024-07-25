@@ -12,7 +12,7 @@ import { userDbRepository } from "../../../database/repositories/userRepostoryMo
 import bookingController from "../../../../adapters/BookingController/bookingController";
 import { bookingServiceInterface } from "../../../../app/service-interface/bookingServices";
 import { bookingService } from "../../../services/bookingService";
-import chatController from "../../../../adapters/chatController/chatController";
+import chatController from "../../../../adapters/ChatController/chatController";
 import { chatDbInterface } from "../../../../app/interfaces/chatDbInterface";
 import chatDbRepository from "../../../database/repositories/chatRepositoryMongoDB";
 

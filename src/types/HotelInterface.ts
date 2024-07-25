@@ -9,11 +9,6 @@ interface Address {
   country: string
 }
 
-// interface Coordinates {
-//   latitude: number
-//   longitude: number
-// }
-
 export interface RoomInterface {
   _id: mongoose.Types.ObjectId
   createdAt: Date
@@ -33,7 +28,6 @@ export interface HotelInterface {
   destination: string
   description: string
   propertyRules: string[]
-  // coordinates: Coordinates
   stayType: string
   amenities: string[]
   isBlocked: boolean

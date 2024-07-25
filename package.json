@@ -1,7 +1,9 @@
 {
 	"scripts": {
+		"build": "npx tsc",
+		"start": "node dist/app.js",
 		"dev": "nodemon ./src/app.ts"
-	},
+	  },
 	"devDependencies": {
 		"@types/bcryptjs": "^2.4.6",
 		"@types/cors": "^2.8.17",

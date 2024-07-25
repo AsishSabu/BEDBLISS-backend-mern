@@ -216,8 +216,8 @@ const hotelController = (
       const minPrice = req.query.minAmount as string
       const maxPrice = req.query.maxAmount as string
       const stayTypes = req.query.stayTypes as string
-      const page = parseInt(req.query.pages as string) || 1
-      const limit = 2
+      const page = parseInt(req.query.page as string) || 1
+      const limit = 4
       const skip = (page - 1) * limit
       console.log(skip, limit, "...............")
 
@@ -236,6 +236,8 @@ const hotelController = (
         skip,
         limit
       )
+      console.log(data.paginatedHotels);
+      
       res.status(HttpStatus.OK).json({
         status: "success",
         message: "search result has been fetched",
