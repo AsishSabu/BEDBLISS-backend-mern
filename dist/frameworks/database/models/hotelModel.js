@@ -139,10 +139,6 @@ const hotelSchema = new mongoose_1.Schema({
         default: true,
     },
     imageUrls: [String],
-    // coordinates: {
-    //   type: coordinateSchema,
-    //   required: true,
-    // },
     isVerified: {
         type: String,
         enum: ["rejected", "cancelled", "pending", "verified"],
