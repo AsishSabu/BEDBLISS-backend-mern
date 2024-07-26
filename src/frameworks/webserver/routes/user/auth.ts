@@ -16,9 +16,9 @@ import { hotelService } from "../../../services/hotelServices"
 import bookingController from "../../../../adapters/BookingController/bookingController"
 import { bookingServiceInterface } from "../../../../app/service-interface/bookingServices"
 import { bookingService } from "../../../services/bookingService"
-import chatController from "../../../../adapters/ChatController/chatController"
 import { chatDbInterface } from "../../../../app/interfaces/chatDbInterface"
 import chatDbRepository from "../../../database/repositories/chatRepositoryMongoDB"
+import chatController from "../../../../adapters/chatController/chatController"
 
 const authRouter = () => {
   const router = express.Router()
@@ -57,12 +57,31 @@ const authRouter = () => {
   router.patch("/user/:id", userProfileController.getUser)
   router.get("/user/:id", userProfileController.getUserById)
   router.get("/profile", authenticateUser, userProfileController.userProfile)
-  router.patch("/addNotification/:id",authenticateUser, userProfileController.addNotification)
-  router.patch("/deleteNotification/:id",authenticateUser, userProfileController.deleteNotification)
-  router.patch("/markAsRead/:id",authenticateUser, userProfileController.markAsRead)
-  router.patch("/markAllAsRead",authenticateUser,userProfileController.markAllAsRead)
-  router.patch("/clearAllRead",authenticateUser,userProfileController.clearAllRead)
-
+  router.patch(
+    "/addNotification/:id",
+    authenticateUser,
+    userProfileController.addNotification
+  )
+  router.patch(
+    "/deleteNotification/:id",
+    authenticateUser,
+    userProfileController.deleteNotification
+  )
+  router.patch(
+    "/markAsRead/:id",
+    authenticateUser,
+    userProfileController.markAsRead
+  )
+  router.patch(
+    "/markAllAsRead",
+    authenticateUser,
+    userProfileController.markAllAsRead
+  )
+  router.patch(
+    "/clearAllRead",
+    authenticateUser,
+    userProfileController.clearAllRead
+  )
 
   router.patch(
     "/profile/edit",
@@ -81,13 +100,21 @@ const authRouter = () => {
   router.get("/hotelDetails", userHotelController.DetailsFilter)
   router.get("/hotelDetails/:id", userHotelController.hotelDetails)
   router.post("/checkAvailability/:id", userHotelController.checkAvilabitiy)
-  router.post("/addRating",authenticateUser,userHotelController.addRating)
-  router.get("/getRating/:hotelId",userHotelController.getRatingsbyHotelId)
-  router.get("/getRatingById/:Id",userHotelController.getRatingsbyId)
-  router.patch("/updateRatingById/:Id",userHotelController.updateRatingsbyId)
-  router.patch("/addRemoveSaved/:id",authenticateUser,userHotelController.addSaved)
-  router.patch("/removeSaved/:id",authenticateUser,userHotelController.removeSaved)
-  router.get("/saved",authenticateUser,userHotelController.savedHotels)
+  router.post("/addRating", authenticateUser, userHotelController.addRating)
+  router.get("/getRating/:hotelId", userHotelController.getRatingsbyHotelId)
+  router.get("/getRatingById/:Id", userHotelController.getRatingsbyId)
+  router.patch("/updateRatingById/:Id", userHotelController.updateRatingsbyId)
+  router.patch(
+    "/addRemoveSaved/:id",
+    authenticateUser,
+    userHotelController.addSaved
+  )
+  router.patch(
+    "/removeSaved/:id",
+    authenticateUser,
+    userHotelController.removeSaved
+  )
+  router.get("/saved", authenticateUser, userHotelController.savedHotels)
 
   const userBookingController = bookingController(
     bookingServiceInterface,
@@ -136,10 +163,7 @@ const authRouter = () => {
     authenticateUser,
     userBookingController.updateBooking
   )
-  router.post(
-    "/addReporting/:userId",
-    userBookingController.addReporting
-  )
+  router.post("/addReporting/:userId", userBookingController.addReporting)
 
   const userChatController = chatController(chatDbInterface, chatDbRepository)
 
@@ -149,7 +173,6 @@ const authRouter = () => {
 
   router.post("/messages", userChatController.createNewMessage)
   router.get("/messages/:id", userChatController.fetchMessages)
-
 
   return router
 }

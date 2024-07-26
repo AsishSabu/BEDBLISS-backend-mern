@@ -17,9 +17,9 @@ const userRepostoryMongoDB_1 = require("../../../database/repositories/userRepos
 const bookingController_1 = __importDefault(require("../../../../adapters/BookingController/bookingController"));
 const bookingServices_1 = require("../../../../app/service-interface/bookingServices");
 const bookingService_1 = require("../../../services/bookingService");
-const chatController_1 = __importDefault(require("../../../../adapters/ChatController/chatController"));
 const chatDbInterface_1 = require("../../../../app/interfaces/chatDbInterface");
 const chatRepositoryMongoDB_1 = __importDefault(require("../../../database/repositories/chatRepositoryMongoDB"));
+const chatController_1 = __importDefault(require("../../../../adapters/chatController/chatController"));
 const ownerRouter = () => {
     const router = (0, express_1.Router)();
     const controller = (0, hotelController_1.default)(hotelDbInterface_1.hotelDbInterface, hotelRepositoryMongoDB_1.hotelDbRepository);

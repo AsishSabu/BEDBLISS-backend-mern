@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express"
 import { chatDbInterfaceType } from "../../app/interfaces/chatDbInterface"
 import {
   addNewChat,
-  getChatById,
   getChats,
   getConverationByMembers,
   getMessages,
