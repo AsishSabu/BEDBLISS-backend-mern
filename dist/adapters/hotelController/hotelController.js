@@ -22,10 +22,7 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
     const registerHotel = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const ownerId = new mongoose_1.default.Types.ObjectId(req.user);
-            console.log(ownerId, "owner iddd");
-            console.log(req.body, "data");
             const hotelData = req.body;
-            console.log(hotelData);
             const registeredHotel = yield (0, hotel_1.addHotel)(ownerId, hotelData, dbRepositoryHotel);
             res.json({
                 status: "success",
@@ -40,8 +37,6 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
     const registerRoom = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const hotelId = new mongoose_1.default.Types.ObjectId(req.params.id);
-            console.log(hotelId);
-            console.log(req.body, "data");
             const roomData = req.body;
             const registeredRoom = yield (0, hotel_1.addRoom)(hotelId, roomData, dbRepositoryHotel);
             res.json({
@@ -58,8 +53,6 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
         try {
             const userId = req.user;
             const hotelId = new mongoose_1.default.Types.ObjectId(req.params.id);
-            console.log(hotelId);
-            console.log(req.body, "data");
             const { updatedSavedEntry, message } = yield (0, hotels_1.addToSaved)(userId, hotelId, dbRepositoryHotel);
             res.json({
                 status: "success",
@@ -75,8 +68,6 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
         try {
             const userId = req.user;
             const hotelId = new mongoose_1.default.Types.ObjectId(req.params.id);
-            console.log(hotelId);
-            console.log(req.body, "data");
             const savedRoom = yield (0, hotels_1.removeFromSaved)(userId, hotelId, dbRepositoryHotel);
             res.json({
                 status: "success",
@@ -114,9 +105,7 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
     });
     const getHotelsUserSide = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            console.log("in hotel userside");
             const { Hotels } = yield (0, hotels_1.getUserHotels)(dbRepositoryHotel);
-            console.log(Hotels);
             return res.status(httpStatus_1.HttpStatus.OK).json({ success: true, Hotels });
         }
         catch (error) {
@@ -126,9 +115,7 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
     const hotelDetails = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const id = req.params.id;
-            console.log(id);
             const Hotel = yield (0, hotels_1.getHotelDetails)(id, dbRepositoryHotel);
-            console.log(Hotel);
             if (Hotel) {
                 return res.status(httpStatus_1.HttpStatus.OK).json({ success: true, Hotel });
             }
@@ -142,7 +129,6 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
     });
     const hotelsFilter = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            console.log(req.query, "all values");
             const destination = req.query.destination;
             const adults = req.query.adult;
             const children = req.query.children;
@@ -156,9 +142,7 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
             const page = parseInt(req.query.page) || 1;
             const limit = 4;
             const skip = (page - 1) * limit;
-            console.log(skip, limit, "...............");
             const data = yield (0, hotels_1.filterHotels)(destination, adults, children, room, startDate, endDate, amenities, minPrice, maxPrice, stayTypes, dbRepositoryHotel, skip, limit);
-            console.log(data.paginatedHotels);
             res.status(httpStatus_1.HttpStatus.OK).json({
                 status: "success",
                 message: "search result has been fetched",
@@ -171,7 +155,6 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
     });
     const DetailsFilter = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            console.log(req.query, "all values");
             const id = req.query.id;
             const adults = req.query.adult;
             const children = req.query.children;
@@ -196,9 +179,7 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
             const { dates, count } = req.body;
             const id = req.params.id;
             const RoomAvailable = yield (0, booking_1.checkAvailability)(id, count, dates, dbRepositoryHotel);
-            console.log(RoomAvailable, "rooms");
             if (RoomAvailable) {
-                console.log("hloooo");
                 res.status(httpStatus_1.HttpStatus.OK).json({
                     status: "success",
                     message: "date is availble",
@@ -220,7 +201,6 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
         try {
             const { id } = req.params;
             const { value } = req.body;
-            console.log(value, "value.......................");
             const updates = {
                 isListed: value,
             };
@@ -237,14 +217,10 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
         try {
             const { id } = req.params;
             const { value } = req.body;
-            console.log(id, "iddddd");
-            console.log(value, "value.......................");
             const updates = {
                 listed: value,
             };
-            console.log(updates, "value.......................");
             const response = yield (0, hotel_1.roomUpdate)(id, updates, dbRepositoryHotel);
-            console.log(response);
             if (response) {
                 if (response.listed) {
                     return res
@@ -271,7 +247,6 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
         try {
             const { id } = req.params;
             const updates = req.body;
-            console.log(updates, "value.......................");
             const response = yield (0, hotel_1.roomUpdate)(id, updates, dbRepositoryHotel);
             if (response) {
                 return res
@@ -286,7 +261,6 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
     const editHotel = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const { id } = req.params;
-            console.log(req.body);
             const result = yield (0, hotel_1.hotelUpdate)(id, req.body, dbRepositoryHotel);
             if (result) {
                 return res
@@ -304,7 +278,6 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
     const addOffer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const { id } = req.params;
-            console.log(req.body);
             const result = yield (0, hotel_1.offerUpdate)(id, req.body, dbRepositoryHotel);
             if (result) {
                 return res
@@ -365,9 +338,7 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
     });
     const getRatingsbyId = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const Id = req.params.Id;
-        console.log(Id, "review idddd");
         const result = yield (0, hotels_1.ReviewById)(Id, dbRepositoryHotel);
-        console.log(result);
         if (result) {
             return res.status(httpStatus_1.HttpStatus.OK).json({
                 success: true,
@@ -381,11 +352,8 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
     });
     const updateRatingsbyId = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const Id = req.params.Id;
-        console.log(Id);
         const updates = req.body;
-        console.log(updates);
         const result = yield (0, hotels_1.updateReviewById)(Id, updates, dbRepositoryHotel);
-        console.log(result);
         if (result) {
             return res.status(httpStatus_1.HttpStatus.OK).json({
                 success: true,

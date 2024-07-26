@@ -10,8 +10,10 @@ const routes_1 = __importDefault(require("./frameworks/webserver/routes"));
 const connection_1 = __importDefault(require("./frameworks/database/connection"));
 const expressConfig_1 = __importDefault(require("./frameworks/webserver/expressConfig"));
 const errorhandlerMiddleware_1 = __importDefault(require("./frameworks/webserver/middlewares/errorhandlerMiddleware"));
+const appError_1 = __importDefault(require("./utils/appError"));
 const socket_io_1 = require("socket.io");
 const socket_1 = __importDefault(require("./frameworks/webSocket/socket"));
+const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
@@ -21,12 +23,16 @@ const io = new socket_io_1.Server(server, {
         credentials: true,
     },
 });
+app.use(express_1.default.static(path_1.default.join(__dirname, "/frontend/dist/index.html")));
 (0, socket_1.default)(io);
 (0, expressConfig_1.default)(app);
 (0, connection_1.default)();
 (0, routes_1.default)(app);
+app.get("*", (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, "/frontend/dist"));
+});
 app.use(errorhandlerMiddleware_1.default);
-// app.all("*",(req:Request,res:Response,next:NextFunction)=>{
-//     next(new AppError(`Not found:${req.url}`,404))
-// })
+app.all("*", (req, res, next) => {
+    next(new appError_1.default(`Not found:${req.url}`, 404));
+});
 (0, server_1.default)(server).startServer();

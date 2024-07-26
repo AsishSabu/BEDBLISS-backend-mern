@@ -33,7 +33,6 @@ function bookingDbRepository() {
                 rooms: bookingEntity.getRooms(),
                 paymentMethod: bookingEntity.getPaymentMethod(),
             });
-            console.log("hlooooo");
             yield data.save();
             return data;
         }

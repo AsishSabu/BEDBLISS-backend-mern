@@ -51,13 +51,10 @@ function bookingController(bookingServiceInterface, bookingServiceImpl, bookingD
         try {
             const bookingDetails = req.body;
             const userId = req.user;
-            console.log(req.body, "req.body");
             const data = yield (0, booking_1.default)(userId, bookingDetails, dbRepositoryBooking, dbRepositoryHotel, hotelService, dbRepositoryUser);
             if (data && data.paymentMethod === "Online") {
-                console.log("in online payment");
                 const user = yield (0, profile_1.getUserProfile)(userId, dbRepositoryUser);
                 if (typeof data.price === "number") {
-                    console.log("before payment");
                     const sessionId = yield (0, booking_1.makePayment)(user === null || user === void 0 ? void 0 : user.name, user === null || user === void 0 ? void 0 : user.email, data.bookingId, data.price);
                     res.status(httpStatus_1.HttpStatus.OK).json({
                         success: true,
@@ -78,7 +75,6 @@ function bookingController(bookingServiceInterface, bookingServiceImpl, bookingD
                 });
             }
             else {
-                console.log("in checkout payment");
                 const dates = yield (0, booking_1.addUnavilableDates)(data.rooms, (_c = data.checkInDate) !== null && _c !== void 0 ? _c : new Date(), (_d = data.checkOutDate) !== null && _d !== void 0 ? _d : new Date(), dbRepositoryHotel, hotelService);
                 res.status(httpStatus_1.HttpStatus.OK).json({
                     success: true,
@@ -95,11 +91,8 @@ function bookingController(bookingServiceInterface, bookingServiceImpl, bookingD
         try {
             const { id } = req.params;
             const { paymentStatus } = req.body;
-            console.log(id);
-            console.log(paymentStatus, "payment status");
             if (paymentStatus === "Failed") {
                 const bookings = yield (0, booking_1.getBookingsBybookingId)(id, dbRepositoryBooking);
-                console.log(bookings, "bokings");
                 if (bookings) {
                     const removedates = yield (0, booking_1.removeUnavilableDates)(bookings.rooms, bookings.checkInDate, bookings.checkOutDate, dbRepositoryHotel, hotelService);
                 }
@@ -120,7 +113,6 @@ function bookingController(bookingServiceInterface, bookingServiceImpl, bookingD
     const getBooking = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         try {
             const userID = req.user;
-            console.log(userID);
             const bookings = yield (0, booking_1.getBookings)(userID, dbRepositoryBooking);
             res.status(httpStatus_1.HttpStatus.OK).json({
                 success: true,
@@ -135,9 +127,7 @@ function bookingController(bookingServiceInterface, bookingServiceImpl, bookingD
     const getBookingById = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         try {
             const ID = req.params.id;
-            console.log(ID, "booking id");
             const bookings = yield (0, booking_1.getBookingsById)(ID, dbRepositoryBooking);
-            console.log(bookings, "booking details");
             res.status(httpStatus_1.HttpStatus.OK).json({
                 success: true,
                 message: "Bookings fetched successfully",
@@ -151,9 +141,7 @@ function bookingController(bookingServiceInterface, bookingServiceImpl, bookingD
     const addUnavilableDate = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         var _e, _f;
         const data = req.body;
-        console.log(req.body);
         const result = yield (0, booking_1.addUnavilableDates)(data.rooms, (_e = data.checkInDate) !== null && _e !== void 0 ? _e : new Date(), (_f = data.checkOutDate) !== null && _f !== void 0 ? _f : new Date(), dbRepositoryHotel, hotelService);
-        console.log(result, ".......................................");
         res.status(httpStatus_1.HttpStatus.OK).json({
             success: true,
             message: "dates added successfully",
@@ -163,9 +151,7 @@ function bookingController(bookingServiceInterface, bookingServiceImpl, bookingD
     const getByBookingId = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         try {
             const ID = req.params.id;
-            console.log(ID, "booking id");
             const bookings = yield (0, booking_1.getBookingsBybookingId)(ID, dbRepositoryBooking);
-            console.log(bookings, "booking details");
             res.status(httpStatus_1.HttpStatus.OK).json({
                 success: true,
                 message: "Bookings fetched successfully",
@@ -179,13 +165,9 @@ function bookingController(bookingServiceInterface, bookingServiceImpl, bookingD
     const cancelBooking = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         var _g, _h;
         try {
-            console.log("in cancel booking");
             const userID = req.user;
             const { reason, status } = req.body;
-            console.log(req.body);
             const { bookingID } = req.params;
-            console.log(bookingID);
-            console.log(userID);
             const updateBooking = yield (0, booking_1.cancelBookingAndUpdateWallet)(userID, bookingID, status, reason, dbRepositoryBooking, dbRepositoryUser, bookingService);
             if (updateBooking) {
                 const dates = yield (0, booking_1.removeUnavilableDates)(updateBooking.rooms, (_g = updateBooking.checkInDate) !== null && _g !== void 0 ? _g : new Date(), (_h = updateBooking.checkOutDate) !== null && _h !== void 0 ? _h : new Date(), dbRepositoryHotel, hotelService);
@@ -203,9 +185,7 @@ function bookingController(bookingServiceInterface, bookingServiceImpl, bookingD
     const updateBooking = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         try {
             const userID = req.user;
-            console.log("in update booking");
             const { reason, status } = req.body;
-            console.log(req.body);
             const { bookingID } = req.params;
             const updateBooking = yield (0, booking_1.updateBookingDetails)(userID, status, reason, bookingID, dbRepositoryBooking, dbRepositoryUser);
             res.status(httpStatus_1.HttpStatus.OK).json({
@@ -221,13 +201,9 @@ function bookingController(bookingServiceInterface, bookingServiceImpl, bookingD
     const getOwnerBookings = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         try {
             const userID = req.user;
-            console.log(userID);
             const hotels = yield (0, hotel_1.getMyHotels)(userID, dbRepositoryHotel);
-            console.log(hotels, "-----------------------------------------------------------");
             const HotelIds = hotels.map(hotel => hotel._id.toString());
-            console.log(HotelIds, "-----------------------------------------------------------");
             const bookings = yield (0, booking_1.getBookingsByHotels)(HotelIds, dbRepositoryBooking);
-            console.log(bookings);
             res.status(httpStatus_1.HttpStatus.OK).json({
                 success: true,
                 message: "Bookings fetched successfully",
@@ -255,10 +231,10 @@ function bookingController(bookingServiceInterface, bookingServiceImpl, bookingD
         const Id = req.params.id;
         const result = yield (0, booking_1.reportingsByFilter)(Id, dbRepositoryBooking);
         if (result) {
-            return res
+            return (res
                 .status(httpStatus_1.HttpStatus.OK)
                 .json({ success: true, message: "  Successfully fetched reporting" }),
-                result;
+                result);
         }
         else {
             return res.status(httpStatus_1.HttpStatus.NOT_FOUND).json({ success: false });
@@ -275,7 +251,7 @@ function bookingController(bookingServiceInterface, bookingServiceImpl, bookingD
         addReporting,
         getByBookingId,
         addUnavilableDate,
-        getReporting
+        getReporting,
     };
 }
 exports.default = bookingController;

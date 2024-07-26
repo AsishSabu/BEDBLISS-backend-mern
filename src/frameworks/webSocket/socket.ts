@@ -16,13 +16,11 @@ const socketConfig = (io: Server) => {
   }
 
   function getUser(userId: string) {
-    console.log(users, "this is user array")
     return users.find(user => user.userId === userId)
   }
 
   io.on("connection", socket => {
     // when connection established
-    console.log(`user connected with id ${socket.id} 😃`)
     io.emit("welcome", "hello this is socket server")
 
     socket.on("addUser", userId => {
@@ -42,23 +40,13 @@ const socketConfig = (io: Server) => {
       })
     })
     socket.on("typing", ({ receiverId, isTyping, userId }) => {
-      console.log(receiverId, "iddddd 😀")
       const user = getUser(receiverId)
-      console.log(isTyping, "is typingggggg 😀")
 
       io.to(user?.socketId ?? "").emit("senderTyping", isTyping, userId)
     })
 
-    // socket.on("noti", ({  bookingId,userId,status }) => {
-    //   console.log(userId,"iddddd 😀");
-    //   const user = getUser( userId);
-    //   console.log(status,"///////////");
-    //   console.log(bookingId,"/////////");
-    //   io.to(user?.socketId ?? "").emit("senderTyping",userId);
-    // });
 
     socket.on("noti", (data, receiverId) => {
-      console.log(receiverId, "iddddd 😀")
       const user = getUser(receiverId)
       io.to(user?.socketId ?? "").emit("notification", data)
       io.to(user?.socketId ?? "").emit("notificationCount", { count: 1 })
@@ -66,7 +54,6 @@ const socketConfig = (io: Server) => {
     // when disconnection
     socket.on("disconnect", () => {
       removeUser(socket.id)
-      console.log("A user has been disconnected 😒")
       io.emit("getUsers", users)
     })
   })

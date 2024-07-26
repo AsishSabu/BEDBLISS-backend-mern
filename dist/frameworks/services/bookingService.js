@@ -18,7 +18,6 @@ const bookingService = () => {
         if (!isNaN(Date1.getTime()) && !isNaN(Date2.getTime())) {
             const differenceInMilliseconds = Date2.getTime() - Date1.getTime();
             const differenceInDays = Math.abs(Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24)));
-            console.log(differenceInDays);
             return differenceInDays;
         }
         else {

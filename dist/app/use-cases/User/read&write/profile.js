@@ -19,7 +19,6 @@ const updateUser = (userID, updateData, userRepository) => __awaiter(void 0, voi
 exports.updateUser = updateUser;
 const verifyNumber = (phoneNumber, userRepository) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield userRepository.getUserByNumber(phoneNumber);
-    console.log(user);
 });
 exports.verifyNumber = verifyNumber;
 const AddNotification = (id, notification, userRepository) => __awaiter(void 0, void 0, void 0, function* () { return yield userRepository.addNotifications(id, notification); });

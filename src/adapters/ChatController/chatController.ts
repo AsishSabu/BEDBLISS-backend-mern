@@ -23,7 +23,6 @@ const chatController = (
     next: NextFunction
   ) => {
     try {
-      console.log("haiiiiiii");
       
       const { senderId, receiverId } = req.body
 
@@ -44,7 +43,6 @@ const chatController = (
       const { receiverId, senderId, text,chatId } = req.body   
       let conversationId
       if(!chatId){
-        console.log("hlooooo")
         const chats = await addNewChat(senderId, receiverId, dbRepositoryChat)
         conversationId= chats?._id.toString()
       }else{
@@ -84,10 +82,7 @@ const chatController = (
   ) => {
     try {
       const senderId = req.user
-      console.log(senderId, "senderid....................")
-
       const chats = await getChats(senderId, dbRepositoryChat)
-      console.log(chats, "in get converstions")
       res.status(HttpStatus.OK).json(chats)
     } catch (error) {
       next(error)
@@ -116,47 +111,9 @@ const chatController = (
     next: NextFunction
   ) => {
     try {
-      // const { unReadMessages, recieverId, conversationId } = req.query as {
-      //   unReadMessages: string;
-      //   recieverId: string;
-      //   conversationId: string;
-      // };
-      // const page = parseInt(req.query.page as string);
-      // const limit = 5;
-      // const skip = (page - 1) * limit;
       const converstaionID = req.params.id
-
-      // if (!conversationId) {
-      //   const latestMessages = await getLatestMessages(
-      //     recieverId,
-      //     dbRepositoryChat
-      //   );
-      console.log(converstaionID)
-
       const message = await getMessages(converstaionID, dbRepositoryChat)
-      console.log(message, "message")
-
       return res.status(HttpStatus.OK).json({ success: true, message })
-      // }
-
-      // let latestMessages = null;
-      // if (unReadMessages) {
-      //   latestMessages = await getLatestMessages(
-      //     recieverId,
-      //     dbRepositoryChat,
-      //     conversationId
-      //   );
-      // }
-
-      // const messages = await getMessage(s
-      //   conversationId,
-      //   skip,
-      //   limit,
-      //   dbRepositoryChat
-      // );
-      // res
-      //   .status(HttpStatus.OK)
-      //   .json({ success: true, messages, latestMessages });
     } catch (error) {
       next(error)
     }
@@ -165,7 +122,6 @@ const chatController = (
   return {
     createNewChat,
     fetchChats,
-    // getConversation,
     createNewMessage,
     fetchMessages,
     createUserChat,

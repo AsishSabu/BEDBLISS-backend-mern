@@ -21,10 +21,8 @@ const sendMail = (email, emailSubject, content) => __awaiter(void 0, void 0, voi
             subject: emailSubject,
             html: content,
         });
-        console.log(`Email sent to ${email} : `, info.messageId);
     }
     catch (error) {
-        console.log("Error in sending mail:", error);
     }
 });
 exports.default = sendMail;

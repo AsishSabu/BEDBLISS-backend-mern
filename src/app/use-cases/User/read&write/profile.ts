@@ -23,7 +23,6 @@ export const verifyNumber = async (
   userRepository: ReturnType<userDbInterfaceType>
 ) => {
   const user = await userRepository.getUserByNumber(phoneNumber)
-  console.log(user)
 }
 export const AddNotification = async (
   id: string,

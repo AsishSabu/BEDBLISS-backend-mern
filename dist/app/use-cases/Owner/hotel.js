@@ -18,11 +18,9 @@ const httpStatus_1 = require("../../../types/httpStatus");
 const appError_1 = __importDefault(require("../../../utils/appError"));
 const room_1 = __importDefault(require("../../../entites/room"));
 const addHotel = (ownerId, hotel, hotelRepository) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(ownerId, "owner");
     const { name, destination, stayType, description, propertyRules, amenities, imageUrls, 
     // coordinates,
     address, hotelDocument, ownerPhoto, } = hotel;
-    console.log(hotel, "hotel");
     const existingHotel = yield hotelRepository.getHotelByName(name);
     if (existingHotel) {
         throw new appError_1.default("Hotel with this name already exists", httpStatus_1.HttpStatus.UNAUTHORIZED);
@@ -36,14 +34,12 @@ const addHotel = (ownerId, hotel, hotelRepository) => __awaiter(void 0, void 0, 
 });
 exports.addHotel = addHotel;
 const addRoom = (hotelId, hotel, hotelRepository) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(hotelId, "hotel");
     const { title, price, desc, maxChildren, maxAdults, roomNumbers } = hotel;
     // Correctly map the roomNumbers array
     const formattedRoomNumbers = roomNumbers.map((num) => ({
         number: num,
         unavailableDates: []
     }));
-    console.log(formattedRoomNumbers, "formattedRoomNumbers");
     const roomEntity = (0, room_1.default)(title, price, desc, maxChildren, maxAdults, formattedRoomNumbers);
     const newHotel = yield hotelRepository.addRoom(roomEntity, hotelId);
     return newHotel;

@@ -12,8 +12,6 @@ export const addHotel = async (
   hotel: HotelInterface,
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => {
-  console.log(ownerId, "owner")
-
   const {
     name,
     destination,
@@ -27,8 +25,6 @@ export const addHotel = async (
     hotelDocument,
     ownerPhoto,
   } = hotel
-
-  console.log(hotel, "hotel")
 
   const existingHotel = await hotelRepository.getHotelByName(name)
   if (existingHotel) {
@@ -65,8 +61,6 @@ export const addRoom = async (
   hotel: RoomInterface,
   hotelRepository: ReturnType<hotelDbInterfaceType>
 ) => {
-  console.log(hotelId, "hotel");
-
   const { title, price, desc, maxChildren, maxAdults, roomNumbers } = hotel;
 
   // Correctly map the roomNumbers array
@@ -74,9 +68,6 @@ export const addRoom = async (
     number: num,
     unavailableDates: []
   }));
-
-  console.log(formattedRoomNumbers, "formattedRoomNumbers");
-
   const roomEntity: RoomEntityType = createRoomEntity(
     title,
     price,

@@ -52,8 +52,6 @@ export default function bookingController(
       try {
         const bookingDetails = req.body
         const userId = req.user
-        console.log(req.body, "req.body")
-
         const data = await createBooking(
           userId,
           bookingDetails,
@@ -64,13 +62,9 @@ export default function bookingController(
         )
 
         if (data && data.paymentMethod === "Online") {
-          console.log("in online payment")
-
           const user = await getUserProfile(userId, dbRepositoryUser)
 
           if (typeof data.price === "number") {
-            console.log("before payment")
-
             const sessionId = await makePayment(
               user?.name,
               user?.email,
@@ -100,7 +94,6 @@ export default function bookingController(
             booking: data,
           })
         } else {
-          console.log("in checkout payment")
           const dates = await addUnavilableDates(
             data.rooms,
             data.checkInDate ?? new Date(),
@@ -128,11 +121,8 @@ export default function bookingController(
     try {
       const { id } = req.params
       const { paymentStatus } = req.body
-      console.log(id)
-      console.log(paymentStatus, "payment status")
       if (paymentStatus === "Failed") {
         const bookings = await getBookingsBybookingId(id, dbRepositoryBooking)
-        console.log(bookings, "bokings")
 
         if (bookings) {
           const removedates = await removeUnavilableDates(
@@ -171,7 +161,6 @@ export default function bookingController(
   ) => {
     try {
       const userID = req.user
-      console.log(userID)
       const bookings = await getBookings(userID, dbRepositoryBooking)
 
       res.status(HttpStatus.OK).json({
@@ -190,10 +179,8 @@ export default function bookingController(
   ) => {
     try {
       const ID = req.params.id
-      console.log(ID, "booking id")
 
       const bookings = await getBookingsById(ID, dbRepositoryBooking)
-      console.log(bookings, "booking details")
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -211,7 +198,6 @@ export default function bookingController(
     next: NextFunction
   ) => {
     const data = req.body
-    console.log(req.body)
 
     const result = await addUnavilableDates(
       data.rooms,
@@ -220,7 +206,6 @@ export default function bookingController(
       dbRepositoryHotel,
       hotelService
     )
-    console.log(result, ".......................................")
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -236,10 +221,8 @@ export default function bookingController(
   ) => {
     try {
       const ID = req.params.id
-      console.log(ID, "booking id")
 
       const bookings = await getBookingsBybookingId(ID, dbRepositoryBooking)
-      console.log(bookings, "booking details")
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -256,15 +239,10 @@ export default function bookingController(
     next: NextFunction
   ) => {
     try {
-      console.log("in cancel booking")
-
       const userID = req.user
       const { reason, status } = req.body
-      console.log(req.body)
 
       const { bookingID } = req.params
-      console.log(bookingID)
-      console.log(userID)
 
       const updateBooking = await cancelBookingAndUpdateWallet(
         userID,
@@ -301,9 +279,7 @@ export default function bookingController(
   ) => {
     try {
       const userID = req.user
-      console.log("in update booking")
       const { reason, status } = req.body
-      console.log(req.body)
 
       const { bookingID } = req.params
 
@@ -332,22 +308,11 @@ export default function bookingController(
   ) => {
     try {
       const userID = req.user
-      console.log(userID)
       const hotels = await getMyHotels(userID, dbRepositoryHotel)
 
-      console.log(
-        hotels,
-        "-----------------------------------------------------------"
-      )
-
       const HotelIds: string[] = hotels.map(hotel => hotel._id.toString())
-      console.log(
-        HotelIds,
-        "-----------------------------------------------------------"
-      )
 
       const bookings = await getBookingsByHotels(HotelIds, dbRepositoryBooking)
-      console.log(bookings)
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -381,12 +346,14 @@ export default function bookingController(
     next: NextFunction
   ) => {
     const Id = req.params.id
-    const result = await reportingsByFilter(Id,dbRepositoryBooking)
+    const result = await reportingsByFilter(Id, dbRepositoryBooking)
     if (result) {
-      return res
-        .status(HttpStatus.OK)
-        .json({ success: true, message: "  Successfully fetched reporting" }),
+      return (
+        res
+          .status(HttpStatus.OK)
+          .json({ success: true, message: "  Successfully fetched reporting" }),
         result
+      )
     } else {
       return res.status(HttpStatus.NOT_FOUND).json({ success: false })
     }
@@ -403,6 +370,6 @@ export default function bookingController(
     addReporting,
     getByBookingId,
     addUnavilableDate,
-    getReporting
+    getReporting,
   }
 }

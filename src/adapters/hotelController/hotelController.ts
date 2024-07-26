@@ -39,11 +39,7 @@ const hotelController = (
   ) => {
     try {
       const ownerId = new mongoose.Types.ObjectId(req.user)
-      console.log(ownerId, "owner iddd")
-      console.log(req.body, "data")
-
       const hotelData = req.body
-      console.log(hotelData)
       const registeredHotel = await addHotel(
         ownerId,
         hotelData,
@@ -66,9 +62,6 @@ const hotelController = (
   ) => {
     try {
       const hotelId = new mongoose.Types.ObjectId(req.params.id)
-      console.log(hotelId)
-      console.log(req.body, "data")
-
       const roomData = req.body
 
       const registeredRoom = await addRoom(hotelId, roomData, dbRepositoryHotel)
@@ -86,8 +79,6 @@ const hotelController = (
     try {
       const userId = req.user
       const hotelId = new mongoose.Types.ObjectId(req.params.id)
-      console.log(hotelId)
-      console.log(req.body, "data")
       const { updatedSavedEntry, message } = await addToSaved(
         userId,
         hotelId,
@@ -112,8 +103,6 @@ const hotelController = (
     try {
       const userId = req.user
       const hotelId = new mongoose.Types.ObjectId(req.params.id)
-      console.log(hotelId)
-      console.log(req.body, "data")
       const savedRoom = await removeFromSaved(
         userId,
         hotelId,
@@ -167,11 +156,7 @@ const hotelController = (
     next: NextFunction
   ) => {
     try {
-      console.log("in hotel userside")
-
       const { Hotels } = await getUserHotels(dbRepositoryHotel)
-      console.log(Hotels)
-
       return res.status(HttpStatus.OK).json({ success: true, Hotels })
     } catch (error) {
       next(error)
@@ -185,10 +170,7 @@ const hotelController = (
   ) => {
     try {
       const id = req.params.id
-      console.log(id)
-
       const Hotel = await getHotelDetails(id, dbRepositoryHotel)
-      console.log(Hotel)
       if (Hotel) {
         return res.status(HttpStatus.OK).json({ success: true, Hotel })
       } else {
@@ -205,7 +187,6 @@ const hotelController = (
     next: NextFunction
   ) => {
     try {
-      console.log(req.query, "all values")
       const destination = req.query.destination as string
       const adults = req.query.adult as string
       const children = req.query.children as string
@@ -219,8 +200,6 @@ const hotelController = (
       const page = parseInt(req.query.page as string) || 1
       const limit = 4
       const skip = (page - 1) * limit
-      console.log(skip, limit, "...............")
-
       const data = await filterHotels(
         destination,
         adults,
@@ -235,9 +214,7 @@ const hotelController = (
         dbRepositoryHotel,
         skip,
         limit
-      )
-      console.log(data.paginatedHotels);
-      
+      )      
       res.status(HttpStatus.OK).json({
         status: "success",
         message: "search result has been fetched",
@@ -254,7 +231,6 @@ const hotelController = (
     next: NextFunction
   ) => {
     try {
-      console.log(req.query, "all values")
       const id = req.query.id as string
       const adults = req.query.adult as string
       const children = req.query.children as string
@@ -299,11 +275,7 @@ const hotelController = (
         dates,
         dbRepositoryHotel
       )
-      console.log(RoomAvailable,"rooms")
-
       if(RoomAvailable){
-        console.log("hloooo");
-
         res.status(HttpStatus.OK).json({
           status: "success",
           message: "date is availble",
@@ -328,8 +300,6 @@ const hotelController = (
     try {
       const { id } = req.params
       const { value } = req.body
-      console.log(value, "value.......................")
-
       const updates = {
         isListed: value,
       }
@@ -350,17 +320,10 @@ const hotelController = (
     try {
       const { id } = req.params
       const { value } = req.body
-      console.log(id, "iddddd")
-
-      console.log(value, "value.......................")
-
       const updates = {
         listed: value,
       }
-      console.log(updates, "value.......................")
       const response = await roomUpdate(id, updates, dbRepositoryHotel)
-      console.log(response)
-
       if (response) {
         if (response.listed) {
           return res
@@ -385,7 +348,6 @@ const hotelController = (
     try {
       const { id } = req.params
       const updates = req.body
-      console.log(updates, "value.......................")
       const response = await roomUpdate(id, updates, dbRepositoryHotel)
       if (response) {
         return res
@@ -400,8 +362,6 @@ const hotelController = (
   const editHotel = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params
-      console.log(req.body)
-
       const result = await hotelUpdate(id, req.body, dbRepositoryHotel)
       if (result) {
         return res
@@ -418,8 +378,6 @@ const hotelController = (
   const addOffer = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params
-      console.log(req.body)
-
       const result = await offerUpdate(id, req.body, dbRepositoryHotel)
       if (result) {
         return res
@@ -489,12 +447,8 @@ const hotelController = (
     res: Response,
     next: NextFunction
   ) => {
-    const Id = req.params.Id
-    console.log(Id,"review idddd");
-    
-    const result = await ReviewById(Id, dbRepositoryHotel)
-    console.log(result);
-    
+    const Id = req.params.Id    
+    const result = await ReviewById(Id, dbRepositoryHotel)    
     if (result) {
       return res.status(HttpStatus.OK).json({
         success: true,
@@ -510,15 +464,9 @@ const hotelController = (
     res: Response,
     next: NextFunction
   ) => {
-    const Id = req.params.Id
-    console.log(Id);
-    
-    const updates=req.body
-    console.log(updates);
-    
-    const result = await updateReviewById(Id,updates, dbRepositoryHotel)
-    console.log(result);
-    
+    const Id = req.params.Id    
+    const updates=req.body    
+    const result = await updateReviewById(Id,updates, dbRepositoryHotel)    
     if (result) {
       return res.status(HttpStatus.OK).json({
         success: true,

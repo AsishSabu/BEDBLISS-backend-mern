@@ -25,7 +25,6 @@ function createBooking(userId, bookingDetails, bookingRepository, hotelRepositor
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         const { firstName, lastName, phoneNumber, email, hotelId, maxAdults, maxChildren, rooms, checkInDate, checkOutDate, totalDays, price, platformFee, paymentMethod, } = bookingDetails;
-        console.log(bookingDetails, "bookingDetails");
         if (!firstName ||
             !lastName ||
             !phoneNumber ||
@@ -40,18 +39,14 @@ function createBooking(userId, bookingDetails, bookingRepository, hotelRepositor
             !platformFee ||
             !totalDays ||
             !paymentMethod) {
-            console.log("missing fields");
             throw new appError_1.default("Missing fields in Booking", httpStatus_1.HttpStatus.BAD_REQUEST);
         }
         //creating booking entities
         const bookingEntity = (0, booking_1.default)(firstName, lastName, phoneNumber, email, new mongoose_1.default.Types.ObjectId(hotelId), new mongoose_1.default.Types.ObjectId(userId), maxAdults, maxChildren, checkInDate, checkOutDate, totalDays, rooms, price, platformFee, paymentMethod);
         const data = yield bookingRepository.createBooking(bookingEntity);
-        console.log(data, "......................................data");
         const booking = yield bookingRepository.getBookingById(data._id);
-        console.log(booking, "bokinnng dataaaaaaa");
         if (data.paymentMethod === "Wallet") {
             const wallet = yield userRepository.getWallet(data.userId);
-            console.log(wallet, "wallet in payment??????????????????????????????");
             if (wallet && data && data.price && (wallet === null || wallet === void 0 ? void 0 : wallet.balance) >= data.price) {
                 const transactionData = {
                     newBalance: data.price,
@@ -78,15 +73,11 @@ function createBooking(userId, bookingDetails, bookingRepository, hotelRepositor
 exports.default = createBooking;
 const addUnavilableDates = (rooms, checkInDate, checkOutDate, hotelRepository, hotelService) => __awaiter(void 0, void 0, void 0, function* () {
     const dates = yield hotelService.unavailbleDates(checkInDate.toString(), checkOutDate.toString());
-    console.log(dates, "dates..................");
-    console.log(rooms, "rooms");
     const addDates = yield hotelRepository.addUnavilableDates(rooms, dates);
 });
 exports.addUnavilableDates = addUnavilableDates;
 const removeUnavilableDates = (rooms, checkInDate, checkOutDate, hotelRepository, hotelService) => __awaiter(void 0, void 0, void 0, function* () {
     const dates = yield hotelService.unavailbleDates(checkInDate.toString(), checkOutDate.toString());
-    console.log(dates, "dates..................");
-    console.log(rooms, "rooms");
     const addDates = yield hotelRepository.removeUnavailableDates(rooms, dates);
 });
 exports.removeUnavilableDates = removeUnavilableDates;
@@ -95,8 +86,6 @@ const checkAvailability = (id, count, dates, hotelRepository) => __awaiter(void 
 });
 exports.checkAvailability = checkAvailability;
 const makePayment = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (userName = "John Doe", email = "johndoe@gmail.com", bookingId, totalAmount) {
-    console.log(bookingId, "id");
-    console.log(totalAmount, "amount");
     const stripe = new stripe_1.default(config_1.default.STRIPE_SECRET_KEY);
     const customer = yield stripe.customers.create({
         name: userName,
@@ -106,7 +95,6 @@ const makePayment = (...args_1) => __awaiter(void 0, [...args_1], void 0, functi
             country: "US",
         },
     });
-    console.log(customer, "customer");
     const session = yield stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         customer: customer.id,
@@ -132,9 +120,7 @@ const updateBookingStatus = (id, paymentStatus, bookingRepository, hotelReposito
     const updationData = {
         paymentStatus,
     };
-    console.log(updationData, "updationData....................");
     const booking = yield bookingRepository.getBookingsBybookingId(id);
-    console.log(booking, "online payment...........transefer to wallet..........");
     const ownerAmount = booking.price - booking.platformFee;
     const ownerTransactionData = {
         newBalance: ownerAmount,
@@ -173,7 +159,6 @@ const updateBookingDetails = (userID, status, reason, bookingID, bookingReposito
             Reason: reason,
         });
     }
-    console.log(bookingDetails, "booking details.............");
     return bookingDetails;
 });
 exports.updateBookingDetails = updateBookingDetails;
@@ -186,7 +171,6 @@ const cancelBookingAndUpdateWallet = (userID, bookingID, status, reason, booking
         bookingStatus: status,
         Reason: reason,
     });
-    console.log(bookingDetails, "-----------------------------------------------------------------------");
     let bookerId;
     if (bookingDetails === null || bookingDetails === void 0 ? void 0 : bookingDetails.userId) {
         if (typeof bookingDetails.userId === "string") {
@@ -197,17 +181,12 @@ const cancelBookingAndUpdateWallet = (userID, bookingID, status, reason, booking
         }
     }
     if (bookingDetails && bookingDetails.paymentMethod !== "pay_on_checkout") {
-        console.log("in updating wallet");
         if (bookingDetails.bookingStatus === "cancelled") {
             const dateDifference = yield bookingService.dateDifference(bookingDetails.updatedAt, (_b = bookingDetails.checkInDate) !== null && _b !== void 0 ? _b : 0);
-            console.log(bookingDetails.updatedAt, "updated date");
-            console.log(bookingDetails.checkInDate, "checkin date");
-            console.log(dateDifference, "dateDifference");
             const paidPrice = bookingDetails.price;
             if (paidPrice !== undefined && paidPrice !== null) {
                 const platformFee = paidPrice * 0.05;
                 let refundAmount = paidPrice - platformFee;
-                console.log(refundAmount, "price after reducing platform fee");
                 if (dateDifference !== undefined && dateDifference > 2) {
                     const isRoomCountLessThanOrEqualTo5 = bookingDetails.rooms.length <= 5;
                     if (isRoomCountLessThanOrEqualTo5) {
@@ -226,7 +205,6 @@ const cancelBookingAndUpdateWallet = (userID, bookingID, status, reason, booking
                             refundAmount /= 2;
                         }
                     }
-                    console.log(refundAmount, "refund amount");
                     const data = {
                         newBalance: refundAmount,
                         type: "Credit",
@@ -240,9 +218,7 @@ const cancelBookingAndUpdateWallet = (userID, bookingID, status, reason, booking
                         type: "Debit",
                         description: "Booking cancelled by user refund amount",
                     };
-                    console.log(ownerData, "owner data to update");
                     const ownerDebit = yield (0, exports.updateWallet)(bookingDetails.hotelId.ownerId._id, ownerData, userRepository);
-                    console.log(ownerDebit, "owner debit details");
                     const updateBooking = yield bookingRepository.updateBooking(bookingID, {
                         bookingStatus: "cancelled with refund",
                         paymentStatus: "Refunded",
@@ -267,7 +243,6 @@ const cancelBookingAndUpdateWallet = (userID, bookingID, status, reason, booking
                 type: "Debit",
                 description: "Booking cancelled by owner refund amount",
             };
-            console.log(ownerData, "owner data to update");
             const ownerDebit = yield (0, exports.updateWallet)(bookingDetails.hotelId.ownerId._id, ownerData, userRepository);
             const updateBooking = yield bookingRepository.updateBooking(bookingID, {
                 bookingStatus: "cancelled with refund",
@@ -279,9 +254,7 @@ const cancelBookingAndUpdateWallet = (userID, bookingID, status, reason, booking
 });
 exports.cancelBookingAndUpdateWallet = cancelBookingAndUpdateWallet;
 const getTransaction = (userId, userRepository) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(userId);
     const wallet = yield userRepository.getWallet(userId);
-    console.log(wallet);
     if (!wallet) {
         throw new Error("Wallet not found");
     }
@@ -292,11 +265,8 @@ const getTransaction = (userId, userRepository) => __awaiter(void 0, void 0, voi
 exports.getTransaction = getTransaction;
 const updateWallet = (userId, transactionData, userRepository) => __awaiter(void 0, void 0, void 0, function* () {
     const { newBalance, type, description } = transactionData;
-    console.log(transactionData, "transation data");
     const balance = type === "Debit" ? -newBalance : newBalance;
-    console.log(userId, "userId", balance, "balance");
     const updateWallet = yield userRepository.updateWallet(userId, balance);
-    console.log(updateWallet, "update wallet");
     if (updateWallet) {
         const transactionDetails = (0, transactionEntity_1.default)(updateWallet === null || updateWallet === void 0 ? void 0 : updateWallet._id, newBalance, type, description);
         const transaction = yield userRepository.createTransaction(transactionDetails);

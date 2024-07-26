@@ -50,10 +50,8 @@ export const hotelDbRepository = () => {
           $push: { rooms: savedRoom._id },
         })
       } catch (error) {
-        console.log(error)
       }
     } catch (error) {
-      console.log(error)
     }
     return newRoom
   }
@@ -123,7 +121,6 @@ export const hotelDbRepository = () => {
           Hotels: [hotelId],
         })
         await newSavedEntry.save()
-        console.log("New saved list created and hotel added")
       }
 
       const updatedSavedEntry = await Saved.findOne({ userId: id }).populate(
@@ -147,13 +144,11 @@ export const hotelDbRepository = () => {
           hotel => hotel.toString() !== hotelId.toString()
         )
         await savedEntry.save()
-        console.log("Hotel removed from saved list")
         const updatedSavedEntry = await Saved.findOne({ userId: id }).populate(
           "Hotels"
         )
         return updatedSavedEntry
       } else {
-        console.log("No saved entry found for this user")
         return null
       }
     } catch (error) {
@@ -173,9 +168,7 @@ export const hotelDbRepository = () => {
   const StayTypeById = async (id: string) => await Category.findById(id)
 
   const StayTypeByName = async (name: string) => {
-    console.log(name, "name")
     const result = await Category.find({ name })
-    console.log(result, "result")
     return result
   }
 
@@ -198,10 +191,8 @@ export const hotelDbRepository = () => {
       try {
         await Hotel.findByIdAndUpdate(hotelId, { $pull: { rooms: roomId } })
       } catch (error) {
-        console.log(error)
       }
     } catch (error) {
-      console.log(error)
     }
   }
 
@@ -266,8 +257,6 @@ export const hotelDbRepository = () => {
 
   const getAllHotels = async () => {
     const Hotels = await Hotel.find({}).populate("ownerId").sort({ updatedAt: -1 })
-    console.log(Hotels, "..............")
-
     const count = Hotels.length
     return { Hotels, count }
   }
@@ -340,21 +329,15 @@ export const hotelDbRepository = () => {
 
   const remove = async (id: string) => await Hotel.deleteOne({ _id: id })
 
-  const splitDate = (dateString: string) => {
-    console.log(dateString);
-    
+  const splitDate = (dateString: string) => {    
     const [date, time] = dateString.split("T")
     const timeWithoutZ = time.replace("Z", "") // Remove 'Z' from time
     return { date, time: timeWithoutZ }
   }
 
   const getDates = async (startDate: any, endDate: any) => {
-    console.log(startDate, endDate, "😀")
-
     const currentDate = new Date(startDate)
     const end = new Date(endDate)
-    console.log(currentDate, end, "😄")
-
     const datesArray: string[] = []
 
     while (currentDate <= end) {
@@ -381,9 +364,7 @@ export const hotelDbRepository = () => {
     skip: number,
     limit: number
   ) => {
-    let hotels: any[]
-    console.log(categories,"Categories...................");
-    
+    let hotels: any[]    
 
     if (destination) {
       const regex = new RegExp(destination, "i")
@@ -432,8 +413,6 @@ export const hotelDbRepository = () => {
     if (minPrice && maxPrice && parseInt(maxPrice) !== 0) {
       const minPriceInt = parseInt(minPrice)
       const maxPriceInt = parseInt(maxPrice)
-      console.log(minPriceInt, "-----", maxPriceInt)
-
       hotels = hotels.filter((hotel: HotelInterface) => {
         const filteredRooms = hotel.rooms.filter((room: RoomInterface) => {
           const result =
@@ -450,8 +429,6 @@ export const hotelDbRepository = () => {
       })
     }
 
-    console.log(hotels, " before   hotelssssssssss")
-
     if (amenities) {
       const amenitiesArr = amenities.split(",")
       hotels = hotels.filter(hotel => {
@@ -459,7 +436,6 @@ export const hotelDbRepository = () => {
       })
     }
 
-    console.log(hotels, "hotelssssssssss")
 
     if (categories) {
       const categoriesArr = categories.split(",");
@@ -468,7 +444,6 @@ export const hotelDbRepository = () => {
       });
     }
     const totalLength=hotels.length
-    console.log(hotels, "hotelssssssssss")
     const paginatedHotels = hotels.slice(skip, skip + limit)
 
     return {paginatedHotels,totalLength}
@@ -530,7 +505,6 @@ export const hotelDbRepository = () => {
       )
 
       // Return the hotel with filtered rooms
-      console.log(hotel, "Filtered hotel with available rooms")
       return hotel
     } catch (error) {
       console.error("Error filtering hotel:", error)
@@ -575,9 +549,7 @@ export const hotelDbRepository = () => {
     checkOutDate: string
   ) => {
     const checkIn = splitDate(checkInDate);
-    const checkOut = splitDate(checkOutDate);
-    console.log(checkIn, checkOut, "dates before getdates");
-  
+    const checkOut = splitDate(checkOutDate);  
     const dateArray = await getDates(checkIn.date, checkOut.date);
     const formattedDateArray = dateArray.map((date) => new Date(date).toISOString().split("T")[0]);
   
@@ -644,7 +616,6 @@ export const hotelDbRepository = () => {
         $push: { rating: savedRating._id },
       })
     } catch (error) {
-      console.log(error)
     }
 
     return savedRating

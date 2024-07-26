@@ -15,7 +15,6 @@ const chatController = (chatDbRepository, chatDbRepositoryImpl) => {
     const dbRepositoryChat = chatDbRepository(chatDbRepositoryImpl());
     const createNewChat = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            console.log("haiiiiiii");
             const { senderId, receiverId } = req.body;
             const chats = yield (0, chat_1.addNewChat)(senderId, receiverId, dbRepositoryChat);
             res.status(httpStatus_1.HttpStatus.OK).json({ success: true, chats });
@@ -29,7 +28,6 @@ const chatController = (chatDbRepository, chatDbRepositoryImpl) => {
             const { receiverId, senderId, text, chatId } = req.body;
             let conversationId;
             if (!chatId) {
-                console.log("hlooooo");
                 const chats = yield (0, chat_1.addNewChat)(senderId, receiverId, dbRepositoryChat);
                 conversationId = chats === null || chats === void 0 ? void 0 : chats._id.toString();
             }
@@ -59,9 +57,7 @@ const chatController = (chatDbRepository, chatDbRepositoryImpl) => {
     const fetchChats = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const senderId = req.user;
-            console.log(senderId, "senderid....................");
             const chats = yield (0, chat_1.getChats)(senderId, dbRepositoryChat);
-            console.log(chats, "in get converstions");
             res.status(httpStatus_1.HttpStatus.OK).json(chats);
         }
         catch (error) {
@@ -83,42 +79,9 @@ const chatController = (chatDbRepository, chatDbRepositoryImpl) => {
      */
     const fetchMessages = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            // const { unReadMessages, recieverId, conversationId } = req.query as {
-            //   unReadMessages: string;
-            //   recieverId: string;
-            //   conversationId: string;
-            // };
-            // const page = parseInt(req.query.page as string);
-            // const limit = 5;
-            // const skip = (page - 1) * limit;
             const converstaionID = req.params.id;
-            // if (!conversationId) {
-            //   const latestMessages = await getLatestMessages(
-            //     recieverId,
-            //     dbRepositoryChat
-            //   );
-            console.log(converstaionID);
             const message = yield (0, chat_1.getMessages)(converstaionID, dbRepositoryChat);
-            console.log(message, "message");
             return res.status(httpStatus_1.HttpStatus.OK).json({ success: true, message });
-            // }
-            // let latestMessages = null;
-            // if (unReadMessages) {
-            //   latestMessages = await getLatestMessages(
-            //     recieverId,
-            //     dbRepositoryChat,
-            //     conversationId
-            //   );
-            // }
-            // const messages = await getMessage(s
-            //   conversationId,
-            //   skip,
-            //   limit,
-            //   dbRepositoryChat
-            // );
-            // res
-            //   .status(HttpStatus.OK)
-            //   .json({ success: true, messages, latestMessages });
         }
         catch (error) {
             next(error);
@@ -127,7 +90,6 @@ const chatController = (chatDbRepository, chatDbRepositoryImpl) => {
     return {
         createNewChat,
         fetchChats,
-        // getConversation,
         createNewMessage,
         fetchMessages,
         createUserChat,

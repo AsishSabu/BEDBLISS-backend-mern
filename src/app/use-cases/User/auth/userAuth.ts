@@ -41,13 +41,9 @@ export const userRegister = async (
 
   const OTP = authService.generateOtp();
 
-  console.log(OTP,"---otp");
-
   //adding otp to database
   await userRepository.addOtp(OTP, newUser.id);
-  const emailSubject = "Account verification";
-  console.log(emailSubject);
-  
+  const emailSubject = "Account verification";  
   sendMail(newUser.email, emailSubject, otpEmail(OTP, newUser.name));
 
   return newUser;
@@ -169,8 +165,6 @@ export const sendResetVerificationCode = async (
     email,
     verificationCode
   )
-  console.log(verificationCode, "----verification code")
-
   sendMail(
     email,
     "Reset password",
@@ -212,7 +206,5 @@ export const deleteOtp = async (
   const user:any = await userRepository.getUserById(userId)
   const emailSubject = "Account verification ,New Otp"
   sendMail(user.email, emailSubject, otpEmail(newOtp, user.name))
-
-  console.log(newOtp, "----otp")
 }
 

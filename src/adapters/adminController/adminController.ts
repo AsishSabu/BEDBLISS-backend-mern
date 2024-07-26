@@ -128,7 +128,6 @@ const adminController = (
       const userCount = (await getUsers(user, dbRepositoryUser)).count
       const ownerCount = (await getUsers(owner, dbRepositoryUser)).count
       const hotelCount = (await getHotels(dbRepositoryHotel)).count
-      console.log(ownerCount, "..........", userCount)
 
       return res
         .status(HttpStatus.OK)
@@ -286,7 +285,6 @@ const adminController = (
         name,
         dbRepositoryHotel
       )
-      console.log(existing)
 
       if (existing.some(category => category._id.toString() !== id)) {
         return res
@@ -301,7 +299,6 @@ const adminController = (
       }
 
       const result = await updateStayType(id, data, dbRepositoryHotel)
-      console.log(result)
 
       if (result) {
         return res
@@ -326,7 +323,6 @@ const adminController = (
       const id = req.params.id
       const data = await getStayTypeById(id, dbRepositoryHotel)
       const listing={isListed:!data?.isListed}
-      console.log(listing);      
       const result = await updateStayType(id, listing, dbRepositoryHotel)
       if (result) {
         return res
@@ -400,8 +396,6 @@ const adminController = (
     next: NextFunction
   ) => {
     const data = req.body
-    console.log(data)
-
     const id = req.params.id
     const result = await updateReporting(id, data, dbRepositoryBooking)
     if (result) {

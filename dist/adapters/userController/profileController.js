@@ -18,9 +18,7 @@ const profileController = (authServiceInterface, authServiceImpl, userDbReposito
     const userProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const userId = req.user;
-            console.log(userId, "user id...........");
             const user = yield (0, profile_1.getUserProfile)(userId, dbRepositoryUser);
-            console.log(user, "user profile");
             res.status(200).json({ success: true, user });
         }
         catch (error) {
@@ -47,7 +45,6 @@ const profileController = (authServiceInterface, authServiceImpl, userDbReposito
                 .json({ success: true, user, message: "Profile updated successfully" });
         }
         catch (error) {
-            console.log(error);
             next(error);
         }
     });
@@ -55,14 +52,12 @@ const profileController = (authServiceInterface, authServiceImpl, userDbReposito
         try {
             const userId = req.user;
             const updatedData = req.body;
-            console.log(updatedData, ".....................");
             const user = yield (0, profile_1.updateUser)(userId, updatedData, dbRepositoryUser);
             res
                 .status(200)
                 .json({ success: true, user, message: "Profile updated successfully" });
         }
         catch (error) {
-            console.log(error);
             next(error);
         }
     });
@@ -83,15 +78,12 @@ const profileController = (authServiceInterface, authServiceImpl, userDbReposito
                 .json({ success: true, transaction, message: "transactions" });
         }
         catch (error) {
-            console.log(error);
             next(error);
         }
     });
     const addNotification = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const receiverId = req.params.id;
-            console.log(req.body);
-            console.log(receiverId);
             const data = req.body;
             const result = yield (0, profile_1.AddNotification)(receiverId, data, dbRepositoryUser);
             if (result) {
@@ -106,7 +98,6 @@ const profileController = (authServiceInterface, authServiceImpl, userDbReposito
             }
         }
         catch (error) {
-            console.log(error);
             next(error);
         }
     });
@@ -114,7 +105,6 @@ const profileController = (authServiceInterface, authServiceImpl, userDbReposito
         try {
             const userId = req.user;
             const notificationId = req.params.id;
-            console.log(userId, notificationId);
             const result = yield (0, profile_1.removeNotification)(userId, notificationId, dbRepositoryUser);
             if (result) {
                 res.status(200).json({
@@ -128,7 +118,6 @@ const profileController = (authServiceInterface, authServiceImpl, userDbReposito
             }
         }
         catch (error) {
-            console.log(error);
             next(error);
         }
     });
@@ -149,14 +138,12 @@ const profileController = (authServiceInterface, authServiceImpl, userDbReposito
             }
         }
         catch (error) {
-            console.log(error);
             next(error);
         }
     });
     const markAllAsRead = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const userId = req.user;
-            console.log(userId);
             const result = yield (0, profile_1.markAllAsReadNotification)(userId, dbRepositoryUser);
             if (result) {
                 res.status(200).json({
@@ -170,14 +157,12 @@ const profileController = (authServiceInterface, authServiceImpl, userDbReposito
             }
         }
         catch (error) {
-            console.log(error);
             next(error);
         }
     });
     const clearAllRead = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const userId = req.user;
-            console.log(userId);
             const result = yield (0, profile_1.clearAllReadNotification)(userId, dbRepositoryUser);
             if (result) {
                 res.status(200).json({
@@ -191,7 +176,6 @@ const profileController = (authServiceInterface, authServiceImpl, userDbReposito
             }
         }
         catch (error) {
-            console.log(error);
             next(error);
         }
     });

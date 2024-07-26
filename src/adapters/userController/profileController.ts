@@ -32,9 +32,7 @@ const profileController = (
   ) => {
     try {
       const userId = req.user
-      console.log(userId, "user id...........")
       const user = await getUserProfile(userId, dbRepositoryUser)
-      console.log(user, "user profile")
       res.status(200).json({ success: true, user })
     } catch (error) {
       next(error)
@@ -63,8 +61,6 @@ const profileController = (
         .status(200)
         .json({ success: true, user, message: "Profile updated successfully" })
     } catch (error) {
-      console.log(error)
-
       next(error)
     }
   }
@@ -76,16 +72,12 @@ const profileController = (
   ) => {
     try {
       const userId = req.user
-      const updatedData = req.body
-      console.log(updatedData,".....................");
-      
+      const updatedData = req.body      
       const user = await updateUser(userId, updatedData, dbRepositoryUser)
       res
         .status(200)
         .json({ success: true, user, message: "Profile updated successfully" })
     } catch (error) {
-      console.log(error)
-
       next(error)
     }
   }
@@ -114,8 +106,6 @@ const profileController = (
         .status(200)
         .json({ success: true, transaction, message: "transactions" })
     } catch (error) {
-      console.log(error)
-
       next(error)
     }
   }
@@ -127,8 +117,6 @@ const profileController = (
   ) => {
     try {
       const receiverId = req.params.id
-      console.log(req.body)
-      console.log(receiverId)
       const data = req.body
       const result = await AddNotification(receiverId, data, dbRepositoryUser)
       if (result) {
@@ -141,8 +129,6 @@ const profileController = (
         return res.status(HttpStatus.NOT_FOUND).json({ success: false })
       }
     } catch (error) {
-      console.log(error)
-
       next(error)
     }
   }
@@ -154,8 +140,6 @@ const profileController = (
     try {
       const userId = req.user
       const notificationId = req.params.id
-      console.log(userId, notificationId)
-
       const result = await removeNotification(
         userId,
         notificationId,
@@ -171,8 +155,6 @@ const profileController = (
         return res.status(HttpStatus.NOT_FOUND).json({ success: false })
       }
     } catch (error) {
-      console.log(error)
-
       next(error)
     }
   }
@@ -199,8 +181,6 @@ const profileController = (
         return res.status(HttpStatus.NOT_FOUND).json({ success: false })
       }
     } catch (error) {
-      console.log(error)
-
       next(error)
     }
   }
@@ -212,8 +192,6 @@ const profileController = (
   ) => {
     try {
       const userId = req.user
-      console.log(userId)
-
       const result = await markAllAsReadNotification(userId, dbRepositoryUser)
       if (result) {
         res.status(200).json({
@@ -225,8 +203,6 @@ const profileController = (
         return res.status(HttpStatus.NOT_FOUND).json({ success: false })
       }
     } catch (error) {
-      console.log(error)
-
       next(error)
     }
   }
@@ -238,8 +214,6 @@ const profileController = (
   ) => {
     try {
       const userId = req.user
-      console.log(userId)
-
       const result = await clearAllReadNotification(userId, dbRepositoryUser)
       if (result) {
         res.status(200).json({
@@ -251,8 +225,6 @@ const profileController = (
         return res.status(HttpStatus.NOT_FOUND).json({ success: false })
       }
     } catch (error) {
-      console.log(error)
-
       next(error)
     }
   }

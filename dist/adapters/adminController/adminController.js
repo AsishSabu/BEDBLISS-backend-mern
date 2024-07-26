@@ -86,7 +86,6 @@ const adminController = (authServiceInterface, authServiceImpl, userDbRepository
             const userCount = (yield (0, adminRead_1.getUsers)(user, dbRepositoryUser)).count;
             const ownerCount = (yield (0, adminRead_1.getUsers)(owner, dbRepositoryUser)).count;
             const hotelCount = (yield (0, hotel_1.getHotels)(dbRepositoryHotel)).count;
-            console.log(ownerCount, "..........", userCount);
             return res
                 .status(httpStatus_1.HttpStatus.OK)
                 .json({ success: true, userCount, hotelCount, ownerCount });
@@ -214,7 +213,6 @@ const adminController = (authServiceInterface, authServiceImpl, userDbRepository
             const id = req.params.id;
             const { name } = req.body;
             const existing = yield (0, adminRead_1.getStayTypeByName)(name, dbRepositoryHotel);
-            console.log(existing);
             if (existing.some(category => category._id.toString() !== id)) {
                 return res
                     .status(httpStatus_1.HttpStatus.BAD_REQUEST)
@@ -227,7 +225,6 @@ const adminController = (authServiceInterface, authServiceImpl, userDbRepository
                 name: name,
             };
             const result = yield (0, adminUpdate_1.updateStayType)(id, data, dbRepositoryHotel);
-            console.log(result);
             if (result) {
                 return res
                     .status(httpStatus_1.HttpStatus.OK)
@@ -248,7 +245,6 @@ const adminController = (authServiceInterface, authServiceImpl, userDbRepository
             const id = req.params.id;
             const data = yield (0, adminRead_1.getStayTypeById)(id, dbRepositoryHotel);
             const listing = { isListed: !(data === null || data === void 0 ? void 0 : data.isListed) };
-            console.log(listing);
             const result = yield (0, adminUpdate_1.updateStayType)(id, listing, dbRepositoryHotel);
             if (result) {
                 return res
@@ -307,7 +303,6 @@ const adminController = (authServiceInterface, authServiceImpl, userDbRepository
     });
     const updateReportings = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const data = req.body;
-        console.log(data);
         const id = req.params.id;
         const result = yield (0, booking_1.updateReporting)(id, data, dbRepositoryBooking);
         if (result) {

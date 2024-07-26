@@ -131,8 +131,6 @@ export const userDbRepository = () => {
     await User.findOneAndUpdate({ email }, { verificationCode: code })
 
   const changeUserRole = async (id: string, newRole: string) => {
-    console.log(`Changing role to: ${newRole}`)
-
     try {
       const updatedUser = await User.findOneAndUpdate(
         { _id: id },
@@ -141,14 +139,10 @@ export const userDbRepository = () => {
       )
 
       if (!updatedUser) {
-        console.log("User not found")
         return null
       }
-
-      console.log("Role updated successfully:", updatedUser)
       return updatedUser
     } catch (error) {
-      console.error("Error updating role:", error)
       throw error
     }
   }
@@ -182,8 +176,6 @@ export const userDbRepository = () => {
     )
 
   const getWalletByUseId = async (Id: string) => {
-    console.log(Id)
-
     return await wallet.findOne({ userId: Id })
   }
 

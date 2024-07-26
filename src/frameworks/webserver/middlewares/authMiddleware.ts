@@ -15,11 +15,8 @@ export default function authenticateUser(
   req: Request,
   res: Response,
   next: NextFunction
-) {
-  console.log("in middleware");
-  
+) {  
   const access_token = req.headers.authorization
-  console.log("token----",access_token);
   
   if (!access_token) {
     return res.status(HttpStatus.FORBIDDEN).json("Your are not authenticated")
@@ -27,8 +24,6 @@ export default function authenticateUser(
   const tokenParts = access_token.split(" ")
   const token = tokenParts.length === 2 ? tokenParts[1] : null
   if (!token) {
-    console.log("not token")
-
     return res.status(HttpStatus.FORBIDDEN).json("Invalid access token format")
   }
   jwt.verify(token, configKeys.ACCESS_SECRET, (err: any, user: any) => {
@@ -37,17 +32,11 @@ export default function authenticateUser(
         .status(HttpStatus.FORBIDDEN)
         .json({ success: false, message: "Token is not valid" })
     } else if (user.isBlocked) {
-      console.log("user is blocked")
-
       res
         .status(HttpStatus.FORBIDDEN)
         .json({ success: false, message: "user is Blocked" })
     } else {
-      console.log("no problem in middleware")
-
       req.user = user.id
-      console.log(req.user, ".................................")
-
       next()
     }
   })

@@ -52,11 +52,9 @@ const userRegister = (user, userRepository, authService) => __awaiter(void 0, vo
     // create a new user
     const newUser = yield userRepository.addUser(userEntity);
     const OTP = authService.generateOtp();
-    console.log(OTP, "---otp");
     //adding otp to database
     yield userRepository.addOtp(OTP, newUser.id);
     const emailSubject = "Account verification";
-    console.log(emailSubject);
     (0, sendMail_1.default)(newUser.email, emailSubject, (0, userEmail_1.otpEmail)(OTP, newUser.name));
     return newUser;
 });
@@ -135,7 +133,6 @@ const sendResetVerificationCode = (email, userRepository, authService) => __awai
         throw new appError_1.default(`${email} does not exist`, httpStatus_1.HttpStatus.UNAUTHORIZED);
     const verificationCode = authService.getRandomString();
     const isUpdated = yield userRepository.updateVerificationCode(email, verificationCode);
-    console.log(verificationCode, "----verification code");
     (0, sendMail_1.default)(email, "Reset password", (0, userEmail_1.forgotPasswordEmail)(isEmailExist.name, verificationCode));
 });
 exports.sendResetVerificationCode = sendResetVerificationCode;
@@ -158,6 +155,5 @@ const deleteOtp = (userId, userRepository, authService) => __awaiter(void 0, voi
     const user = yield userRepository.getUserById(userId);
     const emailSubject = "Account verification ,New Otp";
     (0, sendMail_1.default)(user.email, emailSubject, (0, userEmail_1.otpEmail)(newOtp, user.name));
-    console.log(newOtp, "----otp");
 });
 exports.deleteOtp = deleteOtp;

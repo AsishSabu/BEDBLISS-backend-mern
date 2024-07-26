@@ -109,19 +109,15 @@ const userDbRepository = () => {
     });
     const updateVerificationCode = (email, code) => __awaiter(void 0, void 0, void 0, function* () { return yield userModel_1.default.findOneAndUpdate({ email }, { verificationCode: code }); });
     const changeUserRole = (id, newRole) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(`Changing role to: ${newRole}`);
         try {
             const updatedUser = yield userModel_1.default.findOneAndUpdate({ _id: id }, { role: newRole }, { new: true } // This option returns the updated document
             );
             if (!updatedUser) {
-                console.log("User not found");
                 return null;
             }
-            console.log("Role updated successfully:", updatedUser);
             return updatedUser;
         }
         catch (error) {
-            console.error("Error updating role:", error);
             throw error;
         }
     });
@@ -144,7 +140,6 @@ const userDbRepository = () => {
         return yield wallet_1.default.findOneAndUpdate({ userId }, { $inc: { balance: newBalance } }, { new: true });
     });
     const getWalletByUseId = (Id) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(Id);
         return yield wallet_1.default.findOne({ userId: Id });
     });
     const createTransaction = (transactionDetails) => __awaiter(void 0, void 0, void 0, function* () {

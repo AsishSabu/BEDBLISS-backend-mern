@@ -12,7 +12,6 @@ export const bookingService = () => {
       const differenceInDays = Math.abs(
         Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24))
       )
-      console.log(differenceInDays)
       return differenceInDays
     } else {
       console.error("Invalid date(s) found:", Date1, Date2)

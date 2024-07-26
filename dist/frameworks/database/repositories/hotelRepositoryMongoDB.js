@@ -56,11 +56,9 @@ const hotelDbRepository = () => {
                 });
             }
             catch (error) {
-                console.log(error);
             }
         }
         catch (error) {
-            console.log(error);
         }
         return newRoom;
     });
@@ -125,7 +123,6 @@ const hotelDbRepository = () => {
                     Hotels: [hotelId],
                 });
                 yield newSavedEntry.save();
-                console.log("New saved list created and hotel added");
             }
             const updatedSavedEntry = yield savedModel_1.default.findOne({ userId: id }).populate("Hotels");
             return { updatedSavedEntry, message };
@@ -141,12 +138,10 @@ const hotelDbRepository = () => {
             if (savedEntry) {
                 savedEntry.Hotels = savedEntry.Hotels.filter(hotel => hotel.toString() !== hotelId.toString());
                 yield savedEntry.save();
-                console.log("Hotel removed from saved list");
                 const updatedSavedEntry = yield savedModel_1.default.findOne({ userId: id }).populate("Hotels");
                 return updatedSavedEntry;
             }
             else {
-                console.log("No saved entry found for this user");
                 return null;
             }
         }
@@ -164,9 +159,7 @@ const hotelDbRepository = () => {
     });
     const StayTypeById = (id) => __awaiter(void 0, void 0, void 0, function* () { return yield categoryModel_1.default.findById(id); });
     const StayTypeByName = (name) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(name, "name");
         const result = yield categoryModel_1.default.find({ name });
-        console.log(result, "result");
         return result;
     });
     const allStayTypes = () => __awaiter(void 0, void 0, void 0, function* () { return yield categoryModel_1.default.find().sort({ createdAt: -1 }); });
@@ -181,11 +174,9 @@ const hotelDbRepository = () => {
                 yield hotelModel_1.default.findByIdAndUpdate(hotelId, { $pull: { rooms: roomId } });
             }
             catch (error) {
-                console.log(error);
             }
         }
         catch (error) {
-            console.log(error);
         }
     });
     const addUnavilableDates = (rooms, dates) => __awaiter(void 0, void 0, void 0, function* () {
@@ -228,7 +219,6 @@ const hotelDbRepository = () => {
     });
     const getAllHotels = () => __awaiter(void 0, void 0, void 0, function* () {
         const Hotels = yield hotelModel_1.default.find({}).populate("ownerId").sort({ updatedAt: -1 });
-        console.log(Hotels, "..............");
         const count = Hotels.length;
         return { Hotels, count };
     });
@@ -290,16 +280,13 @@ const hotelDbRepository = () => {
     });
     const remove = (id) => __awaiter(void 0, void 0, void 0, function* () { return yield hotelModel_1.default.deleteOne({ _id: id }); });
     const splitDate = (dateString) => {
-        console.log(dateString);
         const [date, time] = dateString.split("T");
         const timeWithoutZ = time.replace("Z", ""); // Remove 'Z' from time
         return { date, time: timeWithoutZ };
     };
     const getDates = (startDate, endDate) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(startDate, endDate, "😀");
         const currentDate = new Date(startDate);
         const end = new Date(endDate);
-        console.log(currentDate, end, "😄");
         const datesArray = [];
         while (currentDate <= end) {
             const formattedDate = new Date(currentDate);
@@ -311,7 +298,6 @@ const hotelDbRepository = () => {
     });
     const filterHotels = (destination, adults, children, room, startDate, endDate, amenities, minPrice, maxPrice, categories, skip, limit) => __awaiter(void 0, void 0, void 0, function* () {
         let hotels;
-        console.log(categories, "Categories...................");
         if (destination) {
             const regex = new RegExp(destination, "i");
             hotels = yield hotelModel_1.default.find({
@@ -352,7 +338,6 @@ const hotelDbRepository = () => {
         if (minPrice && maxPrice && parseInt(maxPrice) !== 0) {
             const minPriceInt = parseInt(minPrice);
             const maxPriceInt = parseInt(maxPrice);
-            console.log(minPriceInt, "-----", maxPriceInt);
             hotels = hotels.filter((hotel) => {
                 const filteredRooms = hotel.rooms.filter((room) => {
                     const result = room.price !== undefined &&
@@ -367,14 +352,12 @@ const hotelDbRepository = () => {
                 return false;
             });
         }
-        console.log(hotels, " before   hotelssssssssss");
         if (amenities) {
             const amenitiesArr = amenities.split(",");
             hotels = hotels.filter(hotel => {
                 return amenitiesArr.some(amenity => hotel.amenities.includes(amenity));
             });
         }
-        console.log(hotels, "hotelssssssssss");
         if (categories) {
             const categoriesArr = categories.split(",");
             hotels = hotels.filter(hotel => {
@@ -382,7 +365,6 @@ const hotelDbRepository = () => {
             });
         }
         const totalLength = hotels.length;
-        console.log(hotels, "hotelssssssssss");
         const paginatedHotels = hotels.slice(skip, skip + limit);
         return { paginatedHotels, totalLength };
     });
@@ -419,7 +401,6 @@ const hotelDbRepository = () => {
             // Filter out rooms that have no available room numbers
             hotel.rooms = hotel.rooms.filter((room) => room.roomNumbers.length > 0);
             // Return the hotel with filtered rooms
-            console.log(hotel, "Filtered hotel with available rooms");
             return hotel;
         }
         catch (error) {
@@ -451,7 +432,6 @@ const hotelDbRepository = () => {
     const checkAvailability = (id, RoomCount, checkInDate, checkOutDate) => __awaiter(void 0, void 0, void 0, function* () {
         const checkIn = splitDate(checkInDate);
         const checkOut = splitDate(checkOutDate);
-        console.log(checkIn, checkOut, "dates before getdates");
         const dateArray = yield getDates(checkIn.date, checkOut.date);
         const formattedDateArray = dateArray.map((date) => new Date(date).toISOString().split("T")[0]);
         try {
@@ -517,7 +497,6 @@ const hotelDbRepository = () => {
             });
         }
         catch (error) {
-            console.log(error);
         }
         return savedRating;
     });

@@ -8,6 +8,7 @@ import errorHandlingMiddleware from "./frameworks/webserver/middlewares/errorhan
 import AppError from "./utils/appError"
 import { Server } from "socket.io"
 import socketConfig from "./frameworks/webSocket/socket"
+import path from "path"
 
 const app: Application = express()
 
@@ -19,6 +20,7 @@ const io = new Server(server, {
     credentials: true,
   },
 })
+app.use(express.static(path.join(__dirname, "/frontend/dist/index.html")))
 
 socketConfig(io)
 
@@ -27,11 +29,14 @@ expressConfig(app)
 connectDb()
 
 routes(app)
+app.get("*", (req:Request, res: Response) => {
+  res.sendFile(path.join(__dirname, "/frontend/dist"))
+})
 
 app.use(errorHandlingMiddleware)
 
-// app.all("*",(req:Request,res:Response,next:NextFunction)=>{
-//     next(new AppError(`Not found:${req.url}`,404))
-// })
+app.all("*", (req: Request, res: Response, next: NextFunction) => {
+  next(new AppError(`Not found:${req.url}`, 404))
+})
 
 serverConfig(server).startServer()

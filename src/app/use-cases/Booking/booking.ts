@@ -41,7 +41,6 @@ export default async function createBooking(
     platformFee,
     paymentMethod,
   } = bookingDetails
-  console.log(bookingDetails, "bookingDetails")
   if (
     !firstName ||
     !lastName ||
@@ -58,8 +57,6 @@ export default async function createBooking(
     !totalDays ||
     !paymentMethod
   ) {
-    console.log("missing fields")
-
     throw new AppError("Missing fields in Booking", HttpStatus.BAD_REQUEST)
   }
   //creating booking entities
@@ -82,16 +79,11 @@ export default async function createBooking(
     paymentMethod
   )
   const data:any = await bookingRepository.createBooking(bookingEntity)
-  console.log(data, "......................................data")
   const booking: any = await bookingRepository.getBookingById(
     data._id as unknown as string
   )
-  console.log(booking, "bokinnng dataaaaaaa")
-
   if (data.paymentMethod === "Wallet") {
     const wallet = await userRepository.getWallet(data.userId as string)
-    console.log(wallet, "wallet in payment??????????????????????????????")
-
     if (wallet && data && data.price && wallet?.balance >= data.price) {
       const transactionData: TransactionDataType = {
         newBalance: data.price,
@@ -136,8 +128,6 @@ export const addUnavilableDates = async (
     checkInDate.toString(),
     checkOutDate.toString()
   )
-  console.log(dates, "dates..................")
-  console.log(rooms, "rooms")
   const addDates = await hotelRepository.addUnavilableDates(rooms, dates)
 }
 
@@ -152,8 +142,6 @@ export const removeUnavilableDates = async (
     checkInDate.toString(),
     checkOutDate.toString()
   )
-  console.log(dates, "dates..................")
-  console.log(rooms, "rooms")
   const addDates = await hotelRepository.removeUnavailableDates(rooms, dates)
 }
 
@@ -176,9 +164,6 @@ export const makePayment = async (
   bookingId: string,
   totalAmount: number
 ) => {
-  console.log(bookingId, "id")
-  console.log(totalAmount, "amount")
-
   const stripe = new Stripe(configKeys.STRIPE_SECRET_KEY)
 
   const customer = await stripe.customers.create({
@@ -189,7 +174,6 @@ export const makePayment = async (
       country: "US",
     },
   })
-  console.log(customer, "customer")
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
@@ -221,9 +205,7 @@ export const updateBookingStatus = async (
   const updationData: Record<string, any> = {
     paymentStatus,
   }
-  console.log(updationData, "updationData....................")  
   const booking: any = await bookingRepository.getBookingsBybookingId(id)
-  console.log(booking,"online payment...........transefer to wallet..........");
   const ownerAmount =booking.price- booking.platformFee
   const ownerTransactionData: TransactionDataType = {
     newBalance: ownerAmount,
@@ -290,7 +272,6 @@ export const updateBookingDetails = async (
     })
   }
 
-  console.log(bookingDetails, "booking details.............")
   return bookingDetails
 }
 
@@ -311,7 +292,6 @@ export const cancelBookingAndUpdateWallet = async (
     bookingStatus: status,
     Reason: reason,
   })
-console.log(bookingDetails,"-----------------------------------------------------------------------");
 
   let bookerId: string | undefined
   if (bookingDetails?.userId) {
@@ -323,24 +303,17 @@ console.log(bookingDetails,"----------------------------------------------------
   }
 
   if (bookingDetails && bookingDetails.paymentMethod !== "pay_on_checkout") {
-    console.log("in updating wallet")
 
     if (bookingDetails.bookingStatus === "cancelled") {
       const dateDifference = await bookingService.dateDifference(
         bookingDetails.updatedAt,
         bookingDetails.checkInDate ?? 0
       )
-      console.log(bookingDetails.updatedAt, "updated date")
-      console.log(bookingDetails.checkInDate, "checkin date")
-
-      console.log(dateDifference, "dateDifference")
 
       const paidPrice = bookingDetails.price
       if (paidPrice !== undefined && paidPrice !== null) {
         const platformFee = paidPrice * 0.05
         let refundAmount: number = paidPrice - platformFee
-        console.log(refundAmount, "price after reducing platform fee")
-
         if (dateDifference !== undefined && dateDifference > 2) {
           const isRoomCountLessThanOrEqualTo5 = bookingDetails.rooms.length <= 5
 
@@ -357,8 +330,6 @@ console.log(bookingDetails,"----------------------------------------------------
               refundAmount /= 2
             }
           }
-          console.log(refundAmount, "refund amount")
-
           const data: TransactionDataType = {
             newBalance: refundAmount,
             type: "Credit",
@@ -371,13 +342,8 @@ console.log(bookingDetails,"----------------------------------------------------
             newBalance: refundAmount,
             type: "Debit",
             description: "Booking cancelled by user refund amount",
-          }
-          console.log(ownerData,"owner data to update");
-          
+          }          
           const ownerDebit=await updateWallet(bookingDetails.hotelId.ownerId._id,ownerData,userRepository)
-          console.log(ownerDebit,"owner debit details");
-          
-
           const updateBooking = await bookingRepository.updateBooking(
             bookingID,
             {
@@ -402,9 +368,7 @@ console.log(bookingDetails,"----------------------------------------------------
         newBalance: bookingDetails?.price ?? 0,
         type: "Debit",
         description: "Booking cancelled by owner refund amount",
-      }
-      console.log(ownerData,"owner data to update");
-      
+      }      
       const ownerDebit=await updateWallet(bookingDetails.hotelId.ownerId._id,ownerData,userRepository)
       
       const updateBooking = await bookingRepository.updateBooking(bookingID, {
@@ -421,11 +385,7 @@ export const getTransaction = async (
   userId: string,
   userRepository: ReturnType<userDbInterfaceType>
 ) => {
-  console.log(userId)
-
   const wallet = await userRepository.getWallet(userId)
-  console.log(wallet)
-
   if (!wallet) {
     throw new Error("Wallet not found")
   }
@@ -440,13 +400,8 @@ export const updateWallet = async (
   userRepository: ReturnType<userDbInterfaceType>
 ) => {
   const { newBalance, type, description } = transactionData
-  console.log(transactionData, "transation data")
-
   const balance = type === "Debit" ? -newBalance : newBalance
-  console.log(userId, "userId", balance, "balance")
   const updateWallet = await userRepository.updateWallet(userId, balance)
-  console.log(updateWallet, "update wallet")
-
   if (updateWallet) {
     const transactionDetails = transactionEntity(
       updateWallet?._id,
