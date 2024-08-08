@@ -20,7 +20,7 @@ const io = new Server(server, {
     credentials: true,
   },
 })
-app.use(express.static(path.join(__dirname, "/frontend/dist/index.html")))
+app.use(express.static(path.join(__dirname, "/frontend/dist")))
 
 socketConfig(io)
 
@@ -30,13 +30,15 @@ connectDb()
 
 routes(app)
 app.get("*", (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, "/frontend/dist"))
+  res.sendFile(path.join(__dirname, "/frontend/dist/index.html"))
 })
 
-app.use(errorHandlingMiddleware)
+
 
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`Not found:${req.url}`, 404))
 })
+
+app.use(errorHandlingMiddleware)
 
 serverConfig(server).startServer()
