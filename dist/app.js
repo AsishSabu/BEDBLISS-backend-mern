@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const server_1 = __importDefault(require("./frameworks/webserver/server"));
-const routes_1 = __importDefault(require("./frameworks/webserver/routes"));
 const connection_1 = __importDefault(require("./frameworks/database/connection"));
 const expressConfig_1 = __importDefault(require("./frameworks/webserver/expressConfig"));
 const errorhandlerMiddleware_1 = __importDefault(require("./frameworks/webserver/middlewares/errorhandlerMiddleware"));
@@ -14,6 +13,7 @@ const appError_1 = __importDefault(require("./utils/appError"));
 const socket_io_1 = require("socket.io");
 const socket_1 = __importDefault(require("./frameworks/webSocket/socket"));
 const path_1 = __importDefault(require("path"));
+const routes_1 = __importDefault(require("./frameworks/webserver/routes"));
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {

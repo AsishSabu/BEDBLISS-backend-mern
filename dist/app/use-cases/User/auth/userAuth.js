@@ -55,6 +55,7 @@ const userRegister = (user, userRepository, authService) => __awaiter(void 0, vo
     //adding otp to database
     yield userRepository.addOtp(OTP, newUser.id);
     const emailSubject = "Account verification";
+    console.log(OTP, "---OTP");
     (0, sendMail_1.default)(newUser.email, emailSubject, (0, userEmail_1.otpEmail)(OTP, newUser.name));
     return newUser;
 });
@@ -154,6 +155,7 @@ const deleteOtp = (userId, userRepository, authService) => __awaiter(void 0, voi
     }
     const user = yield userRepository.getUserById(userId);
     const emailSubject = "Account verification ,New Otp";
+    console.log(newOtp, "---OTP");
     (0, sendMail_1.default)(user.email, emailSubject, (0, userEmail_1.otpEmail)(newOtp, user.name));
 });
 exports.deleteOtp = deleteOtp;

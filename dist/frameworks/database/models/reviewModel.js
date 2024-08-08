@@ -7,6 +7,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const ratingSchema = new mongoose_1.default.Schema({
     hotelId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Hotel" },
     userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "User" },
+    bookingId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Booking" },
     rating: {
         type: Number,
         required: true,
@@ -16,6 +17,9 @@ const ratingSchema = new mongoose_1.default.Schema({
     description: {
         type: String,
         required: true,
+    },
+    reply: {
+        type: String,
     },
     imageUrls: [String]
 }, { timestamps: true });

@@ -33,11 +33,11 @@ const ownerRouter = () => {
     router.patch("/addOffer/:id", authMiddleware_1.default, controller.addOffer);
     router.patch("/removeOffer/:id", authMiddleware_1.default, controller.removeOffer);
     router.patch("/editRoom/:id", authMiddleware_1.default, controller.editRoom);
-    // router.get("/myHotels",authenticateUser,controller.registeredHotels)
+    router.get("/getRatings/:hotelId", controller.getRatingsbyHotelId);
+    router.patch("/updateRatingById/:Id", controller.updateRatingsbyId);
     const ownerBookingController = (0, bookingController_1.default)(bookingServices_1.bookingServiceInterface, bookingService_1.bookingService, bookingDbInterface_1.default, bookingRepositoryMongoDB_1.default, hotelDbInterface_1.hotelDbInterface, hotelRepositoryMongoDB_1.hotelDbRepository, hotelServices_1.hotelServiceInterface, hotelServices_2.hotelService, userDbInterfaces_1.userDbInterface, userRepostoryMongoDB_1.userDbRepository);
     router.get("/bookings", authMiddleware_1.default, ownerBookingController.getOwnerBookings);
     const ownerChatController = (0, chatController_1.default)(chatDbInterface_1.chatDbInterface, chatRepositoryMongoDB_1.default);
-    //  router.get("/conversation/:id", ownerChatController.getConversation);
     router.get("/conversations", authMiddleware_1.default, ownerChatController.fetchChats);
     router.post("/chat", authMiddleware_1.default, ownerChatController.createNewChat);
     router.post("/messages", ownerChatController.createNewMessage);
