@@ -52,11 +52,14 @@ const bookingSchema = new mongoose.Schema(
       require: true,
       ref: "User",
     },
-    
-    maxPeople: {
+
+    maxAdults: {
       type: Number,
       trim: true,
-      require: true,
+    },
+    maxChildren: {
+      type: Number,
+      trim: true,
     },
     checkInDate: {
       type: Date,
@@ -96,10 +99,17 @@ const bookingSchema = new mongoose.Schema(
     },
     bookingStatus: {
       type: String,
-      enum: ["booked", "rejected", "cancelled", "pending","cancelled with refund","cancel requested"],
+      enum: [
+        "booked",
+        "rejected",
+        "cancelled",
+        "pending",
+        "cancelled with refund",
+        "cancel requested",
+      ],
       default: "pending",
     },
-  },  
+  },
   { timestamps: true }
 )
 

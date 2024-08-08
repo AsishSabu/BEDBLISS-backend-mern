@@ -1,7 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from "express"
 import http from "http"
 import serverConfig from "./frameworks/webserver/server"
-import routes from "./frameworks/webserver/routes"
 import connectDb from "./frameworks/database/connection"
 import expressConfig from "./frameworks/webserver/expressConfig"
 import errorHandlingMiddleware from "./frameworks/webserver/middlewares/errorhandlerMiddleware"
@@ -9,6 +8,7 @@ import AppError from "./utils/appError"
 import { Server } from "socket.io"
 import socketConfig from "./frameworks/webSocket/socket"
 import path from "path"
+import routes from "./frameworks/webserver/routes"
 
 const app: Application = express()
 
@@ -29,7 +29,7 @@ expressConfig(app)
 connectDb()
 
 routes(app)
-app.get("*", (req:Request, res: Response) => {
+app.get("*", (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, "/frontend/dist"))
 })
 

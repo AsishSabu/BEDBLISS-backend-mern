@@ -15,6 +15,7 @@ export default function bookingDbRepository() {
         hotelId: bookingEntity.getHotelId(),
         userId: bookingEntity.getUserId(),
         maxAdults: bookingEntity.getMaxAdults(),
+        maxChildren: bookingEntity.getMaxChildren(),
         checkInDate: bookingEntity.getCheckInDate(),
         checkOutDate: bookingEntity.getCheckOutDate(),
         totalDays: bookingEntity.getTotalDays(),

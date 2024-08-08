@@ -4,6 +4,7 @@ const ratingSchema = new mongoose.Schema(
   {
     hotelId: { type: mongoose.Schema.Types.ObjectId, ref: "Hotel" },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    bookingId:{type: mongoose.Schema.Types.ObjectId, ref: "Booking" },
     rating: {
       type: Number,
       required: true,
@@ -13,6 +14,9 @@ const ratingSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
+    },
+    reply: {
+      type: String,
     },
     imageUrls: [String]
   },

@@ -43,7 +43,9 @@ export const userRegister = async (
 
   //adding otp to database
   await userRepository.addOtp(OTP, newUser.id);
-  const emailSubject = "Account verification";  
+  const emailSubject = "Account verification"; 
+ console.log(OTP,"---OTP");
+ 
   sendMail(newUser.email, emailSubject, otpEmail(OTP, newUser.name));
 
   return newUser;
@@ -205,6 +207,7 @@ export const deleteOtp = async (
   }
   const user:any = await userRepository.getUserById(userId)
   const emailSubject = "Account verification ,New Otp"
+  console.log(newOtp,"---OTP");
   sendMail(user.email, emailSubject, otpEmail(newOtp, user.name))
 }
 

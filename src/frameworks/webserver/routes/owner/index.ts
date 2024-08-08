@@ -32,7 +32,9 @@ const ownerRouter = () => {
   router.patch("/addOffer/:id",authenticateUser, controller.addOffer)
   router.patch("/removeOffer/:id",authenticateUser, controller.removeOffer)
   router.patch("/editRoom/:id",authenticateUser, controller.editRoom)
-  // router.get("/myHotels",authenticateUser,controller.registeredHotels)
+  router.get("/getRatings/:hotelId", controller.getRatingsbyHotelId)
+  router.patch("/updateRatingById/:Id", controller.updateRatingsbyId)
+
 
 
   const ownerBookingController = bookingController(
@@ -49,12 +51,12 @@ const ownerRouter = () => {
    );
    router.get("/bookings",authenticateUser,ownerBookingController.getOwnerBookings)
 
+
    const ownerChatController=chatController(chatDbInterface,chatDbRepository)
 
-  //  router.get("/conversation/:id", ownerChatController.getConversation);
+
    router.get("/conversations",authenticateUser, ownerChatController.fetchChats);
    router.post("/chat", authenticateUser,ownerChatController.createNewChat);
- 
    router.post("/messages", ownerChatController.createNewMessage);
    router.get("/messages/:id", ownerChatController.fetchMessages);
 
