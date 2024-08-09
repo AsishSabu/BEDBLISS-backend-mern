@@ -34,7 +34,6 @@ app.get("*", (req: Request, res: Response) => {
 })
 
 
-
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`Not found:${req.url}`, 404))
 })

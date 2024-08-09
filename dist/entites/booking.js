@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-function bookingEntity(firstName, lastName, phoneNumber, email, hotelId, userId, maxAdults, maxChildren, checkInDate, checkOutDate, totalDays, rooms, price, platformFee, paymentMethod) {
+function bookingEntity(firstName, lastName, phoneNumber, email, hotelId, userId, maxAdults, maxChildren, checkInDate, checkOutDate, totalDays, rooms, price, platformFee, paymentMethod, totalRooms) {
     return {
         getFirstName: () => firstName,
         getLastName: () => lastName,
@@ -13,6 +13,7 @@ function bookingEntity(firstName, lastName, phoneNumber, email, hotelId, userId,
         getCheckInDate: () => checkInDate,
         getCheckOutDate: () => checkOutDate,
         getTotalDays: () => totalDays,
+        getTotalRooms: () => totalRooms,
         getRooms: () => rooms,
         getPrice: () => price,
         getPlatformFee: () => platformFee,

@@ -40,6 +40,7 @@ export default async function createBooking(
     price,
     platformFee,
     paymentMethod,
+    totalRooms
   } = bookingDetails
   if (
     !firstName ||
@@ -55,7 +56,8 @@ export default async function createBooking(
     !price ||
     !platformFee||
     !totalDays ||
-    !paymentMethod
+    !paymentMethod||
+    !totalRooms
   ) {
     throw new AppError("Missing fields in Booking", HttpStatus.BAD_REQUEST)
   }
@@ -76,7 +78,8 @@ export default async function createBooking(
     rooms,
     price,
     platformFee,
-    paymentMethod
+    paymentMethod,
+    totalRooms
   )
   const data:any = await bookingRepository.createBooking(bookingEntity)
   const booking: any = await bookingRepository.getBookingById(

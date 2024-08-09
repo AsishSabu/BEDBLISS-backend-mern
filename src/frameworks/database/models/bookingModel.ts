@@ -75,6 +75,10 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       require: true,
     },
+    totalRooms: {
+      type: Number,
+      require: true,
+    },
     price: {
       type: Number,
       trim: true,

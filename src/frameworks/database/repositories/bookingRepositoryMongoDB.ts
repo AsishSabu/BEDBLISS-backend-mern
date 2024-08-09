@@ -19,6 +19,7 @@ export default function bookingDbRepository() {
         checkInDate: bookingEntity.getCheckInDate(),
         checkOutDate: bookingEntity.getCheckOutDate(),
         totalDays: bookingEntity.getTotalDays(),
+        totalRooms: bookingEntity.getTotalRooms(),
         price: bookingEntity.getPrice(),
         platformFee:bookingEntity.getPlatformFee(),
         rooms: bookingEntity.getRooms(),
@@ -100,7 +101,7 @@ export default function bookingDbRepository() {
       const bookings = await Booking.find({ hotelId: { $in: ids } })
         .populate("userId")
         .populate("hotelId")
-        .populate("hotelId.ownerId")
+        .populate("hotelId.ownerId").sort({createdAt:-1})
       return bookings
     } catch (error) {
       throw new Error("Error fetching bookings by hotel IDs")

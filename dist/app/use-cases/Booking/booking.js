@@ -24,7 +24,7 @@ const reporting_1 = __importDefault(require("../../../entites/reporting"));
 function createBooking(userId, bookingDetails, bookingRepository, hotelRepository, hotelSerice, userRepository) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
-        const { firstName, lastName, phoneNumber, email, hotelId, maxAdults, maxChildren, rooms, checkInDate, checkOutDate, totalDays, price, platformFee, paymentMethod, } = bookingDetails;
+        const { firstName, lastName, phoneNumber, email, hotelId, maxAdults, maxChildren, rooms, checkInDate, checkOutDate, totalDays, price, platformFee, paymentMethod, totalRooms } = bookingDetails;
         if (!firstName ||
             !lastName ||
             !phoneNumber ||
@@ -38,11 +38,12 @@ function createBooking(userId, bookingDetails, bookingRepository, hotelRepositor
             !price ||
             !platformFee ||
             !totalDays ||
-            !paymentMethod) {
+            !paymentMethod ||
+            !totalRooms) {
             throw new appError_1.default("Missing fields in Booking", httpStatus_1.HttpStatus.BAD_REQUEST);
         }
         //creating booking entities
-        const bookingEntity = (0, booking_1.default)(firstName, lastName, phoneNumber, email, new mongoose_1.default.Types.ObjectId(hotelId), new mongoose_1.default.Types.ObjectId(userId), maxAdults, maxChildren, checkInDate, checkOutDate, totalDays, rooms, price, platformFee, paymentMethod);
+        const bookingEntity = (0, booking_1.default)(firstName, lastName, phoneNumber, email, new mongoose_1.default.Types.ObjectId(hotelId), new mongoose_1.default.Types.ObjectId(userId), maxAdults, maxChildren, checkInDate, checkOutDate, totalDays, rooms, price, platformFee, paymentMethod, totalRooms);
         const data = yield bookingRepository.createBooking(bookingEntity);
         const booking = yield bookingRepository.getBookingById(data._id);
         if (data.paymentMethod === "Wallet") {

@@ -16,6 +16,7 @@ export default function bookingEntity(
   price: number,
   platformFee: number,
   paymentMethod: string,
+  totalRooms:number,
   // paymentStatus: string,
   // status: string
 ) {
@@ -31,6 +32,7 @@ export default function bookingEntity(
     getCheckInDate: (): string => checkInDate,
     getCheckOutDate: (): string => checkOutDate,
     getTotalDays: (): number => totalDays,
+    getTotalRooms:():number=>totalRooms,
     getRooms: (): [] => rooms,
     getPrice: (): number => price,
     getPlatformFee: (): number => platformFee,

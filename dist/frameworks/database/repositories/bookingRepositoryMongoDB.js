@@ -29,6 +29,7 @@ function bookingDbRepository() {
                 checkInDate: bookingEntity.getCheckInDate(),
                 checkOutDate: bookingEntity.getCheckOutDate(),
                 totalDays: bookingEntity.getTotalDays(),
+                totalRooms: bookingEntity.getTotalRooms(),
                 price: bookingEntity.getPrice(),
                 platformFee: bookingEntity.getPlatformFee(),
                 rooms: bookingEntity.getRooms(),
@@ -108,7 +109,7 @@ function bookingDbRepository() {
             const bookings = yield bookingModel_1.default.find({ hotelId: { $in: ids } })
                 .populate("userId")
                 .populate("hotelId")
-                .populate("hotelId.ownerId");
+                .populate("hotelId.ownerId").sort({ createdAt: -1 });
             return bookings;
         }
         catch (error) {

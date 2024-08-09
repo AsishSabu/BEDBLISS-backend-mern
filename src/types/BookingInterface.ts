@@ -11,7 +11,8 @@ export interface BookingInterface {
     rooms:[]
     checkInDate: string;
     checkOutDate: string;
-    totalDays:number
+    totalDays:number,
+    totalRooms:number,
     price: number,
     platformFee: number,
     paymentMethod:string

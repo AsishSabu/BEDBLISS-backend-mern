@@ -23,16 +23,16 @@ const io = new socket_io_1.Server(server, {
         credentials: true,
     },
 });
-app.use(express_1.default.static(path_1.default.join(__dirname, "/frontend/dist/index.html")));
+app.use(express_1.default.static(path_1.default.join(__dirname, "/frontend/dist")));
 (0, socket_1.default)(io);
 (0, expressConfig_1.default)(app);
 (0, connection_1.default)();
 (0, routes_1.default)(app);
 app.get("*", (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, "/frontend/dist"));
+    res.sendFile(path_1.default.join(__dirname, "/frontend/dist/index.html"));
 });
-app.use(errorhandlerMiddleware_1.default);
 app.all("*", (req, res, next) => {
     next(new appError_1.default(`Not found:${req.url}`, 404));
 });
+app.use(errorhandlerMiddleware_1.default);
 (0, server_1.default)(server).startServer();
