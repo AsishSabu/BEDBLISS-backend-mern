@@ -167,6 +167,8 @@ export const sendResetVerificationCode = async (
     email,
     verificationCode
   )
+  console.log(verificationCode,"verification code");
+  
   sendMail(
     email,
     "Reset password",

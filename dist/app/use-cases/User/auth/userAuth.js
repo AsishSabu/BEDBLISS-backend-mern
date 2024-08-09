@@ -134,6 +134,7 @@ const sendResetVerificationCode = (email, userRepository, authService) => __awai
         throw new appError_1.default(`${email} does not exist`, httpStatus_1.HttpStatus.UNAUTHORIZED);
     const verificationCode = authService.getRandomString();
     const isUpdated = yield userRepository.updateVerificationCode(email, verificationCode);
+    console.log(verificationCode, "verification code");
     (0, sendMail_1.default)(email, "Reset password", (0, userEmail_1.forgotPasswordEmail)(isEmailExist.name, verificationCode));
 });
 exports.sendResetVerificationCode = sendResetVerificationCode;

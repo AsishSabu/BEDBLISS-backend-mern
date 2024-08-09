@@ -96,13 +96,17 @@ const authController = (
     next: NextFunction
   ) => {
     try {
-      const userData: GoogleAndFacebookResponseType = req.body;     
+      const userData: GoogleAndFacebookResponseType = req.body;    
+      console.log(req.body,"google auth");
+       
       const { accessToken, isEmailExist, newUser } =
         await authenticateGoogleandFacebookUser(
           userData,
           dbRepositoryUser,
           authService
         );
+        console.log(accessToken,isEmailExist,newUser,"..........");
+        
       const user = isEmailExist ? isEmailExist : newUser;
       res
         .status(HttpStatus.OK)

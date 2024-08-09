@@ -73,7 +73,9 @@ const authController = (authServiceInterface, authServiceImpl, userDbRepository,
     const GoogleAndFacebbokSignIn = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const userData = req.body;
+            console.log(req.body, "google auth");
             const { accessToken, isEmailExist, newUser } = yield (0, userAuth_1.authenticateGoogleandFacebookUser)(userData, dbRepositoryUser, authService);
+            console.log(accessToken, isEmailExist, newUser, "..........");
             const user = isEmailExist ? isEmailExist : newUser;
             res
                 .status(httpStatus_1.HttpStatus.OK)
