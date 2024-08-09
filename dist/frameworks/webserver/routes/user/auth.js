@@ -46,7 +46,7 @@ const authRouter = () => {
     router.patch("/profile/edit", authMiddleware_1.default, userProfileController.updateProfile);
     router.post("/auth/verify", userProfileController.verifyPhoneNumber);
     router.get("/wallet", authMiddleware_1.default, userProfileController.transactions);
-    const userHotelController = (0, hotelController_1.default)(hotelDbInterface_1.hotelDbInterface, hotelRepositoryMongoDB_1.hotelDbRepository);
+    const userHotelController = (0, hotelController_1.default)(hotelDbInterface_1.hotelDbInterface, hotelRepositoryMongoDB_1.hotelDbRepository, bookingDbInterface_1.default, bookingRepositoryMongoDB_1.default);
     router.get("/hotels", userHotelController.getHotelsUserSide);
     router.get("/searchedHotels", userHotelController.hotelsFilter);
     router.get("/hotelDetails", userHotelController.DetailsFilter);

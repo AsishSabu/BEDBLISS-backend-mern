@@ -22,7 +22,7 @@ const chatRepositoryMongoDB_1 = __importDefault(require("../../../database/repos
 const chatController_1 = __importDefault(require("../../../../adapters/chatController/chatController"));
 const ownerRouter = () => {
     const router = (0, express_1.Router)();
-    const controller = (0, hotelController_1.default)(hotelDbInterface_1.hotelDbInterface, hotelRepositoryMongoDB_1.hotelDbRepository);
+    const controller = (0, hotelController_1.default)(hotelDbInterface_1.hotelDbInterface, hotelRepositoryMongoDB_1.hotelDbRepository, bookingDbInterface_1.default, bookingRepositoryMongoDB_1.default);
     router.post("/addhotel", authMiddleware_1.default, controller.registerHotel);
     router.post("/addRoom/:id", authMiddleware_1.default, controller.registerRoom);
     router.get("/myHotels", authMiddleware_1.default, controller.registeredHotels);

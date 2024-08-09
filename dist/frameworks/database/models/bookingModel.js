@@ -113,6 +113,14 @@ const bookingSchema = new mongoose_1.default.Schema({
         ],
         default: "pending",
     },
+    review: {
+        type: Boolean,
+        default: false,
+    },
+    report: {
+        type: Boolean,
+        default: false
+    },
 }, { timestamps: true });
 const Booking = mongoose_1.default.model("Booking", bookingSchema);
 exports.default = Booking;

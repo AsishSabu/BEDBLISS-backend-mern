@@ -17,8 +17,9 @@ const httpStatus_1 = require("../../types/httpStatus");
 const hotels_1 = require("../../app/use-cases/User/read&write/hotels");
 const mongoose_1 = __importDefault(require("mongoose"));
 const booking_1 = require("../../app/use-cases/Booking/booking");
-const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
+const hotelController = (hotelDbRepository, hotelDbRepositoryImpl, bookingDbRepository, bookingDbRepositoryImp) => {
     const dbRepositoryHotel = hotelDbRepository(hotelDbRepositoryImpl());
+    const dbRepositoryBooking = bookingDbRepository(bookingDbRepositoryImp());
     const registerHotel = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const ownerId = new mongoose_1.default.Types.ObjectId(req.user);
@@ -312,7 +313,7 @@ const hotelController = (hotelDbRepository, hotelDbRepositoryImpl) => {
     const addRating = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const userId = req.user;
         const data = req.body;
-        const result = yield (0, hotels_1.addNewRating)(userId, data, dbRepositoryHotel);
+        const result = yield (0, hotels_1.addNewRating)(userId, data, dbRepositoryHotel, dbRepositoryBooking);
         if (result) {
             return res
                 .status(httpStatus_1.HttpStatus.OK)

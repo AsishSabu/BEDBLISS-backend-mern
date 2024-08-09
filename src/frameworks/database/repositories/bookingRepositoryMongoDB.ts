@@ -21,7 +21,7 @@ export default function bookingDbRepository() {
         totalDays: bookingEntity.getTotalDays(),
         totalRooms: bookingEntity.getTotalRooms(),
         price: bookingEntity.getPrice(),
-        platformFee:bookingEntity.getPlatformFee(),
+        platformFee: bookingEntity.getPlatformFee(),
         rooms: bookingEntity.getRooms(),
         paymentMethod: bookingEntity.getPaymentMethod(),
       })
@@ -101,7 +101,8 @@ export default function bookingDbRepository() {
       const bookings = await Booking.find({ hotelId: { $in: ids } })
         .populate("userId")
         .populate("hotelId")
-        .populate("hotelId.ownerId").sort({createdAt:-1})
+        .populate("hotelId.ownerId")
+        .sort({ createdAt: -1 })
       return bookings
     } catch (error) {
       throw new Error("Error fetching bookings by hotel IDs")
@@ -130,6 +131,27 @@ export default function bookingDbRepository() {
         { bookingId },
         updatingData,
         { new: true, upsert: true }
+      ).populate({
+        path: "hotelId",
+        populate: {
+          path: "ownerId",
+        },
+      })
+      return updatedBooking
+    } catch (error) {
+      throw new Error("Error updating booking")
+    }
+  }
+
+  const updateBookingById = async (
+    bookingId: string,
+    updatingData: Record<any, any>
+  ) => {
+    try {
+      const updatedBooking = await Booking.findByIdAndUpdate(
+        bookingId,
+        updatingData,
+        { new: true}
       ).populate({
         path: "hotelId",
         populate: {
@@ -185,6 +207,7 @@ export default function bookingDbRepository() {
     getReportings,
     getReportingsByFilter,
     updateReporting,
+    updateBookingById
   }
 }
 export type bookingDbRepositoryType = typeof bookingDbRepository

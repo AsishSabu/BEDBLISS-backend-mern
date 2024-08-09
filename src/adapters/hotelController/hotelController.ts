@@ -26,12 +26,18 @@ import {
 } from "../../app/use-cases/User/read&write/hotels"
 import mongoose from "mongoose"
 import { checkAvailability } from "../../app/use-cases/Booking/booking"
+import { bookingDbInterfaceType } from "../../app/interfaces/bookingDbInterface"
+import { bookingDbRepositoryType } from "../../frameworks/database/repositories/bookingRepositoryMongoDB"
 
 const hotelController = (
   hotelDbRepository: hotelDbInterfaceType,
-  hotelDbRepositoryImpl: hotelDbRepositoryType
+  hotelDbRepositoryImpl: hotelDbRepositoryType,
+  bookingDbRepository: bookingDbInterfaceType,
+  bookingDbRepositoryImp: bookingDbRepositoryType,
 ) => {
   const dbRepositoryHotel = hotelDbRepository(hotelDbRepositoryImpl())
+  const dbRepositoryBooking = bookingDbRepository(bookingDbRepositoryImp())
+
   const registerHotel = async (
     req: Request,
     res: Response,
@@ -414,7 +420,8 @@ const hotelController = (
   const addRating = async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user
     const data = req.body
-    const result = await addNewRating(userId, data, dbRepositoryHotel)
+    
+    const result = await addNewRating(userId, data, dbRepositoryHotel,dbRepositoryBooking)
     if (result) {
       return res
         .status(HttpStatus.OK)

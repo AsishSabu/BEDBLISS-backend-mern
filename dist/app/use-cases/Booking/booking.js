@@ -277,6 +277,9 @@ exports.updateWallet = updateWallet;
 const addNewReporting = (userId, reportingData, bookingRepository) => __awaiter(void 0, void 0, void 0, function* () {
     const { hotelId, bookingId, reason } = reportingData;
     const newReportingEntity = (0, reporting_1.default)(userId, hotelId, bookingId, reason);
+    const updateBooking = yield bookingRepository.updateBookingById(bookingId, {
+        report: true
+    });
     return yield bookingRepository.addReporting(newReportingEntity);
 });
 exports.addNewReporting = addNewReporting;

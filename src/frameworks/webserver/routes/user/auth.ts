@@ -93,7 +93,9 @@ const authRouter = () => {
 
   const userHotelController = hotelController(
     hotelDbInterface,
-    hotelDbRepository
+    hotelDbRepository,
+    bookingDbInterface,
+    bookingDbRepository,
   )
   router.get("/hotels", userHotelController.getHotelsUserSide)
   router.get("/searchedHotels", userHotelController.hotelsFilter)

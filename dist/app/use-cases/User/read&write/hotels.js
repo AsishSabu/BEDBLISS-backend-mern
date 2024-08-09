@@ -34,9 +34,10 @@ const hotelDetailsFilter = (id, adults, children, room, startDate, endDate, minP
     return data;
 });
 exports.hotelDetailsFilter = hotelDetailsFilter;
-const addNewRating = (userId, ratingData, hotelRepository) => __awaiter(void 0, void 0, void 0, function* () {
-    const { hotelId, rating, description, imageUrls } = ratingData;
+const addNewRating = (userId, ratingData, hotelRepository, bookingRepository) => __awaiter(void 0, void 0, void 0, function* () {
+    const { hotelId, rating, description, imageUrls, bookingId } = ratingData;
     const newRatingEntity = (0, rating_1.default)(userId, hotelId, rating, description, imageUrls);
+    yield bookingRepository.updateBookingById(bookingId, { review: true });
     return yield hotelRepository.addRating(newRatingEntity);
 });
 exports.addNewRating = addNewRating;

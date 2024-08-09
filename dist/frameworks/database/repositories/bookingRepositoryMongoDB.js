@@ -109,7 +109,8 @@ function bookingDbRepository() {
             const bookings = yield bookingModel_1.default.find({ hotelId: { $in: ids } })
                 .populate("userId")
                 .populate("hotelId")
-                .populate("hotelId.ownerId").sort({ createdAt: -1 });
+                .populate("hotelId.ownerId")
+                .sort({ createdAt: -1 });
             return bookings;
         }
         catch (error) {
@@ -128,6 +129,20 @@ function bookingDbRepository() {
     const updateBooking = (bookingId, updatingData) => __awaiter(this, void 0, void 0, function* () {
         try {
             const updatedBooking = yield bookingModel_1.default.findOneAndUpdate({ bookingId }, updatingData, { new: true, upsert: true }).populate({
+                path: "hotelId",
+                populate: {
+                    path: "ownerId",
+                },
+            });
+            return updatedBooking;
+        }
+        catch (error) {
+            throw new Error("Error updating booking");
+        }
+    });
+    const updateBookingById = (bookingId, updatingData) => __awaiter(this, void 0, void 0, function* () {
+        try {
+            const updatedBooking = yield bookingModel_1.default.findByIdAndUpdate(bookingId, updatingData, { new: true }).populate({
                 path: "hotelId",
                 populate: {
                     path: "ownerId",
@@ -179,6 +194,7 @@ function bookingDbRepository() {
         getReportings,
         getReportingsByFilter,
         updateReporting,
+        updateBookingById
     };
 }
 exports.default = bookingDbRepository;

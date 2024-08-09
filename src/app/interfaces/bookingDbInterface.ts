@@ -30,6 +30,9 @@ export default function bookingDbInterface(
   const updateBooking = async (bookingId: string, updates: any) =>
     await repository.updateBooking(bookingId, updates)
 
+  const updateBookingById = async (bookingId: string, updates: any) =>
+    await repository.updateBookingById(bookingId, updates)
+
   const getBookingByHotels = async (bookingId: string[]) =>
     await repository.getBookingByHotels(bookingId)
 
@@ -60,7 +63,8 @@ export default function bookingDbInterface(
     addReporting,
     getReportings,
     getReportingsByFilter,
-    updateReporting
+    updateReporting,
+    updateBookingById
 
   }
 }

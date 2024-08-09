@@ -112,6 +112,15 @@ const bookingSchema = new mongoose.Schema(
         "cancel requested",
       ],
       default: "pending",
+      
+    },
+    review: {
+      type: Boolean,
+      default: false,
+    },
+    report:{
+      type:Boolean,
+      default:false
     },
   },
   { timestamps: true }

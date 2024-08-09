@@ -425,6 +425,9 @@ export const addNewReporting = async (
 ) => {
   const { hotelId, bookingId, reason } = reportingData
   const newReportingEntity = reportingEntity(userId, hotelId, bookingId, reason)
+  const updateBooking = await bookingRepository.updateBookingById(bookingId, {
+  report:true
+  })
 
   return await bookingRepository.addReporting(newReportingEntity)
 }

@@ -18,6 +18,7 @@ function bookingDbInterface(repository) {
     const getBookingByHotel = (bookingId) => __awaiter(this, void 0, void 0, function* () { return yield repository.getBookingByHotel(bookingId); });
     const deleteBooking = (bookingId) => __awaiter(this, void 0, void 0, function* () { return yield repository.deleteBooking(bookingId); });
     const updateBooking = (bookingId, updates) => __awaiter(this, void 0, void 0, function* () { return yield repository.updateBooking(bookingId, updates); });
+    const updateBookingById = (bookingId, updates) => __awaiter(this, void 0, void 0, function* () { return yield repository.updateBookingById(bookingId, updates); });
     const getBookingByHotels = (bookingId) => __awaiter(this, void 0, void 0, function* () { return yield repository.getBookingByHotels(bookingId); });
     const addReporting = (reportingData) => __awaiter(this, void 0, void 0, function* () { return yield repository.addReporting(reportingData); });
     const getReportings = () => __awaiter(this, void 0, void 0, function* () { return yield repository.getReportings(); });
@@ -36,7 +37,8 @@ function bookingDbInterface(repository) {
         addReporting,
         getReportings,
         getReportingsByFilter,
-        updateReporting
+        updateReporting,
+        updateBookingById
     };
 }
 exports.default = bookingDbInterface;
